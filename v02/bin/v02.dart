@@ -35,7 +35,7 @@ Future<void> main() async {
   while (doWOrk) {
     print(prompt);
     try {
-      await mainMenu(repo, commands);
+      mainMenu(repo, commands);
     } catch (e) {
       print("Unexpected error: $e");
     }
@@ -67,7 +67,7 @@ Enter a menu option (""");
   return promptBuffer.toString();
 }
 
-Future<void> mainMenu(
+void mainMenu(
   HeroRepository repo,
   Map<String, (Function, String)> commands,
 ) async {

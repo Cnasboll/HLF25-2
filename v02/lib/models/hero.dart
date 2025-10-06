@@ -3,11 +3,11 @@ import 'package:uuid/uuid.dart';
 
 class Hero extends Equatable implements Comparable<Hero> {
   final String id;
-  String name;
-  int strength;
-  String gender;
-  String race;
-  String alignment;
+  final String name;
+  final int strength;
+  final String gender;
+  final String race;
+  final String alignment;
 
   Hero({
     required this.id,

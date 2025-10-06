@@ -42,7 +42,7 @@ Future<void> main() async {
     expect(robin.race, "Human");
 
     // Modify Batman's strength, , 
-    batman.strength = 13;
+    batman = batman.copyWith(strength: 13);
     repo.persist( batman);
     
     // Add Alfred, assign a id
