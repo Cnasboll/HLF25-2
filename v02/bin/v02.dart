@@ -22,7 +22,7 @@ List [T]op n heroes (will prompt for n)
     try {
       await mainMenu(repo);
     } catch (e) {
-      print("Unexpected rror: $e");
+      print("Unexpected error: $e");
     }
 
     // allow any pending async operations to complete to save changes
