@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Dart: CLI (terminal)",
+      "type": "dart",
+      "request": "launch",
+      "program": "bin/v02.dart",
+      "cwd": "${workspaceFolder}",
+      "console": "terminal"          // or "integratedTerminal"
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 name: v02
-description: A sample command-line application.
+description: Hero management application - version 1
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
 
 environment:
   sdk: ^3.8.0
 
 # Add regular dependencies here.
 dependencies:
-  # path: ^1.8.0
+  sqlite3: ^2.4.3
+  uuid: ^4.5.1
 
 dev_dependencies:
   lints: ^5.0.0
