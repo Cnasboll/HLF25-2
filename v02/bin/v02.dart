@@ -4,23 +4,38 @@ import 'package:v02/models/hero.dart';
 import 'package:v02/persistence/hero_repository.dart';
 
 Future<void> main() async {
+  print("Welcome to the Hero Manager!");
   var repo = HeroRepository('v02.db');
-  for (;;) {    
-      print(
-        """
-Enter a menu option (A, L, T, U, D, C or Q) and press enter:
-[A]dd a new hero (will prompt for details)
-[L]ist all heroes
-List [T]op n heroes (will prompt for n)
-[S]earch matching heroes (will prompt for a search string)
-[U]pdate a hero
-[D]elete a hero
-[C]lean database (delete all heroes)
-[Q]uit (exit the program)
-      """);
 
+  var doWOrk = true;
+  Map<String, (Function, String)> commands = {
+    "a": (() => createHero(repo), "[A]dd a new hero (will prompt for details)"),
+    "l": (() => listHeroes(repo), "[L]ist all heroes"),
+    "t": (
+      () => listTopNHeroes(repo),
+      "List [T]op n heroes (will prompt for n)",
+    ),
+    "s": (
+      () => listMatchingHeroes(repo),
+      "[S]earch matching heroes (will prompt for a search string)",
+    ),
+    "u": (() => updateHero(repo), "[U]pdate a hero"),
+    "d": (() => deleteHero(repo), "[D]elete a hero"),
+    "c": (() => deleteAllHeroes(repo), "[C]lean database (delete all heroes)"),
+    "q": (
+      () => {
+        if (promptQuit()) {doWOrk = false},
+      },
+      "[Q]uit (exit the program)",
+    ),
+  };
+
+  var prompt = generatePrompt(commands);
+
+  while (doWOrk) {
+    print(prompt);
     try {
-      await mainMenu(repo);
+      await mainMenu(repo, commands);
     } catch (e) {
       print("Unexpected error: $e");
     }
@@ -30,57 +45,43 @@ List [T]op n heroes (will prompt for n)
   }
 }
 
-Future<void> mainMenu(HeroRepository repo) async {
-  var input = (stdin.readLineSync() ?? "").toLowerCase().trim();
-  
-  switch (input) {
-    case "a":
-      {
-        createHero(repo);
-        break;
+String generatePrompt(Map<String, (Function, String)> commands) {
+  StringBuffer promptBuffer = StringBuffer();
+  promptBuffer.write("""
+Enter a menu option (""");
+  for (int i = 0; i < commands.length; i++) {
+    if (i > 0) {
+      if (i == commands.length - 1) {
+        promptBuffer.write(" or ");
+      } else {
+        promptBuffer.write(", ");
       }
-      case "l":
-      {
-        listHeroes(repo);
-        break;
-      }
-      case "t":
-      {
-        listTopNHeroes(repo);
-        break;
-      } 
-      case "s":
-      {
-        listMatchingHeroes(repo);
-        break;
-      }       
-      case "u":
-      {
-        updateHero(repo);
-        break;
-      }
-      case "d":
-      {
-        deleteHero(repo);
-        break;
-      }  
-      case "c":
-      {
-        deleteAllHeroes(repo);
-        break;
-      }
-      case "q":
-      {
-        if (promptQuit()) {
-          await repo.dispose();
-          exit(0);
-        }
-      }
+    }
+    promptBuffer.write(commands.keys.elementAt(i).toUpperCase());
   }
+  promptBuffer.writeln(") and press enter:");
+
+  for (var entry in commands.entries) {
+    promptBuffer.writeln(entry.value.$2);
+  }
+  return promptBuffer.toString();
+}
+
+Future<void> mainMenu(
+  HeroRepository repo,
+  Map<String, (Function, String)> commands,
+) async {
+  var input = (stdin.readLineSync() ?? "").toLowerCase().trim();
+  var command = commands[input]?.$1;
+  if (command == null) {
+    print("Invalid command, please try again");
+    return;
+  }
+  command();
 }
 
 bool promptQuit() {
-  if (promptForYesNo( "Do you really want to exit?") == YesNo.no) {
+  if (promptForYesNo("Do you really want to exit?") == YesNo.no) {
     return false;
   }
   print("Exiting...");
@@ -127,15 +128,15 @@ void listMatchingHeroes(HeroRepository repo) {
 }
 
 void deleteAllHeroes(HeroRepository repo) {
-  if (promptForYesNo("Do you really want to delete all heroes?") ==
-      YesNo.no) {
-        return;
+  if (promptForYesNo("Do you really want to delete all heroes?") == YesNo.no) {
+    return;
   }
   repo.clean();
-    print("Deleted all heroes");
+  print("Deleted all heroes");
 }
 
 enum YesNo { yes, no }
+
 YesNo promptForYesNo(String prompt) {
   for (;;) {
     print('''
@@ -153,8 +154,8 @@ $prompt (y/n)''');
 }
 
 enum YesNoCancel { yes, no, cancel }
-YesNoCancel promptForYesNoCancel(String prompt)
-{
+
+YesNoCancel promptForYesNoCancel(String prompt) {
   for (;;) {
     print("$prompt (y = yes, n = no, c = cancel)");
     var input = (stdin.readLineSync() ?? "").trim().toLowerCase();
@@ -177,7 +178,10 @@ void deleteHero(HeroRepository repo) {
     return;
   }
 
-  if (promptForYesNo('''Do you really want to delete hero with the following details?$hero''') == YesNo.no) {
+  if (promptForYesNo(
+        '''Do you really want to delete hero with the following details?$hero''',
+      ) ==
+      YesNo.no) {
     return;
   }
 
@@ -193,7 +197,8 @@ void createHero(HeroRepository repo) {
     return;
   }
 
-  if (promptForYesNo('''Save new hero with the following details?$hero''') == YesNo.no) {
+  if (promptForYesNo('''Save new hero with the following details?$hero''') ==
+      YesNo.no) {
     return;
   }
 
@@ -215,8 +220,7 @@ $updatedHero''');
   }
 }
 
-List<Hero>? search(HeroRepository repo)
-{
+List<Hero>? search(HeroRepository repo) {
   print("Enter a search string:");
   var query = (stdin.readLineSync() ?? "").trim();
   var results = repo.query(query);
@@ -263,7 +267,6 @@ List<String> promptForUpdate(List<(String, String)> hintsAndCurrent) {
 }
 
 Hero? promptForUpdated(Hero hero) {
-
   List<(String, String)> hintsAndCurrent = [];
   for (int i = 1; i < Hero.fields.length; i++) {
     var field = Hero.fields[i];
@@ -279,7 +282,7 @@ Hero? promptForUpdated(Hero hero) {
     strength: int.tryParse(update[1]) ?? hero.strength,
     gender: update[2],
     race: update[3],
-    alignment: update[4]
+    alignment: update[4],
   );
 
   if (hero == updatedHero) {
@@ -287,7 +290,10 @@ Hero? promptForUpdated(Hero hero) {
     return null;
   }
 
-  if (promptForYesNo('''Save the following changes?${hero.sideBySide(updatedHero)}''') == YesNo.no) { 
+  if (promptForYesNo(
+        '''Save the following changes?${hero.sideBySide(updatedHero)}''',
+      ) ==
+      YesNo.no) {
     return null;
   }
 
@@ -308,8 +314,13 @@ List<String>? promptForValues(List<String> hints) {
 }
 
 Hero? promptForNew() {
-  var values = promptForValues(
-      ["name", "strength (integer)", "gender", "race", "alignment"]);
+  var values = promptForValues([
+    "name",
+    "strength (integer)",
+    "gender",
+    "race",
+    "alignment",
+  ]);
   if (values == null) {
     return null;
   }
