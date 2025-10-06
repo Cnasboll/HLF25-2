@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
-class Hero implements Comparable<Hero> {
+class Hero extends Equatable implements Comparable<Hero> {
   final String id;
   String name;
   int strength;
@@ -54,26 +55,60 @@ class Hero implements Comparable<Hero> {
   }
   
   @override
+  List<Object?> get props => [id, name, strength, gender, race, alignment];
+
+  @override
   int compareTo(Hero other) {
-    var comparison = other.strength.compareTo(this.strength);
+    var comparison = other.strength.compareTo(strength);
 
     if (comparison == 0) {
-      comparison = this.name.compareTo(other.name);
+      comparison = name.compareTo(other.name);
     }    
   
     if (comparison == 0) {
-      comparison = this.gender.compareTo(other.gender);
+      comparison = gender.compareTo(other.gender);
     }
 
     if (comparison == 0) {
-      comparison = this.race.compareTo(other.race);
+      comparison = race.compareTo(other.race);
     }
 
     if (comparison == 0) {
-      comparison = this.alignment.compareTo(other.alignment);
+      comparison = alignment.compareTo(other.alignment);
     }
 
     return comparison;
+  }
+
+  static List<String> get fields => [
+        "id",
+        "name",
+        "strength",
+        "gender",
+        "race",
+        "alignment"];
+
+  String analyzeDifferences(Hero other) {
+    StringBuffer sb = StringBuffer();
+
+    for (int i = 0; i < fields.length; i++) {
+      if (props[i] != other.props[i]) {
+        sb.writeln("${fields[i]}: ${props[i]} => ${other.props[i]}");
+      }
+    }
+    return sb.toString();
+  }
+
+  String sideBySide(Hero other) {
+    var diff = analyzeDifferences(other);
+    if (diff.isNotEmpty) {
+      return '''
+
+=============
+$diff=============
+  ''';
+    }
+    return '<No differences>';
   }
 
   @override
@@ -81,7 +116,7 @@ class Hero implements Comparable<Hero> {
     return '''
 
 =============
-Hero id: $id
+id: $id
 name: $name
 strength: $strength
 gender: $gender

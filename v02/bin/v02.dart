@@ -207,10 +207,11 @@ void updateHero(HeroRepository repo) {
   if (hero == null) {
     return;
   }
-  if (promptForUpdated(hero)) {
-    repo.persist(hero);
+  var updatedHero = promptForUpdated(hero);
+  if (updatedHero != null) {
+    repo.persist(updatedHero);
     print('''Updated hero:
-$hero''');
+$updatedHero''');
   }
 }
 
@@ -261,26 +262,36 @@ List<String> promptForUpdate(List<(String, String)> hintsAndCurrent) {
   return values;
 }
 
-bool promptForUpdated(Hero hero) {
-  var update = promptForUpdate([
-    ("name", hero.name),
-    ("strength (integer)", hero.strength.toString()),
-    ("gender", hero.gender),
-    ("race", hero.race),
-    ("alignment", hero.alignment)
-  ]);
+Hero? promptForUpdated(Hero hero) {
 
-
-  hero.name = update[0];
-  hero.strength = int.tryParse(update[1]) ?? hero.strength;
-  hero.gender = update[2];
-  hero.race = update[3];
-  hero.alignment = update[4];
-  if (promptForYesNo('''Save changes?$hero''') == YesNo.no) { 
-    return false;
+  List<(String, String)> hintsAndCurrent = [];
+  for (int i = 1; i < Hero.fields.length; i++) {
+    var field = Hero.fields[i];
+    var value = hero.props[i];
+    hintsAndCurrent.add((field, value.toString()));
   }
 
-  return true;
+  var update = promptForUpdate(hintsAndCurrent);
+
+  var updatedHero = Hero(
+    id: hero.id,
+    name: update[0],
+    strength: int.tryParse(update[1]) ?? hero.strength,
+    gender: update[2],
+    race: update[3],
+    alignment: update[4]
+  );
+
+  if (hero == updatedHero) {
+    print("No changes made");
+    return null;
+  }
+
+  if (promptForYesNo('''Save the following changes?${hero.sideBySide(updatedHero)}''') == YesNo.no) { 
+    return null;
+  }
+
+  return updatedHero;
 }
 
 List<String>? promptForValues(List<String> hints) {
