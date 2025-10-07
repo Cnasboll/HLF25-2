@@ -13,7 +13,7 @@ This creates a little sqlite db (`v02.db`) that contains a simple table `heroes`
 	alignment TEXT NULL
 ```
 
-The `id` is a `Uuid`, `gender` and `alignment` are mapped from enums. Race is a `String`, but if I'd had more time that would be a FK to a different `race` table with more information!
+The `id` is a `Uuid`, `gender` and `alignment` are mapped from enums. `race` is a `String`, but if I'd had more time that would be a FK to a different `race` table with more information!
 
 This time I managed to map commands to lambdas (as I wanted to do with the mathematical functions in the previous project to avoid switches) so the menu is constructed as a map of command to the lambda that it executes and a hint.
 
@@ -31,7 +31,7 @@ List [T]op n heroes (will prompt for n)
 [Q]uit (exit the program)
 ```
 
-To add a new hero press `A[dd]` and enter values as prompted. An empty string is treated as abort.
+To add a new hero press `A` and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new hero will be saved or not.
 
 ```
@@ -69,7 +69,7 @@ alignment: mostlyGood
 =============
 ```
 
-To update an existing hero, press `U[pdate]` and enter a search string. Candiates will be presented by descending order
+To update an existing hero, press `U` and enter a search string. Candiates will be presented by descending order
 of strenght. Press `y` to update a hero or `n` to review the next one or `c` to cancel.
 Pressing `y` will give the user the chance of changing every value and keep current one with pressing enter.
 Afterwards the changed fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
@@ -132,7 +132,7 @@ alignment: usingMobileSpeakerOnPublicTransport
 =============
 ```
 
-To delete an existing hero, press `D[elete]` and enter a search string. Candiates will be presented by descending order
+To delete an existing hero, press `D` and enter a search string. Candiates will be presented by descending order
 of strenght. Press `y` to delete the hero or `n` to review the next one or `c` to cancel.
 Pressing `y` will give the user the chance of of revewing the hero to be deleted and confirm deletion with `y` or
 abort the operation with `n`.
@@ -178,6 +178,5 @@ alignment: mostlyGood
 =============
 ```
 
-The menu option `C[lean]` will prompt the user for deleting all the heroes and despite the popular notion, they don't live forever so be careful with this.
-`L[ist]` displays all heroes unfiltered by descending order of strength, but `T[op]` filters out only the `n` best
-and `S[earch]` filters by the given search term.
+The menu option `C` (for "clean") will prompt the user for deleting all the heroes and despite the popular notion, they don't live forever so be careful with this.
+`L` (for "list") displays all heroes unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
