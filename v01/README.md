@@ -11,7 +11,7 @@ The weird `LookaheadIterator` wrapper is something that I had to ask ChatGPT to 
 
 Usage: 
 
-Stand inside `HLF25-2\v01` and type: `dart run`
+Stand inside `HLF25-2` and type: `dart .\v01\bin\main.dart`
 
 Keep typing mathematical expressions that will be evaluated and end with `q`. Typing `h` will show it's capabilities.
 
