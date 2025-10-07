@@ -1,13 +1,37 @@
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
+// Levels of evilness
+enum Alignment {
+  unknown,
+  neutral,
+  mostlyGood,
+  good,
+  reasonable,
+  notQuite,
+  bad,
+  ugly,
+  evil,
+  usingMobileSpeakerOnPublicTransport,
+}
+
+enum Gender
+{
+  unknown,
+  ambiguous,
+  male,
+  female,
+  nonBinary,
+  wontSay
+}
+
 class Hero extends Equatable implements Comparable<Hero> {
   final String id;
   final String name;
   final int strength;
-  final String gender;
+  final Gender gender;
   final String race;
-  final String alignment;
+  final Alignment alignment;
 
   Hero({
     required this.id,
@@ -19,7 +43,7 @@ class Hero extends Equatable implements Comparable<Hero> {
   });
 
   Hero.newId(
-      String name, int strength, String gender, String race, String alignment)
+      String name, int strength, Gender gender, String race, Alignment alignment)
       : this(
             id: Uuid().v4(),
             name: name,
@@ -40,9 +64,9 @@ class Hero extends Equatable implements Comparable<Hero> {
     String? id,
     String? name,
     int? strength,
-    String? gender,
+    Gender? gender,
     String? race,
-    String? alignment,
+    Alignment? alignment,
   }) {
     return Hero(
       id: id ?? this.id,
@@ -57,24 +81,31 @@ class Hero extends Equatable implements Comparable<Hero> {
   @override
   List<Object?> get props => [id, name, strength, gender, race, alignment];
 
+  List<String> get stringProps => [id.toString(), name, strength.toString(), gender.name, race, alignment.name];
+
+  bool get isMale => gender == Gender.male;
+  int get genderComparisonFactor => isMale ? -1 : 1;
+  
   @override
   int compareTo(Hero other) {
+
+    // Sort by strength, descending
     var comparison = other.strength.compareTo(strength);
 
+    // if strength is the same, sort by alignment
     if (comparison == 0) {
-      comparison = name.compareTo(other.name);
-    }    
-  
-    if (comparison == 0) {
-      comparison = gender.compareTo(other.gender);
+      comparison = alignment.index.compareTo(other.alignment.index);
     }
 
+    // if strength and alignment is the same, sort by non-male first and male second
+    // as males are always weaker than everone else who are equal.
     if (comparison == 0) {
-      comparison = race.compareTo(other.race);
+      comparison = genderComparisonFactor.compareTo(other.genderComparisonFactor);
     }
 
+    // Don't compare race but sort by name alphabetically ascending, case insensitive.
     if (comparison == 0) {
-      comparison = alignment.compareTo(other.alignment);
+      comparison = name.toLowerCase().compareTo(other.name.toLowerCase());
     }
 
     return comparison;
@@ -88,12 +119,21 @@ class Hero extends Equatable implements Comparable<Hero> {
         "race",
         "alignment"];
 
+  static List<String> get hints => [
+    "UUID",
+    "Full",
+    "integer",
+    Gender.values.map((e) => e.name).join(', '),
+    "species in Latin or English",
+    Alignment.values.map((e) => e.name).join(', '),
+  ];
+
   String analyzeDifferences(Hero other) {
     StringBuffer sb = StringBuffer();
 
     for (int i = 0; i < fields.length; i++) {
       if (props[i] != other.props[i]) {
-        sb.writeln("${fields[i]}: ${props[i]} => ${other.props[i]}");
+        sb.writeln("${fields[i]}: ${stringProps[i]} => ${other.stringProps[i]}");
       }
     }
     return sb.toString();
@@ -113,16 +153,16 @@ $diff=============
 
   @override
   String toString() {
-    return '''
+    StringBuffer sb = StringBuffer();
+    sb.writeln('''
 
-=============
-id: $id
-name: $name
-strength: $strength
-gender: $gender
-race: $race
-alignment: $alignment
-=============
-''';
+=============''');
+    for (int i = 0; i < fields.length; ++i)
+    {
+      sb.writeln("${fields[i]}: ${stringProps[i]}");
+    }
+    sb.write('''=============
+''');
+    return sb.toString();
   }
 }

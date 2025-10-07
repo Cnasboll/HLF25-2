@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v02/jobs/job_queue.dart';
 import 'package:v02/models/hero.dart';
+import 'package:v02/utils/enum_parsing.dart';
 
 class HeroRepository {
 
@@ -34,12 +35,16 @@ CREATE TABLE IF NOT EXISTS heroes (
 
     for (var row in db.select('SELECT * FROM heroes')) {
       var hero = Hero(
-          id: row['id'] as String,
-          name: row['name'] as String,
-          strength: row['strength'] as int,
-          gender: row['gender'] as String,
-          race: row['race'] as String,
-          alignment: row['alignment'] as String);
+        id: row['id'] as String,
+        name: row['name'] as String,
+        strength: row['strength'] as int,
+        gender:
+            Gender.values.tryParse(row['gender'] as String) ?? Gender.unknown,
+        race: row['race'] as String,
+        alignment:
+            Alignment.values.tryParse(row['alignment'] as String) ??
+            Alignment.unknown,
+      );
       snapshot[hero.id] = hero;
     }
     return snapshot;
@@ -66,9 +71,9 @@ SET name=excluded.name,
           hero.id,
           hero.name,
           hero.strength,
-          hero.gender,
+          hero.gender.name,
           hero.race,
-          hero.alignment
+          hero.alignment.name
         ]);
   }
 
@@ -95,9 +100,9 @@ SET name=excluded.name,
     var result = _cache.values
         .where((hero) => (hero.id.toLowerCase().contains(lower) ||
             hero.name.toLowerCase().contains(lower) ||
-            hero.gender.toLowerCase().contains(lower) ||
+            hero.gender.toString().contains(lower) ||
             hero.strength.toString().contains(lower) ||
-            hero.alignment.toLowerCase().contains(lower)))
+            hero.alignment.toString().contains(lower)))
         .toList();
 
     result.sort();    
