@@ -10,7 +10,8 @@ This creates a little sqlite db (`v02.db`) that contains a simple table `heroes`
 	strength INTEGER NOT NULL,
 	gender TEXT NOT NULL,
 	race TEXT NOT NULL,
-	alignment TEXT NULL```
+	alignment TEXT NULL
+```
 
 The `id` is a `Uuid`, `gender` and `alignment` are mapped from enums. Race is a `String`, but if I'd had more time that would be a FK to a different `race` table with more information!
 
