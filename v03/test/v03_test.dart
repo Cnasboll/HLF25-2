@@ -17,8 +17,8 @@ Future<void> main() async {
     // First create a db instance, clean it, add some heroes, then shutdown
     var repo = HeroRepository(path);
     repo.clean();
-    repo.persist(Hero(id: "02ffbb60-762b-4552-8f41-be8aa86869c6", name:"Batman", strength:  12, gender:  Gender.male, race: "Human", alignment:  Alignment.mostlyGood));
-    repo.persist(Hero(id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc", name: "Robin", strength:  8, gender:  Gender.unknown, race:  "Human", alignment:  Alignment.reasonable));
+    repo.persist(Hero(id: "02ffbb60-762b-4552-8f41-be8aa86869c6", version: 1, name:"Batman", strength:  12, gender:  Gender.male, race: "Human", alignment:  Alignment.mostlyGood));
+    repo.persist(Hero(id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc", version: 1, name: "Robin", strength:  8, gender:  Gender.unknown, race:  "Human", alignment:  Alignment.reasonable));
     await repo.dispose();
 
     // Now create a new db instance, read the snapshot, and verify
@@ -59,11 +59,13 @@ Future<void> main() async {
     snapshot = repo.heroesById; 
     expect(2, snapshot.length);
     batman = snapshot[batman.id]!;
+    expect(batman.version, 2);
     expect(batman.name, "Batman");
     expect(batman.strength, 13);
 
 
     alfred=snapshot[alfred.id]!;
+    expect(alfred.version, 1);
     expect(alfred.name, "Alfred");
     expect(alfred.strength, 9);
     await repo.dispose();

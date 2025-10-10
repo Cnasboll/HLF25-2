@@ -22,6 +22,7 @@ class HeroRepository {
     db.execute('''
 CREATE TABLE IF NOT EXISTS heroes (
   id TEXT PRIMARY KEY,
+  version INTEGER NOT NULL,
 	name TEXT NOT NULL,
 	strength INTEGER NOT NULL,
 	gender TEXT NOT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS heroes (
 
     for (var row in db.select('SELECT * FROM heroes')) {
       var hero = Hero(
+        version: row['version'] as int,
         id: row['id'] as String,
         name: row['name'] as String,
         strength: row['strength'] as int,
@@ -58,10 +60,11 @@ CREATE TABLE IF NOT EXISTS heroes (
 
   void dbPersist(Hero hero) {
     _db.execute(
-      '''INSERT INTO heroes (id, name, strength, gender, race, alignment) VALUES (?, ?, ?, ?, ?, ?)
+      '''INSERT INTO heroes (id, version, name, strength, gender, race, alignment) VALUES (?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT (id) DO
 UPDATE
-SET name=excluded.name,
+SET version=excluded.version,
+    name=excluded.name,
     strength=excluded.strength,
     gender=excluded.gender,
     race=excluded.race,
@@ -69,6 +72,7 @@ SET name=excluded.name,
       ''',
         [
           hero.id,
+          hero.version,
           hero.name,
           hero.strength,
           hero.gender.name,

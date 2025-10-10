@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:v03/models/hero.dart';
 import 'package:v03/persistence/hero_repository.dart';
-import 'package:v03/utils/enum_parsing.dart';
+import 'package:v03/prompts/prompt.dart';
 
 Future<void> main() async {
   print("Welcome to the Hero Manager!");
@@ -141,42 +141,7 @@ void deleteAllHeroes(HeroRepository repo) {
   print("Deleted all heroes");
 }
 
-enum YesNo { yes, no }
 
-YesNo promptForYesNo(String prompt) {
-  for (;;) {
-    print('''
-
-$prompt (y/n)''');
-    var input = (stdin.readLineSync() ?? "").trim().toLowerCase();
-    if (input.startsWith("y")) {
-      return YesNo.yes;
-    }
-    if (input.startsWith("n")) {
-      return YesNo.no;
-    }
-    print("Invalid answer, please enter y or n");
-  }
-}
-
-enum YesNoCancel { yes, no, cancel }
-
-YesNoCancel promptForYesNextCancel(String prompt) {
-  for (;;) {
-    print("$prompt (y = yes, n = next hero, c = cancel)");
-    var input = (stdin.readLineSync() ?? "").trim().toLowerCase();
-    if (input.startsWith("y")) {
-      return YesNoCancel.yes;
-    }
-    if (input.startsWith("n")) {
-      return YesNoCancel.no;
-    }
-    if (input.startsWith("c")) {
-      return YesNoCancel.cancel;
-    }
-    print("Invalid answer, please enter y, n or c");
-  }
-}
 
 void deleteHero(HeroRepository repo) {
   Hero? hero = query(repo, "Delete");
@@ -197,7 +162,7 @@ $hero''');
 }
 
 void createHero(HeroRepository repo) {
-  Hero? hero = promptForNew();
+  Hero? hero = Hero.fromPrompt();
   if (hero == null) {
     print("Aborted");
     return;
@@ -218,7 +183,7 @@ void updateHero(HeroRepository repo) {
   if (hero == null) {
     return;
   }
-  var updatedHero = promptForUpdated(hero);
+  var updatedHero =  hero.promptForUpdated();
   if (updatedHero != null) {
     repo.persist(updatedHero);
     print('''Updated hero:
@@ -249,97 +214,11 @@ Hero? query(HeroRepository repo, String what) {
 $what the following hero?$hero''')) {
       case YesNoCancel.yes:
         return hero;
-      case YesNoCancel.no:
+      case YesNoCancel.next:
         continue;
       case YesNoCancel.cancel:
         return null;
     }
   }
   return null;
-}
-
-List<String> promptForUpdate(List<(String, String, String)> fieldsHintsAndCurrent) {
-  List<String> values = [];
-  for (var (field, hint, current) in fieldsHintsAndCurrent) {
-    print("Enter $field ($hint) or enter to keep current value ($current):");
-    var input = (stdin.readLineSync() ?? "").trim();
-    if (input.isEmpty) {
-      values.add(current);
-    } else {
-      values.add(input);
-    }
-  }
-  return values;
-}
-
-Hero? promptForUpdated(Hero hero) {
-  List<(String, String, String)> fieldsHintsAndCurrent = [];
-  for (int i = 1; i < Hero.fields.length; i++) {
-    var field = Hero.fields[i];
-    var hint = Hero.hints[i];
-    var value = hero.stringProps[i];
-    fieldsHintsAndCurrent.add((field, hint, value.toString()));
-  }
-
-  var update = promptForUpdate(fieldsHintsAndCurrent);
-
-  var updatedHero = Hero(
-    id: hero.id,
-    name: update[0],
-    strength: int.tryParse(update[1]) ?? hero.strength,
-    gender: Gender.values.findMatch(update[2]) ?? hero.gender,
-    race: update[3],
-    alignment: Alignment.values.findMatch(update[4]) ?? hero.alignment
-  );
-
-  if (hero == updatedHero) {
-    print("No changes made");
-    return null;
-  }
-
-  if (promptForYesNo(
-        '''Save the following changes?${hero.sideBySide(updatedHero)}''',
-      ) ==
-      YesNo.no) {
-    return null;
-  }
-
-  return updatedHero;
-}
-
-List<String>? promptForValues(List<(String, String)> fieldsAndsHints) {
-  List<String> values = [];
-  for (var (field, hint) in fieldsAndsHints) {
-    print("Enter $field ($hint) or enter to abort:");
-    var input = (stdin.readLineSync() ?? "").trim();
-    if (input.isEmpty) {
-      return null;
-    }
-    values.add(input);
-  }
-  return values;
-}
-
-Hero? promptForNew() {
-  List<(String, String)> fieldsAndsHints = [];
-  for (int i = 1; i < Hero.fields.length; i++) {
-    var field = Hero.fields[i];
-    var hint = Hero.hints[i];
-    fieldsAndsHints.add((field, hint));
-  }
-
-  var values = promptForValues(fieldsAndsHints);
-  
-  if (values == null) {
-    return null;
-  }
-
-  var strength = int.tryParse(values[1]) ?? 0;
-  return Hero.newId(
-    values[0],
-    strength,
-    Gender.values.findMatch(values[2]) ?? Gender.unknown,
-    values[3],
-    Alignment.values.findMatch(values[4]) ?? Alignment.unknown,
-  );
 }
