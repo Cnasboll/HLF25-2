@@ -11,6 +11,31 @@ class PowerStats extends Updateable<PowerStats> {
     required this.combat,
   });
 
+  factory PowerStats.fromJsonUpdate(
+    PowerStats original,
+    Map<String, dynamic> amendment,
+  ) {
+    return PowerStats(
+      intelligence: _combatField.getIntForUpdate(original, amendment),
+      strength: _strengthField.getIntForUpdate(original, amendment),
+      speed: _speedField.getIntForUpdate(original, amendment),
+      durability: _durabilityField.getIntForUpdate(original, amendment),
+      power: _powerField.getIntForUpdate(original, amendment),
+      combat: _combatField.getIntForUpdate(original, amendment),
+    );
+  }
+
+  factory PowerStats.fromJson(Map<String, dynamic> json) {
+    return PowerStats(
+      intelligence: _combatField.getInt(json),
+      strength: _strengthField.getInt(json),
+      speed: _speedField.getInt(json),
+      durability: _durabilityField.getInt(json),
+      power: _powerField.getInt(json),
+      combat: _combatField.getInt(json),
+    );
+  }
+
   final int intelligence;
   final int strength;
   final int speed;
@@ -18,35 +43,21 @@ class PowerStats extends Updateable<PowerStats> {
   final int power;
   final int combat;
 
- @override
-  PowerStats fromUpdate(Map<String, String> update) {
-    return PowerStats(
-      intelligence: _combatField.getIntForUpdate(this, update),
-      strength: _strengthField.getIntForUpdate(this, update),
-      speed: _speedField.getIntForUpdate(this, update),
-      durability: _durabilityField.getIntForUpdate(this, update),
-      power: _powerField.getIntForUpdate(this, update),
-      combat: _combatField.getIntForUpdate(this, update),
-    );
+  @override
+  PowerStats fromJsonUpdate(Map<String, dynamic> amendment) {
+    return PowerStats.fromJsonUpdate(this, amendment);
   }
 
   static PowerStats? fromPrompt() {
-    var values = Updateable.promptForValues(staticFields);
-    if (values == null) {
+    var json = Updateable.promptForJson(staticFields);
+    if (json == null) {
       return null;
     }
-    if (values.length != staticFields.length) {
+    if (json.length != staticFields.length) {
       return null;
     }
 
-    return PowerStats(
-      intelligence: _combatField.getInt(values),
-      strength: _strengthField.getInt(values),
-      speed: _speedField.getInt(values),
-      durability: _durabilityField.getInt(values),
-      power: _powerField.getInt(values),
-      combat: _combatField.getInt(values),
-    );
+    return PowerStats.fromJson(json);
   }
 
 

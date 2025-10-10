@@ -28,8 +28,8 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
     return 0;
   }
 
-  static Map<String, String>? promptForValues(List<Field> fields) {
-    Map<String, String> values = {};
+  static Map<String, dynamic>? promptForJson(List<Field> fields) {
+    Map<String, dynamic> values = {};
     for (var field in fields) {
       if (!field.mutable) {
         continue;
@@ -44,8 +44,8 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
     return values;
   }
 
-  Map<String, String> promptForUpdate() {
-    Map<String, String> values = {};
+  Map<String, dynamic> promptForAmendmentJson() {
+    Map<String, dynamic> amendment = {};
     for (var field in fields) {
       var current = field.format(this as T);
       if (!field.mutable) {
@@ -57,12 +57,12 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
       );
       var input = (stdin.readLineSync() ?? "").trim();
       if (input.isEmpty) {
-        values[field.name] = current;
+        amendment[field.name] = current;
       } else {
-        values[field.name] = input;
+        amendment[field.name] = input;
       }
     }
-    return values;
+    return amendment;
   }
 
   /// Returns true if this can be updated to other and all immutable fields remain unchanged
@@ -114,10 +114,10 @@ $diff=============
     return sb.toString();
   }
 
-  T fromUpdate(Map<String, String> update);
+  T fromJsonUpdate(Map<String, dynamic> amendment);
 
   T? promptForUpdated() {
-    var updatedHero = fromUpdate(promptForUpdate());
+    var updatedHero = fromJsonUpdate(promptForAmendmentJson());
 
     if (this == updatedHero) {
       print("No changes made");

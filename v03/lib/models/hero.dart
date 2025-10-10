@@ -44,6 +44,36 @@ class Hero extends Updateable<Hero> {
         race: race,
         alignment: alignment,
       );
+    
+  factory Hero.fromJsonUpdate(Hero original, Map<String, dynamic> amendment) {
+    return Hero(
+      id: original.id,
+      version: original.version + 1,
+      name: _nameField.getStringForUpdate(original, amendment),
+      strength: _strengthField.getIntForUpdate(original, amendment),
+      gender: _genderField.getEnumForUpdate<Gender>(
+        original,
+        Gender.values,
+        amendment,
+      ),
+      race: _raceField.getStringForUpdate(original, amendment),
+      alignment: _alignmentField.getEnumForUpdate<Alignment>(
+        original,
+        Alignment.values,
+        amendment,
+      ),
+    );
+  }
+
+  factory Hero.fromJsonNewId(Map<String, dynamic> json) {
+    return Hero.newId(
+      _nameField.getString(json),
+      _strengthField.getInt(json),
+      _genderField.getEnum<Gender>(Gender.values, json, Gender.unknown),
+      _raceField.getString(json),
+      _alignmentField.getEnum<Alignment>(Alignment.values, json, Alignment.unknown),
+    );
+  }
 
   Hero.copy(Hero other)
     : this(
@@ -106,31 +136,17 @@ class Hero extends Updateable<Hero> {
   }
 
   @override
-  Hero fromUpdate(Map<String, String> update) {
-    return Hero(
-      id: id,
-      version: version + 1,
-      name: _nameField.getStringForUpdate(this, update),
-      strength: _strengthField.getIntForUpdate(this, update),
-      gender: _genderField.getEnumForUpdate<Gender>(this, Gender.values, update),
-      race: _raceField.getStringForUpdate(this, update),
-      alignment: _alignmentField.getEnumForUpdate<Alignment>(this, Alignment.values, update),
-    );
+  Hero fromJsonUpdate(Map<String, dynamic> amendment) {
+    return Hero.fromJsonUpdate(this, amendment);
   }
 
   static Hero? fromPrompt() {
-    var values = Updateable.promptForValues(staticFields);
-    if (values == null) {
+    var json = Updateable.promptForJson(staticFields);
+    if (json == null) {
       return null;
     }
-  
-    return Hero.newId(
-      _nameField.getString(values),
-      _strengthField.getInt(values),
-      _genderField.getEnum<Gender>(Gender.values, values, Gender.unknown),
-      _raceField.getString(values),
-      _alignmentField.getEnum<Alignment>(Alignment.values, values, Alignment.unknown),
-    );
+    
+    return Hero.fromJsonNewId(json);
   }
 
   @override

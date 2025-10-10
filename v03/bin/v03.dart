@@ -141,8 +141,6 @@ void deleteAllHeroes(HeroRepository repo) {
   print("Deleted all heroes");
 }
 
-
-
 void deleteHero(HeroRepository repo) {
   Hero? hero = query(repo, "Delete");
   if (hero == null) {

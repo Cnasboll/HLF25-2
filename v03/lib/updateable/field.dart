@@ -10,7 +10,7 @@ class Field<T> {
       : format = format ?? ((t) => getter(t).toString());
 
   bool validateUpdate(T lhs, T rhs) {
-    if (compareField(lhs, rhs) == 0) {
+    if (lhs == rhs) {
       return true;
     }
     return mutable;
@@ -92,11 +92,11 @@ class Field<T> {
     return 0;
   }
 
-  int getIntForUpdate(T t, Map<String, String> values) {
+  int getIntForUpdate(T t, Map<String, dynamic> values) {
     return getInt(values, defaultValue:  getter(t) as int);
   }
 
-  int getInt(Map<String, String> values, {int defaultValue = 0}) {
+  int getInt(Map<String, dynamic> values, {int defaultValue = 0}) {
     var str = values[name];
     if (str == null) {
       return defaultValue;
@@ -104,11 +104,11 @@ class Field<T> {
     return int.tryParse(str) ?? defaultValue;
   }
 
-  String getStringForUpdate(T t, Map<String, String> values) {
+  String getStringForUpdate(T t, Map<String, dynamic> values) {
     return getString(values, defaultValue: getter(t) as String);
   }
 
-  String getString(Map<String, String> values, {String defaultValue = ""}) {
+  String getString(Map<String, dynamic> values, {String defaultValue = ""}) {
     var str = values[name];
     if (str == null) {
       return defaultValue;
@@ -116,11 +116,11 @@ class Field<T> {
     return str;
   }
 
-  E getEnumForUpdate<E extends Enum>(T t, Iterable<E> enumValues, Map<String, String> values) {
+  E getEnumForUpdate<E extends Enum>(T t, Iterable<E> enumValues, Map<String, dynamic> values) {
     return getEnum(enumValues, values, getter(t) as E);
   }
 
-  E getEnum<E extends Enum>(Iterable<E> enumValues, Map<String, String> values, E defaultValue) {
+  E getEnum<E extends Enum>(Iterable<E> enumValues, Map<String, dynamic> values, E defaultValue) {
     return enumValues.findMatch(getString(values, defaultValue: defaultValue.name)) ?? defaultValue;
   }
 
