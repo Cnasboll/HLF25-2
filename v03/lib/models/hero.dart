@@ -1,3 +1,5 @@
+import 'dart:vmservice_io';
+
 import 'package:uuid/uuid.dart';
 import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
@@ -21,6 +23,7 @@ enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
 class Hero extends Updateable<Hero> {
   Hero({
     required this.id,
+    required this.serverId,
     required this.version,
     required this.name,
     required this.strength,
@@ -30,14 +33,16 @@ class Hero extends Updateable<Hero> {
   });
 
   Hero.newId(
+    int serverId,
     String name,
     int strength,
     Gender gender,
     String race,
     Alignment alignment,
   ) : this(
-        id: Uuid().v4(),
+        id: Uuid().v4(),                
         version: 1,
+        serverId: serverId,
         name: name,
         strength: strength,
         gender: gender,
@@ -49,6 +54,7 @@ class Hero extends Updateable<Hero> {
     return Hero(
       id: original.id,
       version: original.version + 1,
+      serverId: original.serverId,
       name: _nameField.getStringForUpdate(original, amendment),
       strength: _strengthField.getIntForUpdate(original, amendment),
       gender: _genderField.getEnumForUpdate<Gender>(
@@ -67,6 +73,7 @@ class Hero extends Updateable<Hero> {
 
   factory Hero.fromJsonNewId(Map<String, dynamic> json) {
     return Hero.newId(
+      _serverIdField.getInt(json),
       _nameField.getString(json),
       _strengthField.getInt(json),
       _genderField.getEnum<Gender>(Gender.values, json, Gender.unknown),
@@ -78,7 +85,8 @@ class Hero extends Updateable<Hero> {
   Hero.copy(Hero other)
     : this(
         id: other.id,
-        version: other.version,
+        version: other.version,        
+        serverId: other.serverId,
         name: other.name,
         strength: other.strength,
         gender: other.gender,
@@ -89,6 +97,7 @@ class Hero extends Updateable<Hero> {
   Hero copyWith({
     String? id,
     int? version,
+    int? serverId,
     String? name,
     int? strength,
     Gender? gender,
@@ -97,6 +106,7 @@ class Hero extends Updateable<Hero> {
   }) {
     return Hero(
       id: id ?? this.id,
+      serverId: serverId ?? this.serverId,
       version: (version ?? 1) + 1,
       name: name ?? this.name,
       strength: strength ?? this.strength,
@@ -145,7 +155,7 @@ class Hero extends Updateable<Hero> {
     if (json == null) {
       return null;
     }
-    
+
     return Hero.fromJsonNewId(json);
   }
 
@@ -153,6 +163,7 @@ class Hero extends Updateable<Hero> {
   List<Field<Hero>> get fields => staticFields;
 
   final String id;
+  final int serverId;
   final int version;
   final String name;
   final int strength;
@@ -162,9 +173,15 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _idField = Field<Hero>(
     (h) => h.id,
-    "id",
+    "local_id",
     "UUID",
     mutable: false,
+  );
+
+  static final Field<Hero> _serverIdField = Field<Hero>(
+    (h) => h.serverId,
+    "id",
+    "Server assigned integer",
   );
 
   static final Field<Hero> _versionField = Field<Hero>(
@@ -209,6 +226,7 @@ class Hero extends Updateable<Hero> {
   static final List<Field<Hero>> staticFields = [
     _idField,
     _versionField,
+    _serverIdField,
     _nameField,
     _strengthField,
     _genderField,
