@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:v03/models/appearance.dart';
+import 'package:v03/models/biography.dart';
 import 'package:v03/models/hero.dart';
 import 'package:v03/persistence/hero_repository.dart';
 import 'package:test/test.dart';
 
 Future<void> main() async {
   test('DB test', () async {
-
     var path = "v03_test.db";
     var file = File(path);
 
@@ -17,8 +18,30 @@ Future<void> main() async {
     // First create a db instance, clean it, add some heroes, then shutdown
     var repo = HeroRepository(path);
     repo.clean();
-    repo.persist(Hero(id: "02ffbb60-762b-4552-8f41-be8aa86869c6", version: 1, name:"Batman", strength:  12, gender:  Gender.male, race: "Human", alignment:  Alignment.mostlyGood));
-    repo.persist(Hero(id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc", version: 1, name: "Robin", strength:  8, gender:  Gender.unknown, race:  "Human", alignment:  Alignment.reasonable));
+    repo.persist(
+      Hero(
+        id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
+        version: 1,
+        serverId: 1,
+        name: "Batman",
+        powerStats: 12,
+        biography: Gender.male,
+        appearance: "Human",
+        work: Alignment.mostlyGood,
+      ),
+    );
+    repo.persist(
+      Hero(
+        id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
+        version: 1,
+        serverId: 2,
+        name: "Robin",
+        powerStats: 8,
+        biography: Gender.unknown,
+        appearance: "Human",
+        work: Alignment.reasonable,
+      ),
+    );
     await repo.dispose();
 
     // Now create a new db instance, read the snapshot, and verify
@@ -33,7 +56,7 @@ Future<void> main() async {
     expect(batman.alignment, Alignment.mostlyGood);
     expect(batman.race, "Human");
 
-    var robin=repo.query("robin")[0];
+    var robin = repo.query("robin")[0];
     expect(robin.id, "008b98a5-3ce6-4448-99f4-d4ce296fcdfc");
     expect(robin.name, "Robin");
     expect(robin.strength, 8);
@@ -41,12 +64,19 @@ Future<void> main() async {
     expect(robin.alignment, Alignment.reasonable);
     expect(robin.race, "Human");
 
-    // Modify Batman's strength, , 
+    // Modify Batman's strength, ,
     batman = batman.copyWith(strength: 13);
-    repo.persist( batman);
-    
+    repo.persist(batman);
+
     // Add Alfred, assign a id
-    var alfred = Hero.newId("Alfred", 9,Gender.wontSay, "Human", Alignment.good);
+    var alfred = Hero.newId(
+      3,
+      "Alfred",
+      9,
+      Gender.wontSay,
+      "Human",
+      Alignment.good,
+    );
     repo.persist(alfred);
 
     //delete Robin
@@ -56,15 +86,14 @@ Future<void> main() async {
     await repo.dispose();
 
     repo = HeroRepository(path);
-    snapshot = repo.heroesById; 
+    snapshot = repo.heroesById;
     expect(2, snapshot.length);
     batman = snapshot[batman.id]!;
     expect(batman.version, 2);
     expect(batman.name, "Batman");
     expect(batman.strength, 13);
 
-
-    alfred=snapshot[alfred.id]!;
+    alfred = snapshot[alfred.id]!;
     expect(alfred.version, 1);
     expect(alfred.name, "Alfred");
     expect(alfred.strength, 9);

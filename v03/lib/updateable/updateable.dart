@@ -51,7 +51,7 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
       if (!field.mutable) {
         continue;
       }
-  
+
       print(
         "Enter ${field.name} (${field.description}) or enter to keep current value ($current):",
       );

@@ -1,4 +1,3 @@
-
 import 'package:collection/collection.dart';
 import 'package:v03/utils/enum_parsing.dart';
 
@@ -6,8 +5,14 @@ typedef LookupField<T> = Object? Function(T);
 typedef FormatField<T> = String Function(T);
 
 class Field<T> {
-  Field(this.getter, this.name, this.description, {this.mutable = true, FormatField<T>? format, this.comparable = true})
-      : format = format ?? ((t) => getter(t).toString());
+  Field(
+    this.getter,
+    this.name,
+    this.description, {
+    this.mutable = true,
+    FormatField<T>? format,
+    this.comparable = true,
+  }) : format = format ?? ((t) => getter(t).toString());
 
   bool validateUpdate(T lhs, T rhs) {
     if (lhs == rhs) {
@@ -28,8 +33,7 @@ class Field<T> {
   }
 
   int compareField(T lhs, T rhs) {
-    if (!comparable)
-    {
+    if (!comparable) {
       // Not part of comparison
       return 0;
     }
@@ -92,47 +96,70 @@ class Field<T> {
     return 0;
   }
 
-  int getIntForUpdate(T t, Map<String, dynamic> values) {
-    return getInt(values, defaultValue:  getter(t) as int);
+  int getIntForUpdate(T t, Map<String, dynamic> amendment) {
+    return getInt(amendment, defaultValue: getter(t) as int);
   }
 
-  int getInt(Map<String, dynamic> values, {int defaultValue = 0}) {
-    var str = values[name];
+  int getInt(Map<String, dynamic> json, {int defaultValue = 0}) {
+    var str = json[name];
     if (str == null) {
       return defaultValue;
     }
     return int.tryParse(str) ?? defaultValue;
   }
 
-  String getStringForUpdate(T t, Map<String, dynamic> values) {
-    return getString(values, defaultValue: getter(t) as String);
+  String getStringForUpdate(T t, Map<String, dynamic> amendment) {
+    return getString(amendment, defaultValue: getter(t) as String);
   }
 
-  String getString(Map<String, dynamic> values, {String defaultValue = ""}) {
-    var str = values[name];
+  String getString(Map<String, dynamic> json, {String defaultValue = ""}) {
+    var str = json[name];
     if (str == null) {
       return defaultValue;
     }
     return str;
   }
 
-  E getEnumForUpdate<E extends Enum>(T t, Iterable<E> enumValues, Map<String, dynamic> values) {
+  List<String> getStringListForUpdate(T t, Map<String, dynamic> amendment) {
+    return getStringList(amendment, defaultValue: getter(t) as List<String>);
+  }
+
+  List<String> getStringList(Map<String, dynamic> json, {List<String> defaultValue = const []}) {
+    var list = json[name];
+    if (list == null) {
+      return defaultValue;
+    }
+    return List<String>.from(list);
+  }
+
+  E getEnumForUpdate<E extends Enum>(
+    T t,
+    Iterable<E> enumValues,
+    Map<String, dynamic> values,
+  ) {
     return getEnum(enumValues, values, getter(t) as E);
   }
 
-  E getEnum<E extends Enum>(Iterable<E> enumValues, Map<String, dynamic> values, E defaultValue) {
-    return enumValues.findMatch(getString(values, defaultValue: defaultValue.name)) ?? defaultValue;
+  E getEnum<E extends Enum>(
+    Iterable<E> enumValues,
+    Map<String, dynamic> values,
+    E defaultValue,
+  ) {
+    return enumValues.findMatch(
+          getString(values, defaultValue: defaultValue.name),
+        ) ??
+        defaultValue;
   }
 
   /// Function to get the field from an object
   LookupField<T> getter;
 
-/// Descriptive name of a field
+  /// Descriptive name of a field
   String name;
 
   /// Description of a field
   String description;
-  
+
   /// Function to format the field on an object as a presentable string
   FormatField<T> format;
 

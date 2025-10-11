@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/jobs/job_queue.dart';
 import 'package:v03/models/hero.dart';
+import 'package:v03/models/power_stats.dart';
 import 'package:v03/utils/enum_parsing.dart';
 
 class HeroRepository {
@@ -26,10 +27,31 @@ CREATE TABLE IF NOT EXISTS heroes (
   version INTEGER NOT NULL,
   server_id INTEGER NOT NULL,
 	name TEXT NOT NULL,
+  intelligence INTEGER NOT NULL,
 	strength INTEGER NOT NULL,
+  speed INTEGER NOT NULL,
+  durability INTEGER NOT NULL,
+  power INTEGER NOT NULL,
+  combat INTEGER NOT NULL,
+  full_name TEXT NULL,
+  alter_egos TEXT NULL,
+  aliases TEXT NULL,
+  place_of_birth TEXT NULL,
+  first_appearance TEXT NULL,
+  publisher TEXT NULL,
+  alignment TEXT NULL
 	gender TEXT NOT NULL,
 	race TEXT NOT NULL,
-	alignment TEXT NULL
+  height_cm INTEGER NULL,
+  weight_kg INTEGER NULL,
+  eye_color TEXT NULL,
+  hair_color TEXT NULL,
+  eye_color TEXT NULL,
+  occupation TEXT NULL,
+  base TEXT NULL,
+  group_affiliation TEXT NULL,
+  relatives TEXT NULL,
+  image_url TEXT NULL
 )''');
   }
 
@@ -38,19 +60,7 @@ CREATE TABLE IF NOT EXISTS heroes (
     var heroesByServerId = <int, Hero>{};
 
     for (var row in db.select('SELECT * FROM heroes')) {
-      var hero = Hero(
-        version: row['version'] as int,
-        id: row['id'] as String,
-        serverId: row['server_id'] as int,
-        name: row['name'] as String,
-        strength: row['strength'] as int,
-        gender:
-            Gender.values.tryParse(row['gender'] as String) ?? Gender.unknown,
-        race: row['race'] as String,
-        alignment:
-            Alignment.values.tryParse(row['alignment'] as String) ??
-            Alignment.unknown,
-      );
+      var hero = Hero.fromRow(row);
       snapshot[hero.id] = hero;
       heroesByServerId[hero.serverId] = hero;
     }
@@ -66,26 +76,94 @@ CREATE TABLE IF NOT EXISTS heroes (
 
   void dbPersist(Hero hero) {
     _db.execute(
-      '''INSERT INTO heroes (id, version, server_id, name, strength, gender, race, alignment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      '''INSERT INTO heroes (
+      id,
+      version,
+      server_id,
+      name,
+      intelligence,
+      strength,
+      speed,
+      durability,
+      power,
+      combat,
+      full_name,
+      alter_egos,
+      aliases,
+      place_of_birth,
+      first_appearance,
+      publisher,
+      alignment,
+      gender,
+      race,
+      height_cm,
+      weight_kg,
+      eye_color,
+      hair_color,
+      occupation,
+      base,
+      group_affiliation,
+      relatives,
+      image_url
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ON CONFLICT (id) DO
 UPDATE
 SET version=excluded.version,
     server_id=excluded.server_id,
     name=excluded.name,
+    intelligence=excluded.intelligence,
     strength=excluded.strength,
+    speed=excluded.speed,
+    durability=excluded.durability,
+    power=excluded.power,
+    combat=excluded.combat,
+    full_name=excluded.full_name,
+    alter_egos=excluded.alter_egos,
+    aliases=excluded.aliases,
+    place_of_birth=excluded.place_of_birth,
+    first_appearance=excluded.first_appearance,
+    publisher=excluded.publisher,
     gender=excluded.gender,
     race=excluded.race,
-    alignment=excluded.alignment
+    height_cm=excluded.height_cm,
+    weight_kg=excluded.weight_kg,
+    eye_color=excluded.eye_color,
+    hair_color=excluded.hair_color,
+    occupation=excluded.occupation,
+    base=excluded.base,
+    group_affiliation=excluded.group_affiliation,
+    relatives=excluded.relatives,
+    image_url=excluded.image_url
       ''',
         [
           hero.id,
           hero.version,
           hero.serverId,
           hero.name,
-          hero.strength,
-          hero.gender.name,
-          hero.race,
-          hero.alignment.name
+          hero.powerStats.intelligence,
+          hero.powerStats.strength,
+          hero.powerStats.speed,
+          hero.powerStats.durability,
+          hero.powerStats.power,
+          hero.powerStats.combat,
+          hero.biography.fullName,
+          hero.biography.alterEgos,
+          hero.biography.aliases.join(', '),
+          hero.biography.placeOfBirth,
+          hero.biography.firstAppearance,
+          hero.biography.publisher,
+          hero.biography.alignment.name,
+          hero.appearance.gender.name,
+          hero.appearance.race,
+          hero.appearance.height.cm,
+          hero.appearance.weight.kg,
+          hero.appearance.eyeColor,
+          hero.appearance.hairColor,
+          hero.work.occupation,
+          hero.work.base,
+          hero.connections.groupAffiliation,
+          hero.connections.relatives,
+          hero.image.url
         ]);
   }
 
@@ -117,9 +195,9 @@ SET version=excluded.version,
               (hero.id.toLowerCase().contains(lower) ||
               (hero.serverId.toString().contains(lower)) ||
               hero.name.toLowerCase().contains(lower) ||
-              hero.gender.toString().contains(lower) ||
-              hero.strength.toString().contains(lower) ||
-              hero.alignment.toString().contains(lower)),
+              hero.appearance.gender.toString().contains(lower) ||
+              hero.powerStats.strength.toString().contains(lower) ||
+              hero.biography.alignment.toString().contains(lower)),
         )
         .toList();
 

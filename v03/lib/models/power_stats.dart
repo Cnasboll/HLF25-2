@@ -1,3 +1,4 @@
+import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
 
@@ -36,6 +37,17 @@ class PowerStats extends Updateable<PowerStats> {
     );
   }
 
+  factory PowerStats.fromRow(Row row) {
+    return PowerStats(
+      intelligence: row['intelligence'] as int,
+      strength: row['strength'] as int,
+      speed: row['speed'] as int,
+      durability: row['durability'] as int,
+      power: row['power'] as int,
+      combat: row['combat'] as int,
+    );
+  }
+
   final int intelligence;
   final int strength;
   final int speed;
@@ -59,7 +71,6 @@ class PowerStats extends Updateable<PowerStats> {
 
     return PowerStats.fromJson(json);
   }
-
 
   /// Subclasses may override to contribute additional fields.
   @override
