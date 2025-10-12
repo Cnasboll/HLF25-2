@@ -174,16 +174,18 @@ class Biography extends Updateable<Biography> {
   List<Field<Biography>> get fields => staticFields;
 
   static Field<Biography> get _fullNameField =>
-      Field<Biography>((p) => p.fullName, 'full-name', 'Full');
+      Field<Biography>((p) => p.fullName, String, 'full-name', 'Full');
 
   static final Field<Biography> _alterEgosField = Field<Biography>(
     (p) => p.alterEgos,
+    String,
     'alter-egos',
     'Such as Jekyll and Hyde',
   );
 
   static final Field<Biography> _aliasesField = Field<Biography>(
     (p) => p.aliases,
+    List<String>,
     'aliases',
     'Other names the character is known by',
     // This is a list of strings, so we need special handling as I cann't be arsed to make another table for it
@@ -193,28 +195,33 @@ class Biography extends Updateable<Biography> {
 
   static final Field<Biography> _placeOfBirthFIeld = Field<Biography>(
     (p) => p.placeOfBirth,
+    String,
     'place-of-birth',
     'Where the character was born',
   );
 
   static final Field<Biography> _firstAppearanceField = Field<Biography>(
     (p) => p.firstAppearance,
+    String,
     'first-appearance',
     'When the character first appeared in print or in court',
   );
 
   static final Field<Biography> _publisherField = Field<Biography>(
     (p) => p.publisher,
+    String,
     'publisher',
     'The publisher of the character\'s stories or documentary evidence',
   );
 
   static final Field<Biography> _alignmentField = Field<Biography>(
     (h) => h.alignment,
+    Alignment,
     "alignment",
     Alignment.values.map((e) => e.name).join(', '),
     format: (h) => h.alignment.name,
     sqliteGetter: ((p) => p.alignment.name),
+    nullable: false
   );
 
   static final List<Field<Biography>> staticFields = [

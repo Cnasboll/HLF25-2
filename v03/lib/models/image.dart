@@ -68,6 +68,7 @@ class Image extends Updateable<Image> {
 
   static Field<Image> get _urlField => Field<Image>(
     (p) => p.url,
+    String,
     'url',
     'The URL of the image',
     sqlLiteName: 'image_url',

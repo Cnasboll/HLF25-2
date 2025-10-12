@@ -6,13 +6,16 @@ import 'package:v03/utils/enum_parsing.dart';
 
 typedef LookupField<T> = Object? Function(T);
 typedef FormatField<T> = String Function(T);
+typedef SQLGetter<T> = Object? Function(T);
 
 class Field<T> {
   Field(
     this.getter,
+    this.type,
     this.name,
     this.description, {
     this.primary = false,
+    this.nullable = true,
     this.mutable = true,
     this.assignedBySystem = false,
     FormatField<T>? format,
@@ -259,52 +262,36 @@ class Field<T> {
         defaultValue;
   }
 
-  String sqlLiteuQualifier(bool nullable) {
+  String sqlLiteQualifier(/*bool nullable*/) {
     if (primary) {
-      return ' PRIMARY KEY';
+      return 'PRIMARY KEY';
     }
-    if (!nullable) {
-      return ' NOT NULL';
-    }
-    return '';
+
+    var qualifier = nullable ? '' : 'NOT ';
+    return '${qualifier}NULL';
   }
 
   String generateSqliteColumnType() {
-    String type;
+    String columnType;
 
     // My only nested if statement in this project and hopefully the entire course
-    bool nullable = true;
-    if (getter is int? Function(T)) {
-      type = "INTEGER";
-    } else if (getter is String? Function(T)) {
-      type = "TEXT";
-    } else if (getter is bool? Function(T)) {
-      type = "BOOLEAN";
-    } else if (getter is double? Function(T)) {
-      type = "REAL";
-    } else if (getter is Enum? Function(T)) {
-      type = "TEXT";
-    } else if (getter is int Function(T)) {
-      type = "INTEGER";
-      nullable = false;
-    } else if (getter is String Function(T)) {
-      type = "TEXT";
-      nullable = false;
-    } else if (getter is bool Function(T)) {
-      type = "BOOLEAN";
-      nullable = false;
-    } else if (getter is double Function(T)) {
-      type = "REAL";
-      nullable = false;
-    } else if (getter is Enum Function(T)) {
-      type = "TEXT";
-      nullable = false;
+
+    if (type == int) {
+      columnType = "INTEGER";
+    } else if (type == String) {
+      columnType = "TEXT";
+    } else if (type == bool) {
+      columnType = "BOOLEAN";
+    } else if (type == double) {
+      columnType = "REAL";
+    } else if (type == Enum) {
+      columnType = "TEXT";    
     } else {
       // Fallback to TEXT for complex types
-      type = "TEXT";
+      columnType = "TEXT";
     }
 
-    return "$type${sqlLiteuQualifier(nullable)}";
+    return "$columnType ${sqlLiteQualifier()}";
   }
 
   List<Object?> sqliteProps(T t) {
@@ -361,6 +348,9 @@ class Field<T> {
   /// Function to get the field from an object
   LookupField<T> getter;
 
+  /// The type of the field (todo: derive from result of getter?)
+  Type type;
+
   /// Descriptive name of a field
   String name;
 
@@ -377,10 +367,13 @@ class Field<T> {
   FormatField<T> format;
 
   /// Function to get the field from an object for SQLite inserts and updates
-  LookupField<T> sqliteGetter;
+  SQLGetter<T> sqliteGetter;
 
   /// True if field is part of the primary key
   bool primary;
+
+  /// True if db field is nullable (TODO: should be derived from the getter-type but that doesn't seem to work)
+  bool nullable;
 
   /// True if field is mutable
   bool mutable;

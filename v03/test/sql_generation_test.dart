@@ -36,34 +36,32 @@ void main() {
 ''');
   });
 
-  test('generate SQLite column names', () {
-    final declarations = Hero.generateSqliteColumnDeclarations('      ');
-    print(declarations);
+  test('generate SQLite column declarations', () {
+    final declarations = Hero.generateSqliteColumnDeclarations('  ');
     expect(declarations, '''
   id TEXT PRIMARY KEY,
   version INTEGER NOT NULL,
   server_id INTEGER NOT NULL,
   name TEXT NOT NULL,
-  intelligence INTEGER NOT NULL,
-  strength INTEGER NOT NULL,
-  speed INTEGER NOT NULL,
-  durability INTEGER NOT NULL,
-  power INTEGER NOT NULL,
-  combat INTEGER NOT NULL,
+  intelligence INTEGER NULL,
+  strength INTEGER NULL,
+  speed INTEGER NULL,
+  durability INTEGER NULL,
+  power INTEGER NULL,
+  combat INTEGER NULL,
   full_name TEXT NULL,
   alter_egos TEXT NULL,
   aliases TEXT NULL,
   place_of_birth TEXT NULL,
   first_appearance TEXT NULL,
   publisher TEXT NULL,
-  alignment TEXT NULL,
+  alignment TEXT NOT NULL,
   gender TEXT NOT NULL,
-  race TEXT NOT NULL,
-  height_cm INTEGER NULL,
-  weight_kg INTEGER NULL,
+  race TEXT NULL,
+  height TEXT NULL,
+  weight TEXT NULL,
   eye_color TEXT NULL,
   hair_color TEXT NULL,
-  eye_color TEXT NULL,
   occupation TEXT NULL,
   base TEXT NULL,
   group_affiliation TEXT NULL,

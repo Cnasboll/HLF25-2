@@ -189,20 +189,24 @@ class Appearance extends Updateable<Appearance> {
 
   static final Field<Appearance> _genderField = Field<Appearance>(
     (a) => a.gender,
+    Gender,
     "gender",
     Gender.values.map((e) => e.name).join(', '),
     format: (a) => (a.gender).name,
     sqliteGetter: ((a) => (a.gender).name),
+    nullable: false
   );
 
   static final Field<Appearance> _raceField = Field<Appearance>(
     (a) => a.race,
+    String,
     "race",
     "Species in Latin or English",
   );
 
   static Field<Appearance> get _heightField => Field<Appearance>(
     (a) => a.height,
+    Height,
     'height',
     'Height in centimeters and / or feet and inches',
     sqliteGetter: ((a) => (a.height).toString()),
@@ -210,6 +214,7 @@ class Appearance extends Updateable<Appearance> {
 
   static Field<Appearance> get _weightField => Field<Appearance>(
     (p) => p.weight,
+    Weight,
     'weight',
     'Weight in kilograms and / or pounds',
     sqliteGetter: ((a) => (a.weight).toString()),
@@ -217,12 +222,14 @@ class Appearance extends Updateable<Appearance> {
 
   static final Field<Appearance> _eyeColourField = Field<Appearance>(
     (p) => p.eyeColor,
+    String,
     'eye-color',
     'The character\'s eye color of the most recent appearance',
   );
 
   static final Field<Appearance> _hairColorField = Field<Appearance>(
     (p) => p.hairColor,
+    String,
     'hair-color',
     'The character\'s hair color of the most recent appearance',
   );

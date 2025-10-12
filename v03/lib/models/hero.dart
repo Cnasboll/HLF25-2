@@ -8,6 +8,7 @@ import 'package:v03/models/power_stats.dart';
 import 'package:v03/models/work.dart';
 import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
+
 class Hero extends Updateable<Hero> {
   Hero({
     required this.id,
@@ -19,7 +20,7 @@ class Hero extends Updateable<Hero> {
     this.appearance,
     this.work,
     this.connections,
-    this.image
+    this.image,
   });
 
   Hero.newId(
@@ -30,9 +31,9 @@ class Hero extends Updateable<Hero> {
     Appearance? appearance,
     Work? work,
     Connections? connections,
-    Image? image
+    Image? image,
   ) : this(
-        id: Uuid().v4(),                
+        id: Uuid().v4(),
         version: 1,
         serverId: serverId,
         name: name,
@@ -41,20 +42,39 @@ class Hero extends Updateable<Hero> {
         appearance: appearance,
         work: work,
         connections: connections,
-        image: image
+        image: image,
       );
 
-  factory Hero.fromJsonAmendment(Hero original, Map<String, dynamic>? amendment) {
+  factory Hero.fromJsonAmendment(
+    Hero original,
+    Map<String, dynamic>? amendment,
+  ) {
     return Hero(
       id: original.id,
       version: original.version + 1,
       serverId: original.serverId,
       name: _nameField.getStringFromJsonForAmendment(original, amendment),
-      powerStats: PowerStats.amendOrCreate(_powerstatsField, original.powerStats, amendment),
-      biography: Biography.amendOrCreate(_biographyField, original.biography, amendment),
-      appearance: Appearance.amendOrCreate(_appearanceField, original.appearance, amendment),
+      powerStats: PowerStats.amendOrCreate(
+        _powerstatsField,
+        original.powerStats,
+        amendment,
+      ),
+      biography: Biography.amendOrCreate(
+        _biographyField,
+        original.biography,
+        amendment,
+      ),
+      appearance: Appearance.amendOrCreate(
+        _appearanceField,
+        original.appearance,
+        amendment,
+      ),
       work: Work.amendOrCreate(_workField, original.work, amendment),
-      connections: Connections.amendOrCreate(_connectionsField, original.connections, amendment),
+      connections: Connections.amendOrCreate(
+        _connectionsField,
+        original.connections,
+        amendment,
+      ),
       image: Image.amendOrCreate(_imageField, original.image, amendment),
     );
   }
@@ -68,7 +88,7 @@ class Hero extends Updateable<Hero> {
       Appearance.fromJson(_appearanceField.getJsonFromJson(json)),
       Work.fromJson(_workField.getJsonFromJson(json)),
       Connections.fromJson(_connectionsField.getJsonFromJson(json)),
-      Image.fromJson(_imageField.getJsonFromJson(json))
+      Image.fromJson(_imageField.getJsonFromJson(json)),
     );
   }
 
@@ -86,18 +106,26 @@ class Hero extends Updateable<Hero> {
       image: Image.fromRow(row),
     );
   }
-  
+
   Hero.from(Hero other)
     : this(
         id: other.id,
         version: other.version,
         serverId: other.serverId,
         name: other.name,
-        powerStats: other.powerStats == null ? null : PowerStats.from(other.powerStats!),
-        biography: other.biography == null ? null : Biography.from(other.biography!),
-        appearance: other.appearance == null ? null : Appearance.from(other.appearance!),
+        powerStats: other.powerStats == null
+            ? null
+            : PowerStats.from(other.powerStats!),
+        biography: other.biography == null
+            ? null
+            : Biography.from(other.biography!),
+        appearance: other.appearance == null
+            ? null
+            : Appearance.from(other.appearance!),
         work: other.work == null ? null : Work.from(other.work!),
-        connections: other.connections == null ? null : Connections.from(other.connections!),
+        connections: other.connections == null
+            ? null
+            : Connections.from(other.connections!),
         image: other.image == null ? null : Image.from(other.image!),
       );
 
@@ -111,7 +139,7 @@ class Hero extends Updateable<Hero> {
     Appearance? appearance,
     Work? work,
     Connections? connections,
-    Image? image
+    Image? image,
   }) {
     return Hero(
       id: id ?? this.id,
@@ -127,11 +155,10 @@ class Hero extends Updateable<Hero> {
     );
   }
 
-
   @override
   int compareTo(Hero other) {
     // Sort by strength, descending by reversing the comparison of powerStats
-    // to get descending order    
+    // to get descending order
     int comparison = _powerstatsField.compareField(other, this);
     // if powerStats are the same, sort by biography
     if (comparison == 0) {
@@ -176,7 +203,9 @@ class Hero extends Updateable<Hero> {
   }
 
   static String generateSQLiteInsertColumnPlaceholders() {
-    return staticFields.map((f) => f.generateSQLiteInsertColumnPlaceholders()).join(',');
+    return staticFields
+        .map((f) => f.generateSQLiteInsertColumnPlaceholders())
+        .join(',');
   }
 
   static String generateSqliteColumnNameList(String indent) {
@@ -211,34 +240,42 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _idField = Field<Hero>(
     (h) => h.id,
+    String,
     "id",
     "UUID",
     mutable: false,
+    primary: true,
   );
 
   static final Field<Hero> _serverIdField = Field<Hero>(
     (h) => h.serverId,
+    int,
     "server_id",
     "Server assigned integer",
     jsonName: "id",
+    nullable: false,
   );
 
   static final Field<Hero> _versionField = Field<Hero>(
     (v) => v.version,
+    int,
     'version',
     'Version number',
-    mutable: true,
+    nullable: false,
     assignedBySystem: true,
   );
 
   static final Field<Hero> _nameField = Field<Hero>(
     (h) => h.name,
+    String,
     "name",
     "Most commonly used name",
+    nullable: false,
   );
 
   static final Field<Hero> _powerstatsField = Field<Hero>(
     (h) => h.powerStats,
+    PowerStats,
     "powerstats",
     "Power statistics which is mostly misused",
     children: PowerStats.staticFields,
@@ -246,6 +283,7 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _biographyField = Field<Hero>(
     (h) => h.biography,
+    Biography,
     "biography",
     "Hero's quite biased biography",
     format: (h) => "Biography: ${h.biography}",
@@ -254,6 +292,7 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _workField = Field<Hero>(
     (h) => h.work,
+    Work,
     "work",
     "Hero's work",
     format: (h) => "Work: ${h.work}",
@@ -262,6 +301,7 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _appearanceField = Field<Hero>(
     (h) => h.appearance,
+    Appearance,
     "appearance",
     "Hero's appearance",
     format: (h) => "Appearance: ${h.appearance}",
@@ -270,6 +310,7 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _connectionsField = Field<Hero>(
     (h) => h.connections,
+    Connections,
     "connections",
     "Hero's connections",
     format: (h) => "Connections: ${h.connections}",
@@ -278,6 +319,7 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _imageField = Field<Hero>(
     (h) => h.image,
+    Image,
     "image",
     "Hero's image",
     format: (h) => "Image: ${h.image}",

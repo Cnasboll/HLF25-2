@@ -120,36 +120,42 @@ class PowerStats extends Updateable<PowerStats> {
 
   static Field<PowerStats> get _intelligenceField => Field<PowerStats>(
     (p) => p.intelligence,
+    int,
     'intelligence',
     'IQ SD 15 (WAIS)',
   );
 
   static final Field<PowerStats> _strengthField = Field<PowerStats>(
     (p) => p.strength,
+    int,
     'strength',
     'newton',
   );
 
   static final Field<PowerStats> _speedField = Field<PowerStats>(
     (p) => p.speed,
+    int,
     'speed',
     'km/h',
   );
 
   static final Field<PowerStats> _durabilityField = Field<PowerStats>(
     (p) => p.durability,
+    int,
     'durability',
     'longevity',
   );
 
   static final Field<PowerStats> _powerField = Field<PowerStats>(
     (p) => p.power,
+    int,
     'power',
     'whatever',
   );
 
   static final Field<PowerStats> _combatField = Field<PowerStats>(
     (p) => p.combat,
+    int,
     'combat',
     'fighting skills',
   );

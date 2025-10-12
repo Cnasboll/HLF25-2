@@ -19,7 +19,7 @@ abstract class ValueType<T> extends Equatable implements Comparable<T> {
     }
     // In the example of weight we get 2010 lb and 95 kg.
     // 2010 lb is 95.25 kg, so the 95 kg is a correct rounded converted value from pounds (!).
-    // However, if we used the metric value 05 kg as source of truth, that would be 209.44 pounds
+    // However, if we used the metric value 95 kg as source of truth, that would be 209.44 pounds
     // Which, rounded to 209 pounds, is not a correct rounded value from 210 pounds. Why does the example use imperial as source of truth?
 
     // So we always use the first parsed value is the source of truth / master value, and check for conflicts with following values!
@@ -52,7 +52,7 @@ abstract class ValueType<T> extends Equatable implements Comparable<T> {
 
         var masterInSecondaryUnits = value.as(parsedSystemOfUnits);
 
-        // In the eample we have ['210 lb', '95 kg']. 210 lb is 95.25 kg but 95 kg is 209.44 pounds
+        // In the example we have ['210 lb', '95 kg']. 210 lb is 95.25 kg but 95 kg is 209.44 pounds
         // so '95 kg' is  rounded version of '210 lb' and imperial is the master system of units,
         // Verify that in this case '95 kg' is indeed a rounded version of '210 lb'
         // '155 lb' is 70.3068 kg, so '70 kg' is a rounded version of '155 lb'
@@ -121,7 +121,7 @@ abstract class ValueType<T> extends Equatable implements Comparable<T> {
   T cloneImperial();
 
   // TODO: use this for internal representation and comparison, store everything as metric internally
-  // and use second column for preferred display unit
+  // and use second column for preferred display unit, now the db looks like the value hasn't even been parsed :D
   double toMetricExact() ;
 
   @override
