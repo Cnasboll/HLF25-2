@@ -87,7 +87,7 @@ void main() {
     expect(inches, 2);
 
     final impWithOtherMetric = Height.parseList(['6\'2"', '189 cm'])!;
-    (feet, inches) = imp.wholeFeetAndWholeInches;
+    (feet, inches) = impWithOtherMetric.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
 
