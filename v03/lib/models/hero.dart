@@ -79,18 +79,18 @@ class Hero extends Updateable<Hero> {
     );
   }
 
-  factory Hero.fromJsonNewId(Map<String, dynamic> json) {
-    return Hero.newId(
-      _serverIdField.getIntFromJson(json, -1),
-      _nameField.getStringFromJson(json, "unknown-name"),
-      PowerStats.fromJson(_powerstatsField.getJsonFromJson(json)),
-      Biography.fromJson(_biographyField.getJsonFromJson(json)),
-      Appearance.fromJson(_appearanceField.getJsonFromJson(json)),
-      Work.fromJson(_workField.getJsonFromJson(json)),
-      Connections.fromJson(_connectionsField.getJsonFromJson(json)),
-      Image.fromJson(_imageField.getJsonFromJson(json)),
+  Hero.fromJsonAndId(Map<String, dynamic> json, String id) : this(
+      id : id,
+      version: 1,
+      serverId: _serverIdField.getIntFromJson(json, -1),
+      name: _nameField.getStringFromJson(json, "unknown-name"),
+      powerStats: PowerStats.fromJson(_powerstatsField.getJsonFromJson(json)),
+      biography: Biography.fromJson(_biographyField.getJsonFromJson(json)),
+      appearance: Appearance.fromJson(_appearanceField.getJsonFromJson(json)),
+      work: Work.fromJson(_workField.getJsonFromJson(json)),
+      connections: Connections.fromJson(_connectionsField.getJsonFromJson(json)),
+      image: Image.fromJson(_imageField.getJsonFromJson(json)),
     );
-  }
 
   factory Hero.fromRow(Row row) {
     return Hero(
@@ -199,7 +199,7 @@ class Hero extends Updateable<Hero> {
       return null;
     }
 
-    return Hero.fromJsonNewId(json);
+    return Hero.fromJsonAndId(json, Uuid().v4());
   }
 
   static String generateSQLiteInsertColumnPlaceholders() {

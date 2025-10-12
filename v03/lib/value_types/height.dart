@@ -7,8 +7,8 @@ class Height extends ValueType<Height> {
   Height(super.value, super.systemOfUnits);
 
   Height.fromFeetAndInches(int feet, double inches) : this(feetAndInchesToMeters(feet, inches), SystemOfUnits.imperial);
-  Height.fromCentimeters(double centimeters) : this(centimeters / 100.0, SystemOfUnits.metric);
-  Height.fromMeters(double meters) : this(meters, SystemOfUnits.metric);
+  Height.fromCentimeters(int centimeters) : this(centimeters.toDouble() / 100.0, SystemOfUnits.metric);
+  Height.fromMeters(int meters) : this(meters.toDouble(), SystemOfUnits.metric);
 
   static Height parse(String input) {
     var (value, error) = tryParse(input);
@@ -90,9 +90,9 @@ class Height extends ValueType<Height> {
         }
 
         if (unit == 'm') {
-          return (Height.fromMeters(value.toDouble()), null);
+          return (Height.fromMeters(value), null);
         }
-        return (Height.fromCentimeters(value.toDouble()), null);
+        return (Height.fromCentimeters(value), null);
       }
     }
 
@@ -106,7 +106,7 @@ class Height extends ValueType<Height> {
       final meters = double.tryParse(match.group(1) ?? '');
       if (meters != null) {
         final centimeters = (meters * 100).round();
-        return (Height.fromCentimeters(centimeters.toDouble()), null);
+        return (Height.fromCentimeters(centimeters), null);
       }
     }
 
@@ -163,7 +163,7 @@ class Height extends ValueType<Height> {
   @override
   Height cloneMetric() {
     // Convert meters to a round number of centimeters (this destroys precision if value is imperial)
-    return Height.fromCentimeters(wholeCentimeters.toDouble());
+    return Height.fromCentimeters(wholeCentimeters);
   }
 
   @override

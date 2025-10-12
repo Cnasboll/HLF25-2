@@ -116,7 +116,7 @@ Future<void> main() async {
     expect(2, snapshot.length);
     var batman = repo.query("batman")[0];
     expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
-      expect(batman.version, 1);
+    expect(batman.version, 1);
     expect(batman.serverId, 70);
     expect(batman.name, "Batman");
     expect(batman.powerStats!.strength, 26);

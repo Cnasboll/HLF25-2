@@ -5,8 +5,8 @@ enum WeightUnit { pounds, kilograms }
 class Weight extends ValueType<Weight> {
 
   Weight(super.value, super.systemOfUnits);
-  Weight.fromPounds(double pounds) : this(poundsToKilograms(pounds), SystemOfUnits.imperial);
-  Weight.fromKilograms(double kilograms) : this(kilograms, SystemOfUnits.metric);
+  Weight.fromPounds(int pounds) : this(poundsToKilograms(pounds.toDouble()), SystemOfUnits.imperial);
+  Weight.fromKilograms(int kilograms) : this(kilograms.toDouble(), SystemOfUnits.metric);
 
   static Weight parse(String input) {
     var (value, error) = tryParse(input);
@@ -41,9 +41,9 @@ class Weight extends ValueType<Weight> {
       final value = int.tryParse(match.group(1) ?? '');
       if (value != null) {
         if (match.group(2) == 'lb') {
-          return (Weight.fromPounds(value.toDouble()), null);
+          return (Weight.fromPounds(value), null);
         }
-        return (Weight.fromKilograms(value.toDouble()), null);
+        return (Weight.fromKilograms(value), null);
       }
     }
 
@@ -88,11 +88,11 @@ class Weight extends ValueType<Weight> {
 
   @override
   Weight cloneMetric() {
-    return Weight.fromKilograms(wholeKilograms.toDouble());
+    return Weight.fromKilograms(wholeKilograms);
   }
 
   @override
   Weight cloneImperial() {
-    return Weight.fromPounds(wholePounds.toDouble());
+    return Weight.fromPounds(wholePounds);
   }
 }

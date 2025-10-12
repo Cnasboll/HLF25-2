@@ -103,7 +103,7 @@ class Biography extends Updateable<Biography> {
       return null;
     }
     return Biography(
-      fullName: _publisherField.getNullableStringFromJson(json),
+      fullName: _fullNameField.getNullableStringFromJson(json),
       alterEgos: _alterEgosField.getNullableStringFromJson(json),
       aliases: _aliasesField.getNullableStringListFromJson(json),
       placeOfBirth: _placeOfBirthFIeld.getNullableStringFromJson(json),

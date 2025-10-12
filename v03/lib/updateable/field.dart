@@ -140,15 +140,22 @@ class Field<T> {
   }
 
   int getIntFromJson(Map<String, dynamic>? json, int defaultValue) {
-    return json?[jsonName] ?? defaultValue;
+    
+    return getNullableIntFromJson(json) ?? defaultValue;
   }
 
   int? getNullableIntFromJson(Map<String, dynamic>? json) {
-    var str = json?[jsonName];
-    if (str == null) {
+    var value = json?[jsonName];
+    
+    if (value == null) {
       return null;
     }
-    return int.tryParse(str);
+
+    if (value is int) {
+      return value;
+    }
+
+    return int.tryParse(value.toString());
   }
 
   int getIntFromRow(Row row, int defaultValue) {
