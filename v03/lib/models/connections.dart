@@ -5,42 +5,69 @@ import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
 
 class Connections extends Updateable<Connections> {
-  Connections({
-    required this.groupAffiliation,
-    required this.relatives,
-  });
+  Connections({this.groupAffiliation, this.relatives});
 
-  factory Connections.fromJsonUpdate(
-    Connections original,
-    Map<String, dynamic> amendment,
-  ) {
+  Connections.from(Connections other)
+    : this(
+        groupAffiliation: other.groupAffiliation,
+        relatives: other.relatives,
+      );
+
+  Connections copyWith({String? groupAffiliation, String? relatives}) {
     return Connections(
-      groupAffiliation: _groupAffiliationField.getStringForUpdate(original, amendment),
-      relatives: _relativesField.getStringForUpdate(original, amendment),      
+      groupAffiliation: groupAffiliation ?? this.groupAffiliation,
+      relatives: relatives ?? this.relatives,
     );
   }
 
-  factory Connections.fromJson(Map<String, dynamic> json) {
+  factory Connections.fromJsonAmendment(
+    Connections original,
+    Map<String, dynamic>? amendment,
+  ) {
     return Connections(
-      groupAffiliation: _groupAffiliationField.getString(json),
-      relatives: _relativesField.getString(json),
+      groupAffiliation: _groupAffiliationField
+          .getNullableStringFromJsonForAmendment(original, amendment),
+      relatives: _relativesField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+    );
+  }
+
+  static Connections? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+    return Connections(
+      groupAffiliation: _groupAffiliationField.getNullableStringFromJson(json),
+      relatives: _relativesField.getNullableStringFromJson(json),
     );
   }
 
   factory Connections.fromRow(Row row) {
     return Connections(
-      groupAffiliation: row['group_affiliation'] as String,
-      relatives: row['relatives'] as String,
+      groupAffiliation: _groupAffiliationField.getNullableStringFromRow(row),
+      relatives: _relativesField.getNullableStringFromRow(row),
     );
   }
-  
-  final String groupAffiliation;
-  final String relatives;
-  
+
+  final String? groupAffiliation;
+  final String? relatives;
+
+  static Connections? amendOrCreate(
+    Field field,
+    Connections? original,
+    Map<String, dynamic>? amendment,
+  ) {
+    if (original == null) {
+      return Connections.fromJson(field.getJsonFromJson(amendment));
+    }
+    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
+  }
 
   @override
-  Connections fromJsonUpdate(Map<String, dynamic> amendment) {
-    return Connections.fromJsonUpdate(this, amendment);
+  Connections fromJsonAmendment(Map<String, dynamic>? amendment) {
+    return Connections.fromJsonAmendment(this, amendment);
   }
 
   static Connections? fromPrompt() {
@@ -54,7 +81,6 @@ class Connections extends Updateable<Connections> {
 
     return Connections.fromJson(json);
   }
-
 
   @override
   List<Field<Connections>> get fields => staticFields;
@@ -75,5 +101,4 @@ class Connections extends Updateable<Connections> {
     _groupAffiliationField,
     _relativesField,
   ];
-
 }

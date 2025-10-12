@@ -1,7 +1,6 @@
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
-import 'package:v03/utils/enum_parsing.dart';
 import 'package:v03/value_types/height.dart';
 import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
@@ -12,67 +11,132 @@ enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
 class Appearance extends Updateable<Appearance> {
   Appearance({
     required this.gender,
-    required this.race,
-    required this.height,
-    required this.weight,
-    required this.eyeColor,
-    required this.hairColor,
+    this.race,
+    this.height,
+    this.weight,
+    this.eyeColor,
+    this.hairColor,
   });
 
-  factory Appearance.fromJsonUpdate(
+  Appearance.from(Appearance other)
+    : this(
+        gender: other.gender,
+        race: other.race,
+        height: other.height,
+        weight: other.weight,
+        eyeColor: other.eyeColor,
+        hairColor: other.hairColor,
+      );
+
+  Appearance copyWith({
+    Gender? gender,
+    String? race,
+    Height? height,
+    Weight? weight,
+    String? eyeColor,
+    String? hairColor,
+  }) {
+    return Appearance(
+      gender: gender ?? this.gender,
+      race: race ?? this.race,
+      height: height ?? this.height,
+      weight: weight ?? this.weight,
+      eyeColor: eyeColor ?? this.eyeColor,
+      hairColor: hairColor ?? this.hairColor,
+    );
+  }
+
+  factory Appearance.fromJsonAmendment(
     Appearance original,
-    Map<String, dynamic> amendment,
+    Map<String, dynamic>? amendment,
   ) {
     return Appearance(
-      gender: _genderField.getEnumForUpdate<Gender>(
+      gender: _genderField.getEnumForAmendment<Gender>(
         original,
         Gender.values,
         amendment,
       ),
-      race: _raceField.getStringForUpdate(original, amendment),
+      race: _raceField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
       height: Height.parseList(
-        _heightField.getStringListForUpdate(original, amendment),
+        _heightField.getNullableStringListFromJsonForAmendment(
+          original,
+          amendment,
+        ),
       ),
       weight: Weight.parseList(
-        _weightField.getStringListForUpdate(original, amendment),
+        _weightField.getNullableStringListFromJsonForAmendment(
+          original,
+          amendment,
+        ),
       ),
-      eyeColor: _eyeColourField.getStringForUpdate(original, amendment),
-      hairColor: _hairColorField.getStringForUpdate(original, amendment),
+      eyeColor: _eyeColourField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      hairColor: _hairColorField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
     );
   }
 
-  factory Appearance.fromJson(Map<String, dynamic> json) {
+  static Appearance? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
     return Appearance(
-      gender: _genderField.getEnum<Gender>(Gender.values, json, Gender.unknown),
-      race: _raceField.getString(json),
-      height: Height.parseList(_heightField.getStringList(json)),
-      weight: Weight.parseList(_weightField.getStringList(json)),
-      eyeColor: _eyeColourField.getString(json),
-      hairColor: _hairColorField.getString(json),
+      gender: _genderField.getEnumFromJson<Gender>(
+        Gender.values,
+        json,
+        Gender.unknown,
+      ),
+      race: _raceField.getNullableStringFromJson(json),
+      height: Height.parseList(
+        _heightField.getNullableStringListFromJson(json),
+      ),
+      weight: Weight.parseList(
+        _weightField.getNullableStringListFromJson(json),
+      ),
+      eyeColor: _eyeColourField.getNullableStringFromJson(json),
+      hairColor: _hairColorField.getNullableStringFromJson(json),
     );
   }
 
   factory Appearance.fromRow(Row row) {
     return Appearance(
-      gender: Gender.values.tryParse(row['gender'] as String) ?? Gender.unknown,
-      race: row['race'] as String,
-      height: Height(cm: row['height_cm'] as int),
-      weight: Weight(kg: row['weight_kg'] as int),
-      eyeColor: row['eye_colour'] as String,
-      hairColor: row['hair_colour'] as String,
+      gender: _genderField.getEnumFromRow(Gender.values, row, Gender.unknown),
+      race: _raceField.getNullableStringFromRow(row),
+      height: Height.tryParse(_heightField.getNullableStringFromRow(row)).$1,
+      weight: Weight.tryParse(_weightField.getNullableStringFromRow(row)).$1,
+      eyeColor: _eyeColourField.getNullableStringFromRow(row),
+      hairColor: _hairColorField.getNullableStringFromRow(row),
     );
   }
 
   final Gender gender;
-  final String race;
-  final Height height;
-  final Weight weight;
-  final String eyeColor;
-  final String hairColor;
+  final String? race;
+  final Height? height;
+  final Weight? weight;
+  final String? eyeColor;
+  final String? hairColor;
+
+  static Appearance? amendOrCreate(
+    Field field,
+    Appearance? original,
+    Map<String, dynamic>? amendment,
+  ) {
+    if (original == null) {
+      return Appearance.fromJson(field.getJsonFromJson(amendment));
+    }
+    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
+  }
 
   @override
-  Appearance fromJsonUpdate(Map<String, dynamic> amendment) {
-    return Appearance.fromJsonUpdate(this, amendment);
+  Appearance fromJsonAmendment(Map<String, dynamic>? amendment) {
+    return Appearance.fromJsonAmendment(this, amendment);
   }
 
   static Appearance? fromPrompt() {
@@ -88,7 +152,7 @@ class Appearance extends Updateable<Appearance> {
   }
 
   bool get isMale => gender == Gender.male;
-  int get genderComparisonFactor => isMale ? -1 : 1;
+  int get genderComparisonFactor => isMale ? 1 : -1;
 
   @override
   int compareTo(Appearance other) {
@@ -98,25 +162,22 @@ class Appearance extends Updateable<Appearance> {
       other.genderComparisonFactor,
     );
 
-    // Never soort heroes by race but by height ascending, weight, eye- and hair-color alphabetically
+    // Never sort appearances by race as that would be discriminatory, but by height ascending (as tall heroes always have an advantage in all areas of life
+    // and herohood),
     if (comparison == 0) {
-      comparison = (height.asMetric().cm ?? 0).compareTo(
-        (other.height.asMetric().cm ?? 0),
-      );
+      _heightField.compareField(other, this);
     }
 
     if (comparison == 0) {
-      comparison = (weight.asMetric().kg ?? 0).compareTo(
-        (other.weight.asMetric().kg ?? 0),
-      );
+      comparison = _weightField.compareField(this, other);
     }
 
     if (comparison == 0) {
-      comparison = eyeColor.compareTo(other.eyeColor);
+      _eyeColourField.compareField(this, other);
     }
 
     if (comparison == 0) {
-      comparison = hairColor.compareTo(other.hairColor);
+      comparison = _hairColorField.compareField(this, other);
     }
 
     return comparison;
@@ -127,47 +188,50 @@ class Appearance extends Updateable<Appearance> {
   List<Field<Appearance>> get fields => staticFields;
 
   static final Field<Appearance> _genderField = Field<Appearance>(
-    (h) => h.gender,
+    (a) => a.gender,
     "gender",
     Gender.values.map((e) => e.name).join(', '),
-    format: (h) => h.gender.name,
+    format: (a) => (a.gender).name,
+    sqliteGetter: ((a) => (a.gender).name),
   );
 
   static final Field<Appearance> _raceField = Field<Appearance>(
-    (h) => h.race,
+    (a) => a.race,
     "race",
     "Species in Latin or English",
   );
 
   static Field<Appearance> get _heightField => Field<Appearance>(
-    (p) => p.height,
+    (a) => a.height,
     'height',
     'Height in centimeters and / or feet and inches',
+    sqliteGetter: ((a) => (a.height).toString()),
   );
 
   static Field<Appearance> get _weightField => Field<Appearance>(
     (p) => p.weight,
     'weight',
     'Weight in kilograms and / or pounds',
+    sqliteGetter: ((a) => (a.weight).toString()),
   );
 
   static final Field<Appearance> _eyeColourField = Field<Appearance>(
     (p) => p.eyeColor,
-    'eye-colour',
+    'eye-color',
     'The character\'s eye color of the most recent appearance',
   );
 
   static final Field<Appearance> _hairColorField = Field<Appearance>(
     (p) => p.hairColor,
-    'hair-colour',
+    'hair-color',
     'The character\'s hair color of the most recent appearance',
   );
 
   static final List<Field<Appearance>> staticFields = [
     _genderField,
     _raceField,
-    _weightField,
     _heightField,
+    _weightField,
     _eyeColourField,
     _hairColorField,
   ];

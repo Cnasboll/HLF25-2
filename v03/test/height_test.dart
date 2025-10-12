@@ -6,14 +6,14 @@ void main() {
     final h = Height.parse("6'2\"");
     expect(h.feet, 6);
     expect(h.inches, 2);
-    expect(h.asMetric().cm, 188);
+    expect(h.asMetric().centimeters, 188);
   });
 
-    test('parse imperial shorthand with space', () {
+  test('parse imperial shorthand with space', () {
     final h = Height.parse("6 '2 \"");
     expect(h.feet, 6);
     expect(h.inches, 2);
-    expect(h.asMetric().cm, 188);
+    expect(h.asMetric().centimeters, 188);
   });
 
   test('parse imperial verbose', () {
@@ -24,43 +24,104 @@ void main() {
 
   test('parse cm', () {
     final h = Height.parse('188 cm');
-    expect(h.cm, 188);
+    expect(h.centimeters, 188);
     final imp = h.asImperial();
     expect(imp.feet, 6);
-    // inches could be 2 or 1 depending on rounding; allow 2
-    expect(imp.inches, inInclusiveRange(1, 2));
+    expect(imp.inches, 2);
   });
 
   test('parse cm compact', () {
     final h = Height.parse('188cm');
-    expect(h.cm, 188);
+    expect(h.centimeters, 188);
     final imp = h.asImperial();
     expect(imp.feet, 6);
-    // inches could be 2 or 1 depending on rounding; allow 2
-    expect(imp.inches, inInclusiveRange(1, 2));
+    expect(imp.inches, 2);
   });
-  
-  test('parse cm without unit', () {
+
+  test('parse integer asumed cm', () {
     final h = Height.parse('188');
-    expect(h.cm, 188);
+    expect(h.centimeters, 188);
     final imp = h.asImperial();
     expect(imp.feet, 6);
-    // inches could be 2 or 1 depending on rounding; allow 2
-    expect(imp.inches, inInclusiveRange(1, 2));
+    expect(imp.inches, 2);
+  });
+
+  test('parse integral m', () {
+    final h = Height.parse('2 m');
+    expect(h.centimeters, 200);
+    final imp = h.asImperial();
+    expect(imp.feet, 6);
+    expect(imp.inches, 7);
+  });
+
+  test('parse integer assumed m', () {
+    final h = Height.parse('2');
+    expect(h.centimeters, 200);
+    final imp = h.asImperial();
+    expect(imp.feet, 6);
+    expect(imp.inches, 7);
   });
 
   test('parse meters', () {
     final h = Height.parse('1.88 m');
-    expect(h.cm, 188);
+    expect(h.centimeters, 188);
   });
 
-    test('parse meters compact', () {
+  test('parse meters compact', () {
     final h = Height.parse('1.88m');
-    expect(h.cm, 188);
+    expect(h.centimeters, 188);
   });
 
-  test('parse meters without unit', () {
+  test('parse double assumed meters', () {
     final h = Height.parse('1.88');
-    expect(h.cm, 188);
+    expect(h.centimeters, 188);
+  });
+
+  test('parse list with corresponding values in different systems', () {
+    final imp = Height.parseList(['6\'2"', '188 cm'])!;
+    expect(imp.feet, 6);
+    expect(imp.inches, 2);
+
+    final impWithOtherMetric = Height.parseList(['6\'2"', '189 cm'])!;
+    expect(impWithOtherMetric.feet, 6);
+    expect(impWithOtherMetric.inches, 2);
+
+    final redundantImp = Height.parseList(['6\'2"', '188 cm', '6 ft 2 in'])!;
+    expect(redundantImp.feet, 6);
+    expect(redundantImp.inches, 2);
+
+    final metric = Height.parseList(['188 cm', '6\'2"'])!;
+    expect(metric.centimeters, 188);
+
+    final redundantMetric = Height.parseList(['188 cm', '6\'2"', "1.88"])!;
+    expect(redundantMetric.centimeters, 188);
+  });
+
+  test('parse with in conflicting values in different systems', () {
+    expect(
+      () => Height.parseList(['6\'2"', '190 cm']),
+      throwsA(
+        predicate(
+          (e) =>
+              e is FormatException &&
+              e.message ==
+                  "Conflicting height information: metric '190 cm' corresponds to '6'3\"' after converting back to imperial -- expecting '188 cm' in order to match first value of '6'2\"'",
+        ),
+      ),
+    );
+  });
+
+  test('parse list with conflicting values in same system', () {
+    expect(
+      () => Height.parseList(['6\'2"', '6 feet 3']),
+      throwsA(
+        predicate(
+          (e) =>
+              e is FormatException &&
+              e.message ==
+                  "Conflicting height information: '6 feet 3' doesn't match first value '6'2\"'",
+        ),
+      ),
+    );
   });
 }

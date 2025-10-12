@@ -5,30 +5,87 @@ void main() {
   test('parse imperial', () {
     final w = Weight.parse("210 lb");
     expect(w.pounds, 210);
-    expect(w.asMetric().kg, 95);
+  });
+
+  test('parse 210 and 209 lb are both  95 kg verifying source data is ambiguous af', () {
+    final lb210 = Weight(pounds: 210);
+    final lb209 = Weight(pounds: 209);
+    // wrong in example: 95 kg is 209.44 pounds, which rounds to 209 pounds, not 210 pounds!
+    // Seems like pounds are used as source of truth in the example, even if metric is more common worldwide
+    expect(lb210.asMetric().kilograms, 95);
+    expect(lb209.asMetric().kilograms, 95);
   });
 
   test('parse imperial compact', () {
     final w = Weight.parse("210lb");
     expect(w.pounds, 210);
-    expect(w.asMetric().kg, 95);
   });
 
-  test('parse cm', () {
+  test('parse kg', () {
     final w = Weight.parse('95 kg');
-    expect(w.kg, 95);
-    expect(w.asImperial().pounds, 210);
+    expect(w.kilograms, 95);
+    
+    expect(w.asImperial().pounds, 209);
   });
 
-  test('parse cm compact', () {
+  test('parse kg compact', () {
     final w = Weight.parse('95kg');
-    expect(w.kg, 95);
-    expect(w.asImperial().pounds, 210);
+    expect(w.kilograms, 95);
   });
   
-  test('parse cm without unit', () {
+  test('parse integer assumed kg', () {
     final w = Weight.parse('95');
-    expect(w.kg, 95);
-    expect(w.asImperial().pounds, 210);
-  });  
+    expect(w.kilograms, 95);
+  });
+
+  
+  test('parse list with corresponding values in different systems', () {
+    final imp = Weight.parseList(['209 lb', '95 kg'])!;
+    expect(imp.pounds, 209);
+
+    final imp2 = Weight.parseList(['210 lb', '95 kg'])!;
+    expect(imp2.pounds, 210);
+
+    // Note tthatt 95 kgs can correspond to both 209 or 210 pounds but not the other way around
+    final metric = Weight.parseList(['95 kg', '209 lb'])!;
+    expect(metric.kilograms, 95);
+
+    final metric2 = Weight.parseList(['95 kg', '210 lb'])!;
+    expect(metric2.kilograms, 95);
+
+    final metric3 = Weight.parseList(['95 kg', '210 lb', '209 lb'])!;
+    expect(metric2.kilograms, 95);
+
+    final redundantMetric = Weight.parseList(['95 kg', '209 lb', "95"])!;
+    expect(redundantMetric.kilograms, 95);
+
+    final moreImperial = Weight.parseList(["155 lb", "70 kg"]);
+  });
+
+  test('parse with in conflicting values in different systems', () {
+    expect(
+      () => Weight.parseList(['210 lb', '94 kg']),
+      throwsA(
+        predicate(
+          (e) =>
+              e is FormatException &&
+              e.message == "Conflicting weight information: metric '94 kg' corresponds to '207 lb' after converting back to imperial -- expecting '95 kg' in order to match first value of '210 lb'",
+        ),
+      ),
+    );
+  });
+
+  test('parse list with conflicting values in same system', () {
+    expect(
+      () => Weight.parseList(['210 lb', '209 lb']),
+      throwsA(
+        predicate(
+          (e) =>
+              e is FormatException &&
+              e.message ==
+                  "Conflicting weight information: '209 lb' doesn't match first value '210 lb'",
+        ),
+      ),
+    );
+  });
 }

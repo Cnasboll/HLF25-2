@@ -1,22 +1,29 @@
-import 'package:equatable/equatable.dart';
-import 'package:v03/value_types/imperial_metric.dart';
+import 'package:v03/value_types/value_type.dart';
 
 enum HeightUnit { feet, inches, centimeters }
 
-class Height extends Equatable {
+class Height extends ValueType<Height> {
   final int? feet;
   final int? inches;
-  final int? cm;
+  final int? centimeters;
 
-  const Height({this.feet, this.inches, this.cm});
-
-  @override
-  List<Object?> get props => [feet, inches, cm];
+  const Height({this.feet, this.inches, this.centimeters});
 
   Height.fromMap(Map<HeightUnit, int> partsPerUnit)
     : feet = partsPerUnit[HeightUnit.feet],
       inches = partsPerUnit[HeightUnit.inches],
-      cm = partsPerUnit[HeightUnit.centimeters];
+      centimeters = partsPerUnit[HeightUnit.centimeters];
+
+  static Height parse(String input) {
+    var (value, error) = tryParse(input);
+    if (error != null) {
+      throw FormatException(error);
+    }
+    if (value == null) {
+      throw FormatException('Could not parse height: $input');
+    }
+    return value;
+  }
 
   /// Parse a height string
   ///
@@ -31,23 +38,24 @@ class Height extends Equatable {
   /// - 1.88 m
   /// - 1.88
   ///
-  factory Height.parse(String input) {
-    final s = input.trim();
+  static (Height?, String?) tryParse(String? input) {
+    if (input == null) {
+      // Null is not an error, it just means no information provided
+      return (null, null);
+    }
+    final String s = input.trim();
     if (s.isEmpty) {
-      throw FormatException('Empty height string');
+      return (null, 'Empty height string');
     }
 
     // Try imperial shorthand: 6'2" or 6'2 or 6' 2"
-    final imperialRegex = RegExp(
-      r'''^\s*(\d+)\s*'\s*(\d+)?\s*(?:"|in)?\s*$''',
-      caseSensitive: false,
-    );
-    final m1 = imperialRegex.firstMatch(s);
-    if (m1 != null) {
-      final f = int.tryParse(m1.group(1) ?? '');
-      final i = int.tryParse(m1.group(2) ?? '') ?? 0;
-      if (f != null) {
-        return Height(feet: f, inches: i);
+    final imperialRegex = RegExp(r'''^\s*(\d+)\s*'\s*(\d+)?\s*(?:"|in)?\s*$''');
+    var match = imperialRegex.firstMatch(s);
+    if (match != null) {
+      final feet = int.tryParse(match.group(1) ?? '');
+      final inches = int.tryParse(match.group(2) ?? '') ?? 0;
+      if (feet != null) {
+        return (Height(feet: feet, inches: inches), null);
       }
     }
 
@@ -56,95 +64,79 @@ class Height extends Equatable {
       r'''^\s*(\d+)\s*(?:ft|feet)\s*(\d+)?\s*(?:in|inch|inches)?\s*$''',
       caseSensitive: false,
     );
-    final m2 = imperialVerbose.firstMatch(s);
-    if (m2 != null) {
-      final f = int.tryParse(m2.group(1) ?? '');
-      final i = int.tryParse(m2.group(2) ?? '') ?? 0;
-      if (f != null) return Height(feet: f, inches: i);
+    match = imperialVerbose.firstMatch(s);
+    if (match != null) {
+      final feet = int.tryParse(match.group(1) ?? '');
+      final inches = int.tryParse(match.group(2) ?? '') ?? 0;
+      if (feet != null) {
+        return (Height(feet: feet, inches: inches), null);
+      }
     }
 
-    // Try metric cm: 188 cm or 188
-    final cmRegex = RegExp(
-      r'''^\s*(\d{2,3})\s*(cm)?\s*$''',
+    // Try integral metric: 188 cm, 2m or 188 e.g. with or without unit or spaces (assumed cm for values > 2 if no unit)
+    final integralMetricRegex = RegExp(
+      r'''^\s*(\d+)\s*(cm|m)?\s*$''',
       caseSensitive: false,
     );
-    final m3 = cmRegex.firstMatch(s);
-    if (m3 != null) {
-      final c = int.tryParse(m3.group(1) ?? '');
-      if (c != null) return Height(cm: c);
+    
+    match = integralMetricRegex.firstMatch(s);
+    if (match != null) {
+      final value = int.tryParse(match.group(1) ?? '');
+      if (value != null) {
+        var unit = match.group(2);
+        if (unit == null) {
+          // No unit given, assume m if value less than 3, otherwise cm
+          if (value > 2) {
+            unit = 'cm';
+          } else {
+            unit = 'm';
+          }
+        }
+
+        if (unit == 'm') {
+          final centimeters = (value * 100).round();
+          return (Height(centimeters: centimeters), null);
+        }
+        return (Height(centimeters: value), null);
+      }
     }
 
-    // Try metric meters: 1.88 m
+    // Try metric meters: 1.88 m with our without unit or spaces
     final mRegex = RegExp(
       r'''^\s*(\d+(?:\.\d+)?)\s*m?\s*$''',
       caseSensitive: false,
     );
-    final m4 = mRegex.firstMatch(s);
-    if (m4 != null) {
-      final meters = double.tryParse(m4.group(1) ?? '');
+    match = mRegex.firstMatch(s);
+    if (match != null) {
+      final meters = double.tryParse(match.group(1) ?? '');
       if (meters != null) {
-        final cmVal = (meters * 100).round();
-        return Height(cm: cmVal);
+        final centimeters = (meters * 100).round();
+        return (Height(centimeters: centimeters), null);
       }
     }
 
-    // If nothing matched, try to parse a simple number as cm
-    final onlyNumber = RegExp(r'''^\s*(\d{2,3})\s*$''');
-    final m5 = onlyNumber.firstMatch(s);
-    if (m5 != null) {
-      final c = int.tryParse(m5.group(1) ?? '');
-      if (c != null) return Height(cm: c);
-    }
-
-    throw FormatException('Could not parse height: $input');
+    return (null, 'Could not parse height: $input');
   }
 
-  factory Height.parseList(List<String> heightInVariousUnits) {
-    Map<SystemOfUnits, Height> parsedHeights = {};
-    for (var h in heightInVariousUnits.map((e) => Height.parse(e))) {
-      parsedHeights[h.systemOfUnits] = h;
+  static Height? parseList(List<String>? valueInVariousUnits) {
+    var (value, error) = tryParseList(valueInVariousUnits);
+    if (error != null) {
+      throw FormatException(error);
     }
-
-    // Find metric if available, otherwise imperial
-    var metric = parsedHeights[SystemOfUnits.metric];
-    if (metric != null) {
-      // Check for conflicts with any imperial values
-      var imperial = metric.asImperial();
-      for (var e in parsedHeights.entries) {
-        if (e.key == SystemOfUnits.metric) {
-          continue;
-        }
-        if (e.key == SystemOfUnits.imperial) {
-          var i = e.value;
-          if (i != imperial) {
-            // Conflict between metric and imperial, this is an error!
-            throw FormatException(
-              'Conflicting height information: ${metric.toString()} vs ${i.toString()} -- expecting ${imperial.toString()} in order to match metric value',
-            );
-          }
-        }
-        return metric;
-      }
-    }
-    for (var e in parsedHeights.entries) {
-      return e.value.asMetric();
-    }
-    return throw FormatException('No valid height information found');
+    return value;
   }
 
-  SystemOfUnits get systemOfUnits {
-    if (isMetric) {
-      return SystemOfUnits.metric;
-    }
-
-    if (isImperial) {
-      return SystemOfUnits.imperial;
-    }
-    return SystemOfUnits.metric; // default to metric if unknown
+  static (Height?, String?) tryParseList(List<String>? valueVariousUnits) {
+    return ValueType.tryParseList(valueVariousUnits, "height", tryParse);
   }
 
+  @override
+  List<Object?> get props => [feet, inches, centimeters];
+
+  @override
   bool get isImperial => feet != null || inches != null;
-  bool get isMetric => cm != null;
+  @override
+  bool get isMetric => centimeters != null;
 
   @override
   String toString() {
@@ -152,30 +144,31 @@ class Height extends Equatable {
       return "${feet ?? 0}'${inches ?? 0}\"";
     }
     if (isMetric) {
-      return "$cm cm";
+      return "$centimeters cm";
     }
     return '<unknown>';
   }
 
-  Height asMetric() {
-    if (isMetric) {
-      return this;
-    }
+  @override
+  Height cloneMetric() {
     final f = feet ?? 0;
     final i = inches ?? 0;
     final totalInches = f * 12 + i;
     final cmVal = (totalInches * 2.54).round();
-    return Height(cm: cmVal);
+    return Height(centimeters: cmVal);
   }
 
-  Height asImperial() {
-    if (isImperial) {
-      return this;
-    }
-    final c = cm ?? 0;
+  @override
+  Height cloneImperial() {
+    final c = centimeters ?? 0;
     final totalInches = (c / 2.54).round();
     final f = totalInches ~/ 12;
     final i = totalInches % 12;
     return Height(feet: f, inches: i);
+  }
+  
+  @override
+  double toMetricExact() {
+    return asMetric().centimeters?.toDouble() ?? 0 * 100;
   }
 }

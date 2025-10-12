@@ -4,60 +4,102 @@ import 'package:v03/updateable/updateable.dart';
 
 class PowerStats extends Updateable<PowerStats> {
   PowerStats({
-    required this.intelligence,
-    required this.strength,
-    required this.speed,
-    required this.durability,
-    required this.power,
-    required this.combat,
+    this.intelligence,
+    this.strength,
+    this.speed,
+    this.durability,
+    this.power,
+    this.combat,
   });
 
-  factory PowerStats.fromJsonUpdate(
-    PowerStats original,
-    Map<String, dynamic> amendment,
-  ) {
+  PowerStats.from(PowerStats other)
+    : this(
+        intelligence: other.intelligence,
+        strength: other.strength,
+        speed: other.speed,
+        durability: other.durability,
+        power: other.power,
+        combat: other.combat,
+      );
+
+  PowerStats copyWith({
+    int? intelligence,
+    int? strength,
+    int? speed,
+    int? durability,
+    int? power,
+    int? combat,
+  }) {
     return PowerStats(
-      intelligence: _combatField.getIntForUpdate(original, amendment),
-      strength: _strengthField.getIntForUpdate(original, amendment),
-      speed: _speedField.getIntForUpdate(original, amendment),
-      durability: _durabilityField.getIntForUpdate(original, amendment),
-      power: _powerField.getIntForUpdate(original, amendment),
-      combat: _combatField.getIntForUpdate(original, amendment),
+      intelligence: intelligence ?? this.intelligence,
+      strength: strength ?? this.strength,
+      speed: speed ?? this.speed,
+      durability: durability ?? this.durability,
+      power: power ?? this.power,
+      combat: combat ?? this.combat,
     );
   }
 
-  factory PowerStats.fromJson(Map<String, dynamic> json) {
+  factory PowerStats.fromJsonAmendment(
+    PowerStats original,
+    Map<String, dynamic>? amendment,
+  ) {
     return PowerStats(
-      intelligence: _combatField.getInt(json),
-      strength: _strengthField.getInt(json),
-      speed: _speedField.getInt(json),
-      durability: _durabilityField.getInt(json),
-      power: _powerField.getInt(json),
-      combat: _combatField.getInt(json),
+      intelligence: _combatField.getIntForAmendment(original, amendment),
+      strength: _strengthField.getIntForAmendment(original, amendment),
+      speed: _speedField.getIntForAmendment(original, amendment),
+      durability: _durabilityField.getIntForAmendment(original, amendment),
+      power: _powerField.getIntForAmendment(original, amendment),
+      combat: _combatField.getIntForAmendment(original, amendment),
+    );
+  }
+
+  static PowerStats? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+    return PowerStats(
+      intelligence: _combatField.getNullableIntFromJson(json),
+      strength: _strengthField.getNullableIntFromJson(json),
+      speed: _speedField.getNullableIntFromJson(json),
+      durability: _durabilityField.getNullableIntFromJson(json),
+      power: _powerField.getNullableIntFromJson(json),
+      combat: _combatField.getNullableIntFromJson(json),
     );
   }
 
   factory PowerStats.fromRow(Row row) {
     return PowerStats(
-      intelligence: row['intelligence'] as int,
-      strength: row['strength'] as int,
-      speed: row['speed'] as int,
-      durability: row['durability'] as int,
-      power: row['power'] as int,
-      combat: row['combat'] as int,
+      intelligence: _intelligenceField.getNullableIntFromRow(row),
+      strength: _strengthField.getNullableIntFromRow(row),
+      speed: _speedField.getNullableIntFromRow(row),
+      durability: _durabilityField.getNullableIntFromRow(row),
+      power: _powerField.getNullableIntFromRow(row),
+      combat: _combatField.getNullableIntFromRow(row),
     );
   }
 
-  final int intelligence;
-  final int strength;
-  final int speed;
-  final int durability;
-  final int power;
-  final int combat;
+  final int? intelligence;
+  final int? strength;
+  final int? speed;
+  final int? durability;
+  final int? power;
+  final int? combat;
+
+  static PowerStats? amendOrCreate(
+    Field field,
+    PowerStats? original,
+    Map<String, dynamic>? amendment,
+  ) {
+    if (original == null) {
+      return PowerStats.fromJson(field.getJsonFromJson(amendment));
+    }
+    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
+  }
 
   @override
-  PowerStats fromJsonUpdate(Map<String, dynamic> amendment) {
-    return PowerStats.fromJsonUpdate(this, amendment);
+  PowerStats fromJsonAmendment(Map<String, dynamic>? amendment) {
+    return PowerStats.fromJsonAmendment(this, amendment);
   }
 
   static PowerStats? fromPrompt() {
@@ -120,5 +162,4 @@ class PowerStats extends Updateable<PowerStats> {
     _powerField,
     _combatField,
   ];
-  
 }

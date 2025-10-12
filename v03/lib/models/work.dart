@@ -5,42 +5,67 @@ import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
 
 class Work extends Updateable<Work> {
-  Work({
-    required this.occupation,
-    required this.base,
-  });
+  Work({this.occupation, this.base});
 
-  factory Work.fromJsonUpdate(
+  Work.from(Work other) : this(occupation: other.occupation, base: other.base);
+
+  Work copyWith({String? occupation, String? base}) {
+    return Work(
+      occupation: occupation ?? this.occupation,
+      base: base ?? this.base,
+    );
+  }
+
+  factory Work.fromJsonAmendment(
     Work original,
-    Map<String, dynamic> amendment,
+    Map<String, dynamic>? amendment,
   ) {
     return Work(
-      occupation: _occupationField.getStringForUpdate(original, amendment),
-      base: _baseField.getStringForUpdate(original, amendment),      
+      occupation: _occupationField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      base: _baseField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
     );
   }
 
-  factory Work.fromJson(Map<String, dynamic> json) {
+  static Work? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
     return Work(
-      occupation: _occupationField.getString(json),
-      base: _baseField.getString(json),
+      occupation: _occupationField.getNullableStringFromJson(json),
+      base: _baseField.getNullableStringFromJson(json),
     );
   }
 
-    factory Work.fromRow(Row row) {
+  factory Work.fromRow(Row row) {
     return Work(
-      occupation: row['occupation'] as String,
-      base: row['base'] as String,
+      occupation: _occupationField.getNullableStringFromRow(row) ?? "",
+      base: _baseField.getNullableStringFromRow(row) ?? "",
     );
   }
 
-  final String occupation;
-  final String base;
-  
+  final String? occupation;
+  final String? base;
+
+  static Work? amendOrCreate(
+    Field field,
+    Work? original,
+    Map<String, dynamic>? amendment,
+  ) {
+    if (original == null) {
+      return Work.fromJson(field.getJsonFromJson(amendment));
+    }
+    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
+  }
 
   @override
-  Work fromJsonUpdate(Map<String, dynamic> amendment) {
-    return Work.fromJsonUpdate(this, amendment);
+  Work fromJsonAmendment(Map<String, dynamic>? amendment) {
+    return Work.fromJsonAmendment(this, amendment);
   }
 
   static Work? fromPrompt() {
@@ -54,7 +79,6 @@ class Work extends Updateable<Work> {
 
     return Work.fromJson(json);
   }
-
 
   @override
   List<Field<Work>> get fields => staticFields;
@@ -71,9 +95,5 @@ class Work extends Updateable<Work> {
     'A place where the character works or lives or hides rather frequently',
   );
 
-  static final List<Field<Work>> staticFields = [
-    _occupationField,
-    _baseField,
-  ];
- 
+  static final List<Field<Work>> staticFields = [_occupationField, _baseField];
 }

@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/jobs/job_queue.dart';
+import 'package:v03/models/appearance.dart';
+import 'package:v03/models/biography.dart';
 import 'package:v03/models/hero.dart';
-import 'package:v03/models/power_stats.dart';
-import 'package:v03/utils/enum_parsing.dart';
 
 class HeroRepository {
 
@@ -26,27 +28,26 @@ CREATE TABLE IF NOT EXISTS heroes (
   id TEXT PRIMARY KEY,
   version INTEGER NOT NULL,
   server_id INTEGER NOT NULL,
-	name TEXT NOT NULL,
-  intelligence INTEGER NOT NULL,
-	strength INTEGER NOT NULL,
-  speed INTEGER NOT NULL,
-  durability INTEGER NOT NULL,
-  power INTEGER NOT NULL,
-  combat INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  intelligence INTEGER NULL,
+  strength INTEGER NULL,
+  speed INTEGER NULL,
+  durability INTEGER NULL,
+  power INTEGER NULL,
+  combat INTEGER NULL,
   full_name TEXT NULL,
   alter_egos TEXT NULL,
   aliases TEXT NULL,
   place_of_birth TEXT NULL,
   first_appearance TEXT NULL,
   publisher TEXT NULL,
-  alignment TEXT NULL
-	gender TEXT NOT NULL,
-	race TEXT NOT NULL,
-  height_cm INTEGER NULL,
-  weight_kg INTEGER NULL,
+  alignment TEXT NULL,
+  gender TEXT NOT NULL,
+  race TEXT NOT NULL,
+  height TEXT NULL,
+  weight TEXT NULL,
   eye_color TEXT NULL,
   hair_color TEXT NULL,
-  eye_color TEXT NULL,
   occupation TEXT NULL,
   base TEXT NULL,
   group_affiliation TEXT NULL,
@@ -71,100 +72,19 @@ CREATE TABLE IF NOT EXISTS heroes (
     _cache[hero.id] = hero;    
     _heroesByServerId[hero.serverId] = hero;
     // Persist a copy to avoid race conditions (technically not needed for inserts but I want to keep the code nice and clean)
-    _jobQueue.enqueue(() => dbPersist(Hero.copy(hero)));
+    _jobQueue.enqueue(() => dbPersist(Hero.from(hero)));
   }
 
   void dbPersist(Hero hero) {
-    _db.execute(
-      '''INSERT INTO heroes (
-      id,
-      version,
-      server_id,
-      name,
-      intelligence,
-      strength,
-      speed,
-      durability,
-      power,
-      combat,
-      full_name,
-      alter_egos,
-      aliases,
-      place_of_birth,
-      first_appearance,
-      publisher,
-      alignment,
-      gender,
-      race,
-      height_cm,
-      weight_kg,
-      eye_color,
-      hair_color,
-      occupation,
-      base,
-      group_affiliation,
-      relatives,
-      image_url
-) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    var parameters = hero.sqliteProps().toList();
+    // print('Persisting hero ${hero.id} with values: $values');
+    _db.execute('''INSERT INTO heroes (
+${Hero.generateSqliteColumnNameList('      ')}
+) VALUES (${Hero.generateSQLiteInsertColumnPlaceholders()})
 ON CONFLICT (id) DO
 UPDATE
-SET version=excluded.version,
-    server_id=excluded.server_id,
-    name=excluded.name,
-    intelligence=excluded.intelligence,
-    strength=excluded.strength,
-    speed=excluded.speed,
-    durability=excluded.durability,
-    power=excluded.power,
-    combat=excluded.combat,
-    full_name=excluded.full_name,
-    alter_egos=excluded.alter_egos,
-    aliases=excluded.aliases,
-    place_of_birth=excluded.place_of_birth,
-    first_appearance=excluded.first_appearance,
-    publisher=excluded.publisher,
-    gender=excluded.gender,
-    race=excluded.race,
-    height_cm=excluded.height_cm,
-    weight_kg=excluded.weight_kg,
-    eye_color=excluded.eye_color,
-    hair_color=excluded.hair_color,
-    occupation=excluded.occupation,
-    base=excluded.base,
-    group_affiliation=excluded.group_affiliation,
-    relatives=excluded.relatives,
-    image_url=excluded.image_url
-      ''',
-        [
-          hero.id,
-          hero.version,
-          hero.serverId,
-          hero.name,
-          hero.powerStats.intelligence,
-          hero.powerStats.strength,
-          hero.powerStats.speed,
-          hero.powerStats.durability,
-          hero.powerStats.power,
-          hero.powerStats.combat,
-          hero.biography.fullName,
-          hero.biography.alterEgos,
-          hero.biography.aliases.join(', '),
-          hero.biography.placeOfBirth,
-          hero.biography.firstAppearance,
-          hero.biography.publisher,
-          hero.biography.alignment.name,
-          hero.appearance.gender.name,
-          hero.appearance.race,
-          hero.appearance.height.cm,
-          hero.appearance.weight.kg,
-          hero.appearance.eyeColor,
-          hero.appearance.hairColor,
-          hero.work.occupation,
-          hero.work.base,
-          hero.connections.groupAffiliation,
-          hero.connections.relatives,
-          hero.image.url
-        ]);
+SET ${Hero.generateSqliteUpdateClause('    ')}
+      ''', parameters);
   }
 
   void delete(Hero hero) {
@@ -192,12 +112,12 @@ SET version=excluded.version,
     var result = _cache.values
         .where(
           (hero) =>
-              (hero.id.toLowerCase().contains(lower) ||
+              (hero.id.toLowerCase().contains(lower)) ||
               (hero.serverId.toString().contains(lower)) ||
               hero.name.toLowerCase().contains(lower) ||
-              hero.appearance.gender.toString().contains(lower) ||
-              hero.powerStats.strength.toString().contains(lower) ||
-              hero.biography.alignment.toString().contains(lower)),
+              (hero.appearance?.gender ?? Gender.unknown).name.contains(lower) ||
+              (hero.powerStats?.strength ?? 0).toString().contains(lower) ||
+              (hero.biography?.alignment ?? Alignment.unknown).name.contains(lower),
         )
         .toList();
 

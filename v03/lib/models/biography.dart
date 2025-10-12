@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
-import 'package:v03/utils/enum_parsing.dart';
 
 // Levels of evilness
 enum Alignment {
@@ -21,27 +21,76 @@ enum Alignment {
 
 class Biography extends Updateable<Biography> {
   Biography({
-    required this.fullName,
-    required this.alterEgos,
-    required this.aliases,
-    required this.placeOfBirth,
-    required this.firstAppearance,
-    required this.publisher,
+    this.fullName,
+    this.alterEgos,
+    this.aliases,
+    this.placeOfBirth,
+    this.firstAppearance,
+    this.publisher,
     required this.alignment,
   });
 
-  factory Biography.fromJsonUpdate(
+  Biography.from(Biography other)
+    : this(
+        fullName: other.fullName,
+        alterEgos: other.alterEgos,
+        aliases: other.aliases == null
+            ? null
+            : List<String>.from(other.aliases ?? []),
+        placeOfBirth: other.placeOfBirth,
+        firstAppearance: other.firstAppearance,
+        publisher: other.publisher,
+        alignment: other.alignment,
+      );
+
+  Biography copyWith({
+    String? fullName,
+    String? alterEgos,
+    List<String>? aliases,
+    String? placeOfBirth,
+    String? firstAppearance,
+    String? publisher,
+    Alignment? alignment,
+  }) {
+    return Biography(
+      fullName: fullName ?? this.fullName,
+      alterEgos: alterEgos ?? this.alterEgos,
+      aliases: aliases ?? List<String>.from(this.aliases ?? []),
+      placeOfBirth: placeOfBirth ?? this.placeOfBirth,
+      firstAppearance: firstAppearance ?? this.firstAppearance,
+      publisher: publisher ?? this.publisher,
+      alignment: alignment ?? this.alignment,
+    );
+  }
+
+  factory Biography.fromJsonAmendment(
     Biography original,
-    Map<String, dynamic> amendment,
+    Map<String, dynamic>? amendment,
   ) {
     return Biography(
-      fullName: _publisherField.getStringForUpdate(original, amendment),
-      alterEgos: _alterEgosField.getStringForUpdate(original, amendment),
-      aliases: _aliasesField.getStringListForUpdate(original, amendment),
-      placeOfBirth: _placeOfBirthFIeld.getStringForUpdate(original, amendment),
-      firstAppearance: _firstAppearanceField.getStringForUpdate(original, amendment),
-      publisher: _publisherField.getStringForUpdate(original, amendment),
-        alignment: _alignmentField.getEnumForUpdate<Alignment>(
+      fullName: _publisherField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      alterEgos: _alterEgosField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      aliases: _aliasesField.getNullableStringListFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      placeOfBirth: _placeOfBirthFIeld.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      firstAppearance: _firstAppearanceField
+          .getNullableStringFromJsonForAmendment(original, amendment),
+      publisher: _publisherField.getNullableStringFromJsonForAmendment(
+        original,
+        amendment,
+      ),
+      alignment: _alignmentField.getEnumForAmendment<Alignment>(
         original,
         Alignment.values,
         amendment,
@@ -49,43 +98,63 @@ class Biography extends Updateable<Biography> {
     );
   }
 
-  factory Biography.fromJson(Map<String, dynamic> json) {
+  static Biography? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
     return Biography(
-      fullName: _publisherField.getString(json),
-      alterEgos: _alterEgosField.getString(json),
-      aliases: _aliasesField.getStringList(json),
-      placeOfBirth: _placeOfBirthFIeld.getString(json),
-      firstAppearance: _firstAppearanceField.getString(json),
-      publisher: _publisherField.getString(json),
-      alignment: _alignmentField.getEnum<Alignment>(Alignment.values, json, Alignment.unknown),
+      fullName: _publisherField.getNullableStringFromJson(json),
+      alterEgos: _alterEgosField.getNullableStringFromJson(json),
+      aliases: _aliasesField.getNullableStringListFromJson(json),
+      placeOfBirth: _placeOfBirthFIeld.getNullableStringFromJson(json),
+      firstAppearance: _firstAppearanceField.getNullableStringFromJson(json),
+      publisher: _publisherField.getNullableStringFromJson(json),
+      alignment: _alignmentField.getEnumFromJson<Alignment>(
+        Alignment.values,
+        json,
+        Alignment.unknown,
+      ),
     );
   }
 
   factory Biography.fromRow(Row row) {
     return Biography(
-      fullName: row['full_name'] as String,
-      alterEgos: row['alter_egos'] as String,
-      // TODO: Parse aliases properly (map to json array in DB)
-      aliases: (row['aliases'] as String).split(','),
-      placeOfBirth: row['place_of_birth'] as String,
-      firstAppearance: row['first_appearance'] as String,
-      publisher: row['publisher'] as String,
-      alignment: Alignment.values.tryParse(row['alignment'] as String) ??
-            Alignment.unknown,
+      fullName: _fullNameField.getNullableStringFromRow(row),
+      alterEgos: _alterEgosField.getNullableStringFromRow(row),
+      aliases: _aliasesField.getNullableStringListFromRow(row),
+      placeOfBirth: _placeOfBirthFIeld.getNullableStringFromRow(row),
+      firstAppearance: _firstAppearanceField.getNullableStringFromRow(row),
+      publisher: _publisherField.getNullableStringFromRow(row),
+      alignment: _alignmentField.getEnumFromRow<Alignment>(
+        Alignment.values,
+        row,
+        Alignment.unknown,
+      ),
     );
   }
 
-  final String fullName;
-  final String alterEgos;
-  final List<String> aliases;
-  final String placeOfBirth;
-  final String firstAppearance;
-  final String publisher; 
+  final String? fullName;
+  final String? alterEgos;
+  final List<String>? aliases;
+  final String? placeOfBirth;
+  final String? firstAppearance;
+  final String? publisher;
   final Alignment alignment;
 
+  static Biography? amendOrCreate(
+    Field field,
+    Biography? original,
+    Map<String, dynamic>? amendment,
+  ) {
+    if (original == null) {
+      return Biography.fromJson(field.getJsonFromJson(amendment));
+    }
+    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
+  }
+
   @override
-  Biography fromJsonUpdate(Map<String, dynamic> amendment) {
-    return Biography.fromJsonUpdate(this, amendment);
+  Biography fromJsonAmendment(Map<String, dynamic>? amendment) {
+    return Biography.fromJsonAmendment(this, amendment);
   }
 
   static Biography? fromPrompt() {
@@ -100,16 +169,12 @@ class Biography extends Updateable<Biography> {
     return Biography.fromJson(json);
   }
 
-
   /// Subclasses may override to contribute additional fields.
   @override
   List<Field<Biography>> get fields => staticFields;
 
-  static Field<Biography> get _fullNameField => Field<Biography>(
-    (p) => p.fullName,
-    'full-name',
-    'Full',
-  );
+  static Field<Biography> get _fullNameField =>
+      Field<Biography>((p) => p.fullName, 'full-name', 'Full');
 
   static final Field<Biography> _alterEgosField = Field<Biography>(
     (p) => p.alterEgos,
@@ -121,6 +186,9 @@ class Biography extends Updateable<Biography> {
     (p) => p.aliases,
     'aliases',
     'Other names the character is known by',
+    // This is a list of strings, so we need special handling as I cann't be arsed to make another table for it
+    //but putting JSON in column is an anti-pattern. I pray to the SQL gods for forgiveness. /O.I
+    sqliteGetter: ((p) => jsonEncode(p.aliases)),
   );
 
   static final Field<Biography> _placeOfBirthFIeld = Field<Biography>(
@@ -145,7 +213,8 @@ class Biography extends Updateable<Biography> {
     (h) => h.alignment,
     "alignment",
     Alignment.values.map((e) => e.name).join(', '),
-    format:(h) => h.alignment.name
+    format: (h) => h.alignment.name,
+    sqliteGetter: ((p) => p.alignment.name),
   );
 
   static final List<Field<Biography>> staticFields = [
@@ -157,5 +226,4 @@ class Biography extends Updateable<Biography> {
     _publisherField,
     _alignmentField,
   ];
-  
 }

@@ -10,6 +10,9 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
   @override
   List<Object?> get props => fields.map((f) => f.getter(this as T)).toList();
 
+  List<Object?> sqliteProps() =>
+      fields.expand((f) => f.sqliteProps(this as T)).toList();
+
   @override
   int compareTo(T other) {
     final a = fields;
@@ -31,7 +34,7 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
   static Map<String, dynamic>? promptForJson(List<Field> fields) {
     Map<String, dynamic> values = {};
     for (var field in fields) {
-      if (!field.mutable) {
+      if (!field.mutable || field.assignedBySystem) {
         continue;
       }
       print("Enter ${field.name} (${field.description}) or enter to abort:");
@@ -39,7 +42,7 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
       if (input.isEmpty) {
         return null;
       }
-      values[field.name] = input;
+      values[field.jsonName] = input;
     }
     return values;
   }
@@ -48,7 +51,7 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
     Map<String, dynamic> amendment = {};
     for (var field in fields) {
       var current = field.format(this as T);
-      if (!field.mutable) {
+      if (!field.mutable || field.assignedBySystem) {
         continue;
       }
 
@@ -57,9 +60,9 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
       );
       var input = (stdin.readLineSync() ?? "").trim();
       if (input.isEmpty) {
-        amendment[field.name] = current;
+        amendment[field.jsonName] = current;
       } else {
-        amendment[field.name] = input;
+        amendment[field.jsonName] = input;
       }
     }
     return amendment;
@@ -68,7 +71,7 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
   /// Returns true if this can be updated to other and all immutable fields remain unchanged
   bool validateUpdate(T other) {
     for (var field in fields) {
-      if (!field.validateUpdate(this as T, other)) {
+      if (!field.validateAmendment(this as T, other)) {
         return false;
       }
     }
@@ -79,7 +82,7 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
     StringBuffer sb = StringBuffer();
 
     for (var field in fields) {
-      var update = field.formatUpdate(this as T, other);
+      var update = field.formatAmendment(this as T, other);
       if (update == null) {
         continue;
       }
@@ -114,10 +117,10 @@ $diff=============
     return sb.toString();
   }
 
-  T fromJsonUpdate(Map<String, dynamic> amendment);
+  T fromJsonAmendment(Map<String, dynamic>? amendment);
 
   T? promptForUpdated() {
-    var updatedHero = fromJsonUpdate(promptForAmendmentJson());
+    var updatedHero = fromJsonAmendment(promptForAmendmentJson());
 
     if (this == updatedHero) {
       print("No changes made");

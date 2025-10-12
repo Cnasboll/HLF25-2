@@ -1,26 +1,40 @@
-import 'package:equatable/equatable.dart';
-import 'package:v03/value_types/imperial_metric.dart';
+import 'dart:convert';
+
+import 'package:v03/value_types/value_type.dart';
 
 enum WeightUnit { pounds, kilograms }
 
-class Weight extends Equatable {
+class Weight extends ValueType<Weight> {
   final int? pounds;
-  final int? kg;
+  final int? kilograms;
 
-  const Weight({this.pounds, this.kg});
-
-  @override
-  List<Object?> get props => [pounds, kg];
+  const Weight({this.pounds, this.kilograms});
 
   Weight.fromMap(Map<WeightUnit, int> partsPerUnit)
     : pounds = partsPerUnit[WeightUnit.pounds],
-      kg = partsPerUnit[WeightUnit.kilograms];
+      kilograms = partsPerUnit[WeightUnit.kilograms];
+
+  static Weight parse(String input) {
+    var (value, error) = tryParse(input);
+    if (error != null) {
+      throw FormatException(error);
+    }
+    if (value == null) {
+      throw FormatException('Could not parse weight: $input');
+    }
+    return value;
+  }
 
   /// Parse a weight string such as "210 lb", "95 kg", or just "95"
-  factory Weight.parse(String input) {
+  static (Weight?, String?) tryParse(String? input) {
+    if (input == null) {
+      // Null is not an error, it just means no information provided
+      return (null, null);
+    }
+
     final s = input.trim();
     if (s.isEmpty) {
-      throw FormatException('Empty weight string');
+      return (null, 'Empty weight string');
     }
 
     final weightRegex = RegExp(
@@ -28,67 +42,39 @@ class Weight extends Equatable {
       caseSensitive: false,
     );
 
-    final m1 = weightRegex.firstMatch(s);
-    if (m1 != null) {
-      final value = int.tryParse(m1.group(1) ?? '');
+    final match = weightRegex.firstMatch(s);
+    if (match != null) {
+      final value = int.tryParse(match.group(1) ?? '');
       if (value != null) {
-        if (m1.group(2) == 'kg') {
-          return Weight(kg: value);
-        } else {
-          return Weight(pounds: value);
+        if (match.group(2) == 'lb') {
+          return (Weight(pounds: value), null);
         }
+        return (Weight(kilograms: value), null);
       }
     }
 
-    throw FormatException('Could not parse weight: $input');
+    return (null, 'Could not parse weight: $input');
   }
 
-  factory Weight.parseList(List<String> weightInVariousUnits) {
-    Map<SystemOfUnits, Weight> parsedWeights = {};
-    for (var h in weightInVariousUnits.map((e) => Weight.parse(e))) {
-      parsedWeights[h.systemOfUnits] = h;
+  static Weight? parseList(List<String>? valueInVariousUnits) {
+    var (value, error) = tryParseList(valueInVariousUnits);
+    if (error != null) {
+      throw FormatException(error);
     }
-
-    // Find metric if available, otherwise imperial
-    var metric = parsedWeights[SystemOfUnits.metric];
-    if (metric != null) {
-      // Check for conflicts with any imperial values
-      var imperial = metric.asImperial();
-      for (var e in parsedWeights.entries) {
-        if (e.key == SystemOfUnits.metric) {
-          continue;
-        }
-        if (e.key == SystemOfUnits.imperial) {
-          var i = e.value;
-          if (i != imperial) {
-            // Conflict between metric and imperial, this is an error!
-            throw FormatException(
-              'Conflicting weight information: ${metric.toString()} vs ${i.toString()} -- expecting ${imperial.toString()} in order to match metric value',
-            );
-          }
-        }
-        return metric;
-      }
-    }
-    for (var e in parsedWeights.entries) {
-      return e.value.asMetric();
-    }
-    return throw FormatException('No valid weight information found');
+    return value;
   }
 
-  SystemOfUnits get systemOfUnits {
-    if (isMetric) {
-      return SystemOfUnits.metric;
-    }
-
-    if (isImperial) {
-      return SystemOfUnits.imperial;
-    }
-    return SystemOfUnits.metric; // default to metric if unknown
+  static (Weight?, String?) tryParseList(List<String>? valueVariousUnits) {
+    return ValueType.tryParseList(valueVariousUnits, "weight", tryParse);
   }
 
+  @override
+  List<Object?> get props => [pounds, kilograms];
+
+  @override
   bool get isImperial => pounds != null;
-  bool get isMetric => kg != null;
+  @override
+  bool get isMetric => kilograms != null;
 
   @override
   String toString() {
@@ -96,26 +82,27 @@ class Weight extends Equatable {
       return "${pounds ?? 0} lb";
     }
     if (isMetric) {
-      return "$kg kg";
+      return "$kilograms kg";
     }
     return '<unknown>';
   }
 
-  static final double kilosPerPound = 0.45359237;
+  static final double kilosgramsPerPound = 0.45359237;
 
-  Weight asMetric() {
-    if (isMetric) {
-      return this;
-    }
-    final kilograms = ((pounds ?? 0) * kilosPerPound).round();
-    return Weight(kg: kilograms);
+  @override
+  Weight cloneMetric() {
+    final kilograms = ((pounds ?? 0) * kilosgramsPerPound).round();
+    return Weight(kilograms: kilograms);
   }
 
-  Weight asImperial() {
-    if (isImperial) {
-      return this;
-    }
-    final pounds = ((kg ?? 0) / kilosPerPound).round();
+  @override
+  Weight cloneImperial() {
+    final pounds = ((kilograms ?? 0) / kilosgramsPerPound).round();
     return Weight(pounds: pounds);
+  }
+
+  @override
+  double toMetricExact() {
+    return asMetric().kilograms?.toDouble() ?? 0;
   }
 }

@@ -7,25 +7,48 @@ import 'package:v03/updateable/updateable.dart';
 class Image extends Updateable<Image> {
   Image({required this.url});
 
-  factory Image.fromJsonUpdate(Image original, Map<String, dynamic> amendment) {
-    return Image(url: _urlField.getStringForUpdate(original, amendment));
+  Image.from(Image other) : this(url: other.url);
+
+  Image copyWith(String? url) {
+    return Image(url: url ?? this.url);
   }
 
-  factory Image.fromJson(Map<String, dynamic> json) {
-    return Image(url: _urlField.getString(json));
-  }
-
-  factory Image.fromRow(Row row) {
+  factory Image.fromJsonAmendment(
+    Image original,
+    Map<String, dynamic>? amendment,
+  ) {
     return Image(
-      url: row['image_url'] as String,
+      url: _urlField.getNullableStringFromJsonForAmendment(original, amendment),
     );
   }
 
-  final String url;
+  static Image? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+    return Image(url: _urlField.getNullableStringFromJson(json));
+  }
+
+  factory Image.fromRow(Row row) {
+    return Image(url: _urlField.getNullableStringFromRow(row));
+  }
+
+  final String? url;
+
+  static Image? amendOrCreate(
+    Field field,
+    Image? original,
+    Map<String, dynamic>? amendment,
+  ) {
+    if (original == null) {
+      return Image.fromJson(field.getJsonFromJson(amendment));
+    }
+    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
+  }
 
   @override
-  Image fromJsonUpdate(Map<String, dynamic> amendment) {
-    return Image.fromJsonUpdate(this, amendment);
+  Image fromJsonAmendment(Map<String, dynamic>? amendment) {
+    return Image.fromJsonAmendment(this, amendment);
   }
 
   static Image? fromPrompt() {
@@ -43,8 +66,12 @@ class Image extends Updateable<Image> {
   @override
   List<Field<Image>> get fields => staticFields;
 
-  static Field<Image> get _urlField =>
-      Field<Image>((p) => p.url, 'url', 'The URL of the image');
+  static Field<Image> get _urlField => Field<Image>(
+    (p) => p.url,
+    'url',
+    'The URL of the image',
+    sqlLiteName: 'image_url',
+  );
 
   static final List<Field<Image>> staticFields = [_urlField];
 }
