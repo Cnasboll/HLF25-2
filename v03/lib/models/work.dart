@@ -84,14 +84,14 @@ class Work extends Updateable<Work> {
   List<Field<Work>> get fields => staticFields;
 
   static Field<Work> get _occupationField => Field<Work>(
-    (p) => p.occupation,
+    (p) => p?.occupation,
     String,
     'occupation',
     'Occupation of the character',
   );
 
   static final Field<Work> _baseField = Field<Work>(
-    (p) => p.base,
+    (p) => p?.base,
     String,
     'base',
     'A place where the character works or lives or hides rather frequently',

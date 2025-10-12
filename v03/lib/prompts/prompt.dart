@@ -1,18 +1,16 @@
 import 'dart:io';
 
-enum YesNo { yes, no }
-
-YesNo promptForYesNo(String prompt) {
+bool promptForYesNo(String prompt) {
   for (;;) {
     print('''
 
 $prompt (y/n)''');
     var input = (stdin.readLineSync() ?? "").trim().toLowerCase();
     if (input.startsWith("y")) {
-      return YesNo.yes;
+      return true;
     }
     if (input.startsWith("n")) {
-      return YesNo.no;
+      return false;
     }
     print("Invalid answer, please enter y or n");
   }

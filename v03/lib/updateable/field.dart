@@ -1,12 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/prompts/prompt.dart';
 import 'package:v03/utils/enum_parsing.dart';
 
-typedef LookupField<T> = Object? Function(T);
-typedef FormatField<T> = String Function(T);
-typedef SQLGetter<T> = Object? Function(T);
+typedef LookupField<T> = Object? Function(T?);
+typedef FormatField<T> = String Function(T?);
+typedef SQLGetter<T> = Object? Function(T?);
 
 class Field<T> {
   Field(
@@ -16,19 +18,47 @@ class Field<T> {
     this.description, {
     this.primary = false,
     this.nullable = true,
-    this.mutable = true,
     this.assignedBySystem = false,
     FormatField<T>? format,
     this.comparable = true,
+    bool? mutable,
     String? jsonName,
     String? sqlLiteName,
     List<Field>? children,
     LookupField<T>? sqliteGetter,
-  }) : format = format ?? ((t) => getter(t).toString()),
+  }) : mutable = mutable ?? !primary,
+       format = format ?? ((t) => getter(t).toString()),
        jsonName = jsonName ?? name,
        sqlLiteName = sqlLiteName ?? name.replaceAll('-', '_').toLowerCase(),
        _children = children ?? [],
        sqliteGetter = sqliteGetter ?? ((t) => getter(t));
+
+  bool promptForJson(Map<String, dynamic> json, {String? crumbtrail}) {
+    String cr = crumbtrail != null ? "$crumbtrail." : "";
+    var fullPath = '$cr$name';
+    if (_children.isEmpty) {
+      print("Enter $fullPath ($description) or enter to abort:");
+      var input = (stdin.readLineSync() ?? "").trim();
+      if (input.isEmpty) {
+        return false;
+      }
+      json[jsonName] = input;
+      return true;
+    }
+
+    if (promptForYesNo('Add a $fullPath?')) {
+      for (var child in _children) {
+        var childJson = <String, dynamic>{};
+        if (child.promptForJson(childJson, crumbtrail: fullPath)) {
+          json[jsonName] = childJson;
+        }
+        else {
+          return true;
+        }
+      }
+    }
+    return true;
+  }
 
   bool validateAmendment(T lhs, T rhs) {
     if (lhs == rhs) {
@@ -42,7 +72,25 @@ class Field<T> {
     return mutable;
   }
 
-  String? formatAmendment(T lhs, T rhs, {String? crubtrail}) {
+  void formatField(T? t, StringBuffer sb, {String? crumbtrail}) {
+    var cr = crumbtrail != null ? "$crumbtrail.$name" : name;  
+    if (_children.isEmpty) {
+      sb.writeln("$cr: ${format(t)}");
+      return;
+    }
+
+    var childObject = getter(t);
+    if (childObject == null) {
+      sb.writeln("$cr: N/A");
+      return;
+    }
+    
+    for (var child in _children) {
+      child.formatField(childObject, sb, crumbtrail: cr);
+    }
+  }
+
+  String? formatAmendment(T? lhs, T? rhs, {String? crubtrail}) {
     if (!mutable || assignedBySystem) {
       return null;
     }
@@ -140,13 +188,12 @@ class Field<T> {
   }
 
   int getIntFromJson(Map<String, dynamic>? json, int defaultValue) {
-    
     return getNullableIntFromJson(json) ?? defaultValue;
   }
 
   int? getNullableIntFromJson(Map<String, dynamic>? json) {
     var value = json?[jsonName];
-    
+
     if (value == null) {
       return null;
     }
@@ -292,7 +339,7 @@ class Field<T> {
     } else if (type == double) {
       columnType = "REAL";
     } else if (type == Enum) {
-      columnType = "TEXT";    
+      columnType = "TEXT";
     } else {
       // Fallback to TEXT for complex types
       columnType = "TEXT";
@@ -301,7 +348,7 @@ class Field<T> {
     return "$columnType ${sqlLiteQualifier()}";
   }
 
-  List<Object?> sqliteProps(T t) {
+  List<Object?> sqliteProps(T? t) {
     if (_children.isEmpty) {
       return [sqliteGetter(t)];
     }

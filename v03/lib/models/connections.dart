@@ -86,14 +86,14 @@ class Connections extends Updateable<Connections> {
   List<Field<Connections>> get fields => staticFields;
 
   static Field<Connections> get _groupAffiliationField => Field<Connections>(
-    (p) => p.groupAffiliation,
+    (p) => p?.groupAffiliation,
     String,
     'group-affiliation',
     'Groups the character is affiliated with wether currently or in the past and if addmittedly or not',
   );
 
   static final Field<Connections> _relativesField = Field<Connections>(
-    (p) => p.relatives,
+    (p) => p?.relatives,
     String,
     'relatives',
     'A list of the character\'s relatives by blood, marriage, adoption, or pure association',

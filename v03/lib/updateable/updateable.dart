@@ -32,19 +32,16 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
   }
 
   static Map<String, dynamic>? promptForJson(List<Field> fields) {
-    Map<String, dynamic> values = {};
+    Map<String, dynamic> json = {};
     for (var field in fields) {
       if (!field.mutable || field.assignedBySystem) {
         continue;
       }
-      print("Enter ${field.name} (${field.description}) or enter to abort:");
-      var input = (stdin.readLineSync() ?? "").trim();
-      if (input.isEmpty) {
+      if (!field.promptForJson(json)) {
         return null;
       }
-      values[field.jsonName] = input;
     }
-    return values;
+    return json;
   }
 
   Map<String, dynamic> promptForAmendmentJson() {
@@ -110,7 +107,7 @@ $diff=============
 
 =============''');
     for (var field in fields) {
-      sb.writeln("${field.name}: ${field.format(this as T)}");
+      field.formatField(this as T, sb);
     }
     sb.write('''=============
 ''');
@@ -127,10 +124,9 @@ $diff=============
       return null;
     }
 
-    if (promptForYesNo(
-          '''Save the following changes?${sideBySide(updatedHero)}''',
-        ) ==
-        YesNo.no) {
+    if (!promptForYesNo(
+      '''Save the following changes?${sideBySide(updatedHero)}''',
+    )) {
       return null;
     }
 

@@ -239,16 +239,15 @@ class Hero extends Updateable<Hero> {
   final Image? image;
 
   static final Field<Hero> _idField = Field<Hero>(
-    (h) => h.id,
+    (h) => h?.id ?? Uuid(),
     String,
     "id",
     "UUID",
-    mutable: false,
     primary: true,
   );
 
   static final Field<Hero> _serverIdField = Field<Hero>(
-    (h) => h.serverId,
+    (h) => h?.serverId,
     int,
     "server_id",
     "Server assigned integer",
@@ -257,7 +256,7 @@ class Hero extends Updateable<Hero> {
   );
 
   static final Field<Hero> _versionField = Field<Hero>(
-    (v) => v.version,
+    (v) => v?.version ?? 1,
     int,
     'version',
     'Version number',
@@ -266,7 +265,7 @@ class Hero extends Updateable<Hero> {
   );
 
   static final Field<Hero> _nameField = Field<Hero>(
-    (h) => h.name,
+    (h) => h?.name ?? '',
     String,
     "name",
     "Most commonly used name",
@@ -274,7 +273,7 @@ class Hero extends Updateable<Hero> {
   );
 
   static final Field<Hero> _powerstatsField = Field<Hero>(
-    (h) => h.powerStats,
+    (h) => h?.powerStats,
     PowerStats,
     "powerstats",
     "Power statistics which is mostly misused",
@@ -282,47 +281,47 @@ class Hero extends Updateable<Hero> {
   );
 
   static final Field<Hero> _biographyField = Field<Hero>(
-    (h) => h.biography,
+    (h) => h?.biography,
     Biography,
     "biography",
     "Hero's quite biased biography",
-    format: (h) => "Biography: ${h.biography}",
+    format: (h) => "Biography: ${h?.biography}",
     children: Biography.staticFields,
   );
 
   static final Field<Hero> _workField = Field<Hero>(
-    (h) => h.work,
+    (h) => h?.work,
     Work,
     "work",
     "Hero's work",
-    format: (h) => "Work: ${h.work}",
+    format: (h) => "Work: ${h?.work}",
     children: Work.staticFields,
   );
 
   static final Field<Hero> _appearanceField = Field<Hero>(
-    (h) => h.appearance,
+    (h) => h?.appearance,
     Appearance,
     "appearance",
     "Hero's appearance",
-    format: (h) => "Appearance: ${h.appearance}",
+    format: (h) => "Appearance: ${h?.appearance}",
     children: Appearance.staticFields,
   );
 
   static final Field<Hero> _connectionsField = Field<Hero>(
-    (h) => h.connections,
+    (h) => h?.connections,
     Connections,
     "connections",
     "Hero's connections",
-    format: (h) => "Connections: ${h.connections}",
+    format: (h) => "Connections: ${h?.connections}",
     children: Connections.staticFields,
   );
 
   static final Field<Hero> _imageField = Field<Hero>(
-    (h) => h.image,
+    (h) => h?.image,
     Image,
     "image",
     "Hero's image",
-    format: (h) => "Image: ${h.image}",
+    format: (h) => "Image: ${h?.image}",
     children: Image.staticFields,
   );
 

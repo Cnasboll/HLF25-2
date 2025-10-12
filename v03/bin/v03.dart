@@ -73,8 +73,7 @@ Future<void> mainMenu(
   Map<String, (Function, String)> commands,
 ) async {
   var input = (stdin.readLineSync() ?? "").toLowerCase().trim();
-  if (input.isEmpty)
-  {
+  if (input.isEmpty) {
     print("Please enter a command");
     return;
   }
@@ -87,7 +86,7 @@ Future<void> mainMenu(
 }
 
 bool promptQuit() {
-  if (promptForYesNo("Do you really want to exit?") == YesNo.no) {
+  if (!promptForYesNo("Do you really want to exit?")) {
     return false;
   }
   print("Exiting...");
@@ -134,7 +133,7 @@ void listMatchingHeroes(HeroRepository repo) {
 }
 
 void deleteAllHeroes(HeroRepository repo) {
-  if (promptForYesNo("Do you really want to delete all heroes?") == YesNo.no) {
+  if (!promptForYesNo("Do you really want to delete all heroes?")) {
     return;
   }
   repo.clean();
@@ -147,10 +146,9 @@ void deleteHero(HeroRepository repo) {
     return;
   }
 
-  if (promptForYesNo(
-        '''Do you really want to delete hero with the following details?$hero''',
-      ) ==
-      YesNo.no) {
+  if (!promptForYesNo(
+    '''Do you really want to delete hero with the following details?$hero''',
+  )) {
     return;
   }
 
@@ -166,8 +164,7 @@ void createHero(HeroRepository repo) {
     return;
   }
 
-  if (promptForYesNo('''Save new hero with the following details?$hero''') ==
-      YesNo.no) {
+  if (!promptForYesNo('''Save new hero with the following details?$hero''')) {
     return;
   }
 
@@ -181,7 +178,7 @@ void updateHero(HeroRepository repo) {
   if (hero == null) {
     return;
   }
-  var updatedHero =  hero.promptForUpdated();
+  var updatedHero = hero.promptForUpdated();
   if (updatedHero != null) {
     repo.persist(updatedHero);
     print('''Updated hero:
