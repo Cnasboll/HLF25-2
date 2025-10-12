@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/jobs/job_queue.dart';
@@ -50,7 +49,6 @@ ${Hero.generateSqliteColumnDeclarations('    ')}
 
   void dbPersist(Hero hero) {
     var parameters = hero.sqliteProps().toList();
-    // print('Persisting hero ${hero.id} with values: $values');
     _db.execute('''INSERT INTO heroes (
 ${Hero.generateSqliteColumnNameList('      ')}
 ) VALUES (${Hero.generateSQLiteInsertColumnPlaceholders()})

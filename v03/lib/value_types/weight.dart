@@ -1,18 +1,12 @@
-import 'dart:convert';
-
 import 'package:v03/value_types/value_type.dart';
 
 enum WeightUnit { pounds, kilograms }
 
 class Weight extends ValueType<Weight> {
-  final int? pounds;
-  final int? kilograms;
 
-  const Weight({this.pounds, this.kilograms});
-
-  Weight.fromMap(Map<WeightUnit, int> partsPerUnit)
-    : pounds = partsPerUnit[WeightUnit.pounds],
-      kilograms = partsPerUnit[WeightUnit.kilograms];
+  Weight(super.value, super.systemOfUnits);
+  Weight.fromPounds(double pounds) : this(poundsToKilograms(pounds), SystemOfUnits.imperial);
+  Weight.fromKilograms(double kilograms) : this(kilograms, SystemOfUnits.metric);
 
   static Weight parse(String input) {
     var (value, error) = tryParse(input);
@@ -47,9 +41,9 @@ class Weight extends ValueType<Weight> {
       final value = int.tryParse(match.group(1) ?? '');
       if (value != null) {
         if (match.group(2) == 'lb') {
-          return (Weight(pounds: value), null);
+          return (Weight.fromPounds(value.toDouble()), null);
         }
-        return (Weight(kilograms: value), null);
+        return (Weight.fromKilograms(value.toDouble()), null);
       }
     }
 
@@ -68,41 +62,37 @@ class Weight extends ValueType<Weight> {
     return ValueType.tryParseList(valueVariousUnits, "weight", tryParse);
   }
 
-  @override
-  List<Object?> get props => [pounds, kilograms];
-
-  @override
-  bool get isImperial => pounds != null;
-  @override
-  bool get isMetric => kilograms != null;
 
   @override
   String toString() {
     if (isImperial) {
-      return "${pounds ?? 0} lb";
+      return "$wholePounds lb";
     }
     if (isMetric) {
-      return "$kilograms kg";
+      return "$wholeKilograms kg";
     }
     return '<unknown>';
   }
 
   static final double kilosgramsPerPound = 0.45359237;
 
+  static double poundsToKilograms(double pounds) {
+    return pounds * kilosgramsPerPound;
+  }
+  static double kilogramsToPounds(double kilograms) {
+    return kilograms / kilosgramsPerPound;
+  }
+
+  int get wholePounds => (kilogramsToPounds(value)).round();
+  int get wholeKilograms => value.round();
+
   @override
   Weight cloneMetric() {
-    final kilograms = ((pounds ?? 0) * kilosgramsPerPound).round();
-    return Weight(kilograms: kilograms);
+    return Weight.fromKilograms(wholeKilograms.toDouble());
   }
 
   @override
   Weight cloneImperial() {
-    final pounds = ((kilograms ?? 0) / kilosgramsPerPound).round();
-    return Weight(pounds: pounds);
-  }
-
-  @override
-  double toMetricExact() {
-    return asMetric().kilograms?.toDouble() ?? 0;
+    return Weight.fromPounds(wholePounds.toDouble());
   }
 }

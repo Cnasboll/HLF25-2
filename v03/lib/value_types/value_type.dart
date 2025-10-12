@@ -2,8 +2,12 @@ import 'package:equatable/equatable.dart';
 
 enum SystemOfUnits { metric, imperial }
 
-abstract class ValueType<T> extends Equatable implements Comparable<T> {
-  const ValueType();
+abstract class ValueType<T> extends Equatable implements Comparable<ValueType<T>> {
+  
+  ValueType(this.value, this.systemOfUnits);
+
+  @override
+  List<Object?> get props => [value, systemOfUnits];
 
   static (T?, String?) tryParseList<T>(
     List<String>? valueInVariousUnits,
@@ -81,19 +85,8 @@ abstract class ValueType<T> extends Equatable implements Comparable<T> {
     return (null, errors.toString());
   }
 
-  SystemOfUnits get systemOfUnits {
-    if (isMetric) {
-      return SystemOfUnits.metric;
-    }
-
-    if (isImperial) {
-      return SystemOfUnits.imperial;
-    }
-    return SystemOfUnits.metric; // default to metric if unknown
-  }
-
-  bool get isImperial;
-  bool get isMetric;
+  bool get isImperial => systemOfUnits == SystemOfUnits.imperial;
+  bool get isMetric => systemOfUnits == SystemOfUnits.metric;
 
   T as(SystemOfUnits system) {
     if (system == SystemOfUnits.imperial) {
@@ -120,12 +113,11 @@ abstract class ValueType<T> extends Equatable implements Comparable<T> {
 
   T cloneImperial();
 
-  // TODO: use this for internal representation and comparison, store everything as metric internally
-  // and use second column for preferred display unit, now the db looks like the value hasn't even been parsed :D
-  double toMetricExact() ;
-
   @override
-  int compareTo(T other) {
-    return toMetricExact().compareTo((other as ValueType<T>).toMetricExact());
+  int compareTo(ValueType<T> other) {
+    return value.compareTo(other.value);
   }
+
+  final double value;
+  final SystemOfUnits systemOfUnits;
 }

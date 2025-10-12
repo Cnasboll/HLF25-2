@@ -4,97 +4,103 @@ import 'package:v03/value_types/height.dart';
 void main() {
   test('parse imperial shorthand', () {
     final h = Height.parse("6'2\"");
-    expect(h.feet, 6);
-    expect(h.inches, 2);
-    expect(h.asMetric().centimeters, 188);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
+    expect(h.wholeCentimeters, 188);
   });
 
   test('parse imperial shorthand with space', () {
     final h = Height.parse("6 '2 \"");
-    expect(h.feet, 6);
-    expect(h.inches, 2);
-    expect(h.asMetric().centimeters, 188);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
+    expect(h.wholeCentimeters, 188);
   });
 
   test('parse imperial verbose', () {
     final h = Height.parse('6 ft 2 in');
-    expect(h.feet, 6);
-    expect(h.inches, 2);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
   });
 
   test('parse cm', () {
     final h = Height.parse('188 cm');
-    expect(h.centimeters, 188);
-    final imp = h.asImperial();
-    expect(imp.feet, 6);
-    expect(imp.inches, 2);
+    expect(h.wholeCentimeters, 188);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
   });
 
   test('parse cm compact', () {
     final h = Height.parse('188cm');
-    expect(h.centimeters, 188);
-    final imp = h.asImperial();
-    expect(imp.feet, 6);
-    expect(imp.inches, 2);
+    expect(h.wholeCentimeters, 188);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
   });
 
   test('parse integer asumed cm', () {
     final h = Height.parse('188');
-    expect(h.centimeters, 188);
-    final imp = h.asImperial();
-    expect(imp.feet, 6);
-    expect(imp.inches, 2);
+    expect(h.wholeCentimeters, 188);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
   });
 
   test('parse integral m', () {
     final h = Height.parse('2 m');
-    expect(h.centimeters, 200);
-    final imp = h.asImperial();
-    expect(imp.feet, 6);
-    expect(imp.inches, 7);
+    expect(h.wholeCentimeters, 200);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 7);
   });
 
   test('parse integer assumed m', () {
     final h = Height.parse('2');
-    expect(h.centimeters, 200);
-    final imp = h.asImperial();
-    expect(imp.feet, 6);
-    expect(imp.inches, 7);
+    expect(h.wholeCentimeters, 200);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 7);
   });
 
   test('parse meters', () {
     final h = Height.parse('1.88 m');
-    expect(h.centimeters, 188);
+    expect(h.wholeCentimeters, 188);
   });
 
   test('parse meters compact', () {
     final h = Height.parse('1.88m');
-    expect(h.centimeters, 188);
+    expect(h.wholeCentimeters, 188);
   });
 
   test('parse double assumed meters', () {
     final h = Height.parse('1.88');
-    expect(h.centimeters, 188);
+    expect(h.wholeCentimeters, 188);
   });
 
   test('parse list with corresponding values in different systems', () {
     final imp = Height.parseList(['6\'2"', '188 cm'])!;
-    expect(imp.feet, 6);
-    expect(imp.inches, 2);
+    var (feet, inches) = imp.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
 
     final impWithOtherMetric = Height.parseList(['6\'2"', '189 cm'])!;
-    expect(impWithOtherMetric.feet, 6);
-    expect(impWithOtherMetric.inches, 2);
+    (feet, inches) = imp.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
 
     final redundantImp = Height.parseList(['6\'2"', '188 cm', '6 ft 2 in'])!;
-    expect(redundantImp.feet, 6);
-    expect(redundantImp.inches, 2);
+    (feet, inches) = redundantImp.wholeFeetAndWholeInches;
+    expect(feet, 6);
+    expect(inches, 2);
 
     final metric = Height.parseList(['188 cm', '6\'2"'])!;
-    expect(metric.centimeters, 188);
+    expect(metric.wholeCentimeters, 188);
 
     final redundantMetric = Height.parseList(['188 cm', '6\'2"', "1.88"])!;
-    expect(redundantMetric.centimeters, 188);
+    expect(redundantMetric.wholeCentimeters, 188);
   });
 
   test('parse with in conflicting values in different systems', () {

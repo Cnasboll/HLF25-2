@@ -3,16 +3,12 @@ import 'package:v03/value_types/value_type.dart';
 enum HeightUnit { feet, inches, centimeters }
 
 class Height extends ValueType<Height> {
-  final int? feet;
-  final int? inches;
-  final int? centimeters;
 
-  const Height({this.feet, this.inches, this.centimeters});
+  Height(super.value, super.systemOfUnits);
 
-  Height.fromMap(Map<HeightUnit, int> partsPerUnit)
-    : feet = partsPerUnit[HeightUnit.feet],
-      inches = partsPerUnit[HeightUnit.inches],
-      centimeters = partsPerUnit[HeightUnit.centimeters];
+  Height.fromFeetAndInches(int feet, double inches) : this(feetAndInchesToMeters(feet, inches), SystemOfUnits.imperial);
+  Height.fromCentimeters(double centimeters) : this(centimeters / 100.0, SystemOfUnits.metric);
+  Height.fromMeters(double meters) : this(meters, SystemOfUnits.metric);
 
   static Height parse(String input) {
     var (value, error) = tryParse(input);
@@ -55,7 +51,7 @@ class Height extends ValueType<Height> {
       final feet = int.tryParse(match.group(1) ?? '');
       final inches = int.tryParse(match.group(2) ?? '') ?? 0;
       if (feet != null) {
-        return (Height(feet: feet, inches: inches), null);
+        return (Height.fromFeetAndInches(feet, inches.toDouble()), null);
       }
     }
 
@@ -69,7 +65,7 @@ class Height extends ValueType<Height> {
       final feet = int.tryParse(match.group(1) ?? '');
       final inches = int.tryParse(match.group(2) ?? '') ?? 0;
       if (feet != null) {
-        return (Height(feet: feet, inches: inches), null);
+        return (Height.fromFeetAndInches(feet, inches.toDouble()), null);
       }
     }
 
@@ -94,10 +90,9 @@ class Height extends ValueType<Height> {
         }
 
         if (unit == 'm') {
-          final centimeters = (value * 100).round();
-          return (Height(centimeters: centimeters), null);
+          return (Height.fromMeters(value.toDouble()), null);
         }
-        return (Height(centimeters: value), null);
+        return (Height.fromCentimeters(value.toDouble()), null);
       }
     }
 
@@ -111,7 +106,7 @@ class Height extends ValueType<Height> {
       final meters = double.tryParse(match.group(1) ?? '');
       if (meters != null) {
         final centimeters = (meters * 100).round();
-        return (Height(centimeters: centimeters), null);
+        return (Height.fromCentimeters(centimeters.toDouble()), null);
       }
     }
 
@@ -131,44 +126,50 @@ class Height extends ValueType<Height> {
   }
 
   @override
-  List<Object?> get props => [feet, inches, centimeters];
-
-  @override
-  bool get isImperial => feet != null || inches != null;
-  @override
-  bool get isMetric => centimeters != null;
-
-  @override
   String toString() {
     if (isImperial) {
-      return "${feet ?? 0}'${inches ?? 0}\"";
+      final (feet, inches) = metersToFeetAndInches(value);
+      return "$feet'${inches.round()}\"";
     }
     if (isMetric) {
-      return "$centimeters cm";
+      return "${(value*100).round()} cm";
     }
     return '<unknown>';
   }
 
+  static const double metersPerInch = 0.0254;
+  static const double inchesPerFeet = 12.0;
+  
+
+  static double feetAndInchesToMeters(int feet, double inches) {
+    double totalInches = (feet * inchesPerFeet) + inches;
+    return totalInches * metersPerInch;
+  }
+
+  int get wholeCentimeters => (value * 100.0).round();
+
+  (int, int) get wholeFeetAndWholeInches {
+    var (feet, inches) = metersToFeetAndInches(value);
+    return (feet, inches.round());
+  }
+
+  static (int, double) metersToFeetAndInches(double meters) {
+    final double totalInches = meters / metersPerInch;
+    final double totalFeet = totalInches / inchesPerFeet;
+    final double inches = totalInches % inchesPerFeet;
+    return (totalFeet.floor(), inches);
+  }
+  
   @override
   Height cloneMetric() {
-    final f = feet ?? 0;
-    final i = inches ?? 0;
-    final totalInches = f * 12 + i;
-    final cmVal = (totalInches * 2.54).round();
-    return Height(centimeters: cmVal);
+    // Convert meters to a round number of centimeters (this destroys precision if value is imperial)
+    return Height.fromCentimeters(wholeCentimeters.toDouble());
   }
 
   @override
   Height cloneImperial() {
-    final c = centimeters ?? 0;
-    final totalInches = (c / 2.54).round();
-    final f = totalInches ~/ 12;
-    final i = totalInches % 12;
-    return Height(feet: f, inches: i);
-  }
-  
-  @override
-  double toMetricExact() {
-    return asMetric().centimeters?.toDouble() ?? 0 * 100;
+    // Converts feet and inches to a round number of inches (this destroys precision if value is metric)
+    var (feet, inches) = wholeFeetAndWholeInches;
+    return Height.fromFeetAndInches(feet, inches.toDouble());
   }
 }
