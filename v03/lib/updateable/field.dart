@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/prompts/prompt.dart';
 import 'package:v03/utils/enum_parsing.dart';
+import 'package:v03/utils/json_parsing.dart';
 
 typedef LookupField<T> = Object? Function(T?);
 typedef FormatField<T> = String Function(T?);
@@ -246,7 +247,7 @@ class Field<T> {
     T t,
     Map<String, dynamic>? amendment,
   ) {
-    return getStringList(amendment, getter(t) as List<String>);
+    return getStringListFromJson(amendment, getter(t) as List<String>);
   }
 
   List<String>? getNullableStringListFromJsonForAmendment(
@@ -257,7 +258,7 @@ class Field<T> {
         getter(t) as List<String>?;
   }
 
-  List<String> getStringList(
+  List<String> getStringListFromJson(
     Map<String, dynamic>? json,
     List<String> defaultValue,
   ) {
@@ -265,11 +266,7 @@ class Field<T> {
   }
 
   List<String>? getNullableStringListFromJson(Map<String, dynamic>? json) {
-    var list = json?[jsonName];
-    if (list == null) {
-      return null;
-    }
-    return List<String>.from(list);
+    return getNullableStringList( json, jsonName);
   }
 
   List<String> getStringListFromRow(Row row, List<String> defaultValue) {

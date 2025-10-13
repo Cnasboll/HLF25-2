@@ -3,6 +3,7 @@ import 'package:v03/models/appearance.dart';
 import 'package:v03/models/biography.dart';
 import 'package:v03/models/hero.dart';
 import 'package:test/test.dart';
+import 'package:v03/utils/json_parsing.dart';
 import 'package:v03/value_types/value_type.dart';
 
 void main() {
@@ -115,5 +116,48 @@ void main() {
       image.url,
       "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
     );
+  });
+
+  test('Can parse single JSON string as list of strings', () {
+    final rawJson = '{"weight": "10 kg"}';
+    var decoded = json.decode(rawJson);
+    final result = getNullableStringList(decoded, 'weight');
+    expect(result, ['10 kg']);
+  });
+
+  test('Can parse single String object as list', () {
+    var decoded = <String, Object?>{'weight': '10 kg'};
+    final result = getNullableStringList(decoded, 'weight');
+    expect(result, ['10 kg']);
+  });
+
+  // Special case when the user actually enters a JSON-encoded string on the prompt
+  test('Can parse json-encoded String list object as list', () {
+    var decoded = <String, Object?>{'weight': '["10 kg", "22 lb"]'};
+    final result = getNullableStringList(decoded, 'weight');
+    expect(result, ['10 kg', '22 lb']);
+  });
+
+  /// A consequence of the special handling of JSON-encoded strings is that
+  /// if the user enters a single JSON-encoded string, that is later wrapped
+  /// in JSON, it will be decoded too
+  test('Can parse single JSON string encoded as JSON as list of strings', () {
+    var decoded = <String, Object?>{'weight': '"10 kg"'};
+    final result = getNullableStringList(decoded, 'weight');
+    expect(result, ['10 kg']);
+  });
+
+
+  test('Can parse json list', () {
+    final rawJson = '{"weight": ["10 kg", "22 lb"]}';
+    var decoded = json.decode(rawJson);
+    final result = getNullableStringList(decoded, 'weight');
+    expect(result, ['10 kg', '22 lb']);
+  });
+
+  test('Can parse String list literal', () {
+    var decoded = <String, Object?>{'weight': ['10 kg', '22 lb']};
+    final result = getNullableStringList(decoded, 'weight');
+    expect(result, ['10 kg', '22 lb']);
   });
 }
