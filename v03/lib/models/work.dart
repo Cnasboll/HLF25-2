@@ -32,9 +32,9 @@ class Work extends Updateable<Work> {
     );
   }
 
-  static Work? fromJson(Map<String, dynamic>? json) {
+  static Work fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return null;
+      return Work();
     }
     return Work(
       occupation: _occupationField.getNullableStringFromJson(json),
@@ -52,7 +52,7 @@ class Work extends Updateable<Work> {
   final String? occupation;
   final String? base;
 
-  static Work? amendOrCreate(
+  static Work amendOrCreate(
     Field field,
     Work? original,
     Map<String, dynamic>? amendment,
@@ -68,13 +68,13 @@ class Work extends Updateable<Work> {
     return Work.fromJsonAmendment(this, amendment);
   }
 
-  static Work? fromPrompt() {
+  static Work fromPrompt() {
     var json = Updateable.promptForJson(staticFields);
     if (json == null) {
-      return null;
+      return Work();
     }
     if (json.length != staticFields.length) {
-      return null;
+      return Work();
     }
 
     return Work.fromJson(json);

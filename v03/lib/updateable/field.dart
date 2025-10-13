@@ -37,7 +37,8 @@ class Field<T> {
     String cr = crumbtrail != null ? "$crumbtrail." : "";
     var fullPath = '$cr$name';
     if (_children.isEmpty) {
-      print("Enter $fullPath ($description) or enter to abort:");
+      String abortPrompt = crumbtrail != null ? "finish populating $crumbtrail" : "abort";
+      print("Enter $fullPath ($description) or enter to $abortPrompt:");
       var input = (stdin.readLineSync() ?? "").trim();
       if (input.isEmpty) {
         return false;
@@ -46,13 +47,10 @@ class Field<T> {
       return true;
     }
 
-    if (promptForYesNo('Add a $fullPath?')) {
+    if (promptForYesNo('Populate $fullPath?')) {
+      var childJson = json[jsonName] = <String, dynamic>{};
       for (var child in _children) {
-        var childJson = <String, dynamic>{};
-        if (child.promptForJson(childJson, crumbtrail: fullPath)) {
-          json[jsonName] = childJson;
-        }
-        else {
+        if (!child.promptForJson(childJson, crumbtrail: fullPath)) {
           return true;
         }
       }
@@ -81,7 +79,7 @@ class Field<T> {
 
     var childObject = getter(t);
     if (childObject == null) {
-      sb.writeln("$cr: N/A");
+      sb.writeln("$cr: null");
       return;
     }
     
@@ -90,7 +88,7 @@ class Field<T> {
     }
   }
 
-  String? formatAmendment(T? lhs, T? rhs, {String? crubtrail}) {
+  String? formatAmendment(T? lhs, T? rhs, {String? crumbtrail}) {
     if (!mutable || assignedBySystem) {
       return null;
     }
@@ -100,14 +98,14 @@ class Field<T> {
     }
 
     if (_children.isEmpty) {
-      String cr = crubtrail != null ? "$crubtrail." : "";
+      String cr = crumbtrail != null ? "$crumbtrail." : "";
       return "$cr$name: ${format(lhs)} => ${format(rhs)}";
     }
 
     StringBuffer update = StringBuffer();
     for (var child in _children) {
-      var cr = crubtrail != null ? "$crubtrail.$name" : name;
-      var childUpdate = child.formatAmendment(lhs, rhs, crubtrail: cr);
+      var cr = crumbtrail != null ? "$crumbtrail.$name" : name;
+      var childUpdate = child.formatAmendment(lhs, rhs, crumbtrail: cr);
       if (childUpdate != null) {
         update.writeln(childUpdate);
       }

@@ -5,7 +5,7 @@ import 'package:v03/updateable/field.dart';
 import 'package:v03/updateable/updateable.dart';
 
 class Image extends Updateable<Image> {
-  Image({required this.url});
+  Image({this.url});
 
   Image.from(Image other) : this(url: other.url);
 
@@ -22,9 +22,9 @@ class Image extends Updateable<Image> {
     );
   }
 
-  static Image? fromJson(Map<String, dynamic>? json) {
+  static Image fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return null;
+      return Image();
     }
     return Image(url: _urlField.getNullableStringFromJson(json));
   }
@@ -35,7 +35,7 @@ class Image extends Updateable<Image> {
 
   final String? url;
 
-  static Image? amendOrCreate(
+  static Image amendOrCreate(
     Field field,
     Image? original,
     Map<String, dynamic>? amendment,
@@ -51,13 +51,13 @@ class Image extends Updateable<Image> {
     return Image.fromJsonAmendment(this, amendment);
   }
 
-  static Image? fromPrompt() {
+  static Image fromPrompt() {
     var json = Updateable.promptForJson(staticFields);
     if (json == null) {
-      return null;
+      return Image();
     }
     if (json.length != staticFields.length) {
-      return null;
+      return Image();
     }
 
     return Image.fromJson(json);

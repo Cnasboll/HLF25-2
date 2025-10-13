@@ -10,7 +10,7 @@ enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
 
 class Appearance extends Updateable<Appearance> {
   Appearance({
-    required this.gender,
+    this.gender,
     this.race,
     this.height,
     this.weight,
@@ -83,9 +83,11 @@ class Appearance extends Updateable<Appearance> {
     );
   }
 
-  static Appearance? fromJson(Map<String, dynamic>? json) {
+  static Appearance fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return null;
+      return Appearance(
+        gender: Gender.unknown,
+      );
     }
     return Appearance(
       gender: _genderField.getEnumFromJson<Gender>(
@@ -116,14 +118,14 @@ class Appearance extends Updateable<Appearance> {
     );
   }
 
-  final Gender gender;
+  final Gender? gender;
   final String? race;
   final Height? height;
   final Weight? weight;
   final String? eyeColor;
   final String? hairColor;
 
-  static Appearance? amendOrCreate(
+  static Appearance amendOrCreate(
     Field field,
     Appearance? original,
     Map<String, dynamic>? amendment,
@@ -139,13 +141,13 @@ class Appearance extends Updateable<Appearance> {
     return Appearance.fromJsonAmendment(this, amendment);
   }
 
-  static Appearance? fromPrompt() {
+  static Appearance fromPrompt() {
     var json = Updateable.promptForJson(staticFields);
     if (json == null) {
-      return null;
+      return Appearance();
     }
     if (json.length != staticFields.length) {
-      return null;
+      return Appearance();
     }
 
     return Appearance.fromJson(json);

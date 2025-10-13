@@ -54,9 +54,9 @@ class PowerStats extends Updateable<PowerStats> {
     );
   }
 
-  static PowerStats? fromJson(Map<String, dynamic>? json) {
+  static PowerStats fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return null;
+      return PowerStats();
     }
     return PowerStats(
       intelligence: _combatField.getNullableIntFromJson(json),
@@ -86,7 +86,7 @@ class PowerStats extends Updateable<PowerStats> {
   final int? power;
   final int? combat;
 
-  static PowerStats? amendOrCreate(
+  static PowerStats amendOrCreate(
     Field field,
     PowerStats? original,
     Map<String, dynamic>? amendment,

@@ -34,9 +34,9 @@ class Connections extends Updateable<Connections> {
     );
   }
 
-  static Connections? fromJson(Map<String, dynamic>? json) {
+  static Connections fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return null;
+      return Connections();
     }
     return Connections(
       groupAffiliation: _groupAffiliationField.getNullableStringFromJson(json),
@@ -54,7 +54,7 @@ class Connections extends Updateable<Connections> {
   final String? groupAffiliation;
   final String? relatives;
 
-  static Connections? amendOrCreate(
+  static Connections amendOrCreate(
     Field field,
     Connections? original,
     Map<String, dynamic>? amendment,
@@ -70,13 +70,13 @@ class Connections extends Updateable<Connections> {
     return Connections.fromJsonAmendment(this, amendment);
   }
 
-  static Connections? fromPrompt() {
+  static Connections fromPrompt() {
     var json = Updateable.promptForJson(staticFields);
     if (json == null) {
-      return null;
+      return Connections();
     }
     if (json.length != staticFields.length) {
-      return null;
+      return Connections();
     }
 
     return Connections.fromJson(json);

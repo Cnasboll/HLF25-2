@@ -15,23 +15,23 @@ class Hero extends Updateable<Hero> {
     required this.serverId,
     required this.version,
     required this.name,
-    this.powerStats,
-    this.biography,
-    this.appearance,
-    this.work,
-    this.connections,
-    this.image,
+    required this.powerStats,
+    required this.biography,
+    required this.appearance,
+    required this.work,
+    required this.connections,
+    required this.image,
   });
 
   Hero.newId(
     int serverId,
     String name,
-    PowerStats? powerStats,
-    Biography? biography,
-    Appearance? appearance,
-    Work? work,
-    Connections? connections,
-    Image? image,
+    PowerStats powerStats,
+    Biography biography,
+    Appearance appearance,
+    Work work,
+    Connections connections,
+    Image image,
   ) : this(
         id: Uuid().v4(),
         version: 1,
@@ -113,20 +113,12 @@ class Hero extends Updateable<Hero> {
         version: other.version,
         serverId: other.serverId,
         name: other.name,
-        powerStats: other.powerStats == null
-            ? null
-            : PowerStats.from(other.powerStats!),
-        biography: other.biography == null
-            ? null
-            : Biography.from(other.biography!),
-        appearance: other.appearance == null
-            ? null
-            : Appearance.from(other.appearance!),
-        work: other.work == null ? null : Work.from(other.work!),
-        connections: other.connections == null
-            ? null
-            : Connections.from(other.connections!),
-        image: other.image == null ? null : Image.from(other.image!),
+        powerStats: PowerStats.from(other.powerStats),
+        biography: Biography.from(other.biography),
+        appearance: Appearance.from(other.appearance),
+        work: Work.from(other.work),
+        connections: Connections.from(other.connections),
+        image: Image.from(other.image),
       );
 
   Hero copyWith({
@@ -231,12 +223,12 @@ class Hero extends Updateable<Hero> {
   final int serverId;
   final int version;
   final String name;
-  final PowerStats? powerStats;
-  final Biography? biography;
-  final Appearance? appearance;
-  final Work? work;
-  final Connections? connections;
-  final Image? image;
+  final PowerStats powerStats;
+  final Biography biography;
+  final Appearance appearance;
+  final Work work;
+  final Connections connections;
+  final Image image;
 
   static final Field<Hero> _idField = Field<Hero>(
     (h) => h?.id ?? Uuid(),

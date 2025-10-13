@@ -27,7 +27,7 @@ class Biography extends Updateable<Biography> {
     this.placeOfBirth,
     this.firstAppearance,
     this.publisher,
-    required this.alignment,
+    this.alignment,
   });
 
   Biography.from(Biography other)
@@ -98,9 +98,9 @@ class Biography extends Updateable<Biography> {
     );
   }
 
-  static Biography? fromJson(Map<String, dynamic>? json) {
+  static Biography fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return null;
+      return Biography();
     }
     return Biography(
       fullName: _fullNameField.getNullableStringFromJson(json),
@@ -139,9 +139,9 @@ class Biography extends Updateable<Biography> {
   final String? placeOfBirth;
   final String? firstAppearance;
   final String? publisher;
-  final Alignment alignment;
+  final Alignment? alignment;
 
-  static Biography? amendOrCreate(
+  static Biography amendOrCreate(
     Field field,
     Biography? original,
     Map<String, dynamic>? amendment,
@@ -157,13 +157,13 @@ class Biography extends Updateable<Biography> {
     return Biography.fromJsonAmendment(this, amendment);
   }
 
-  static Biography? fromPrompt() {
+  static Biography fromPrompt() {
     var json = Updateable.promptForJson(staticFields);
     if (json == null) {
-      return null;
+      return Biography();
     }
     if (json.length != staticFields.length) {
-      return null;
+      return Biography();
     }
 
     return Biography.fromJson(json);
