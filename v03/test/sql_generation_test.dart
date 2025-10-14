@@ -1,9 +1,9 @@
 import 'package:test/test.dart';
-import 'package:v03/models/hero.dart';
+import 'package:v03/models/hero_model.dart';
 
 void main() {
   test('generate SQLite column names', () {
-    final names = Hero.generateSqliteColumnNameList('      ');
+    final names = HeroModel.generateSqliteColumnNameList('      ');
     expect(names, '''
       id,
       version,
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('generate SQLite column declarations', () {
-    final declarations = Hero.generateSqliteColumnDeclarations('  ');
+    final declarations = HeroModel.generateSqliteColumnDeclarations('  ');
     expect(declarations, '''
   id TEXT PRIMARY KEY,
   version INTEGER NOT NULL,
@@ -71,7 +71,7 @@ void main() {
   });
 
   test('generate SQLite update clause', () {
-    final update = Hero.generateSqliteUpdateClause('    ');
+    final update = HeroModel.generateSqliteUpdateClause('    ');
     expect(update, '''version=excluded.version,
     server_id=excluded.server_id,
     name=excluded.name,
@@ -103,7 +103,7 @@ void main() {
   });
 
     test('generate SQLite insert column placeholders', () {
-    final placeholders = Hero.generateSQLiteInsertColumnPlaceholders();
+    final placeholders = HeroModel.generateSQLiteInsertColumnPlaceholders();
     expect(placeholders, '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?');
   });
 }

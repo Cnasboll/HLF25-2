@@ -1,9 +1,9 @@
 
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/jobs/job_queue.dart';
-import 'package:v03/models/appearance.dart';
-import 'package:v03/models/biography.dart';
-import 'package:v03/models/hero.dart';
+import 'package:v03/models/appearance_model.dart';
+import 'package:v03/models/biography_model.dart';
+import 'package:v03/models/hero_model.dart';
 
 class HeroRepository {
 
@@ -14,7 +14,7 @@ class HeroRepository {
     return HeroRepository.cache(db, heroes, heroesByServerId);
   }
 
-  static (Database, Map<String, Hero>, Map<String, Hero>) initDb(path) {
+  static (Database, Map<String, HeroModel>, Map<String, HeroModel>) initDb(String path) {
     var db = sqlite3.open(path);
     createTableIfNotExists(db);
     var (snapshot, heroesByServerId) = readSnapshot(db);
@@ -24,47 +24,47 @@ class HeroRepository {
   static void createTableIfNotExists(Database db) {
     db.execute('''
 CREATE TABLE IF NOT EXISTS heroes (
-${Hero.generateSqliteColumnDeclarations('    ')}
+${HeroModel.generateSqliteColumnDeclarations('    ')}
 )''');
   }
 
-  static (Map<String, Hero>, Map<String, Hero>) readSnapshot(Database db) {
-    var snapshot = <String, Hero>{};
-    var heroesByServerId = <String, Hero>{};
+  static (Map<String, HeroModel>, Map<String, HeroModel>) readSnapshot(Database db) {
+    var snapshot = <String, HeroModel>{};
+    var heroesByServerId = <String, HeroModel>{};
 
     for (var row in db.select('SELECT * FROM heroes')) {
-      var hero = Hero.fromRow(row);
+      var hero = HeroModel.fromRow(row);
       snapshot[hero.id] = hero;
       heroesByServerId[hero.serverId] = hero;
     }
     return (snapshot, heroesByServerId);
   }
 
-  void persist(Hero hero) {
+  void persist(HeroModel hero) {
     _cache[hero.id] = hero;    
     _heroesByServerId[hero.serverId] = hero;
     // Persist a copy to avoid race conditions (technically not needed for inserts but I want to keep the code nice and clean)
-    _jobQueue.enqueue(() => dbPersist(Hero.from(hero)));
+    _jobQueue.enqueue(() => dbPersist(HeroModel.from(hero)));
   }
 
-  void dbPersist(Hero hero) {
+  void dbPersist(HeroModel hero) {
     var parameters = hero.sqliteProps().toList();
     _db.execute('''INSERT INTO heroes (
-${Hero.generateSqliteColumnNameList('      ')}
-) VALUES (${Hero.generateSQLiteInsertColumnPlaceholders()})
+${HeroModel.generateSqliteColumnNameList('      ')}
+) VALUES (${HeroModel.generateSQLiteInsertColumnPlaceholders()})
 ON CONFLICT (id) DO
 UPDATE
-SET ${Hero.generateSqliteUpdateClause('    ')}
+SET ${HeroModel.generateSqliteUpdateClause('    ')}
       ''', parameters);
   }
 
-  void delete(Hero hero) {
+  void delete(HeroModel hero) {
     _cache.remove(hero.id);
     _heroesByServerId.remove(hero.serverId);
     _jobQueue.enqueue(() => dbDelete(hero));
   }
 
-  void dbDelete(Hero hero) {
+  void dbDelete(HeroModel hero) {
     _db.execute('DELETE FROM heroes WHERE id = ?', [hero.id]);
   }
 
@@ -78,7 +78,7 @@ SET ${Hero.generateSqliteUpdateClause('    ')}
     _db.execute('DELETE FROM heroes');
   }
 
-  List<Hero> query(String query) {
+  List<HeroModel> query(String query) {
     var lower = query.toLowerCase();
     var result = _cache.values
         .where(
@@ -106,17 +106,17 @@ SET ${Hero.generateSqliteUpdateClause('    ')}
   }
 
   final JobQueue _jobQueue = JobQueue();
-  Map<String, Hero> _cache = {};
-  Map<String, Hero> _heroesByServerId = {};
+  Map<String, HeroModel> _cache = {};
+  Map<String, HeroModel> _heroesByServerId = {};
 
   Database _db;
 
-  List<Hero> get heroes 
+  List<HeroModel> get heroes 
   {
     var snapshot = _cache.values.toList();
     snapshot.sort();
     return snapshot;
   }
 
-  Map<String, Hero> get heroesById => Map.unmodifiable(_cache);
+  Map<String, HeroModel> get heroesById => Map.unmodifiable(_cache);
 }

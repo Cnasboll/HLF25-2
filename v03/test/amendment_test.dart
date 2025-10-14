@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:v03/models/appearance.dart';
-import 'package:v03/models/biography.dart';
-import 'package:v03/models/hero.dart';
+import 'package:v03/models/appearance_model.dart';
+import 'package:v03/models/biography_model.dart';
+import 'package:v03/models/hero_model.dart';
 import 'package:test/test.dart';
 import 'package:v03/value_types/value_type.dart';
 
@@ -52,7 +52,7 @@ void main() {
 ''';
 
     var decoded = json.decode(rawJson);
-    final batman = Hero.fromJsonAndId(
+    final batman = HeroModel.fromJsonAndId(
       decoded,
       "02ffbb60-762b-4552-8f41-be8aa86869c6",
     );

@@ -8,8 +8,8 @@ import 'package:v03/value_types/weight.dart';
 
 enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
 
-class Appearance extends Amendable<Appearance> {
-  Appearance({
+class AppearanceModel extends Amendable<AppearanceModel> {
+  AppearanceModel({
     this.gender,
     this.race,
     this.height,
@@ -18,7 +18,7 @@ class Appearance extends Amendable<Appearance> {
     this.hairColor,
   });
 
-  Appearance.from(Appearance other)
+  AppearanceModel.from(AppearanceModel other)
     : this(
         gender: other.gender,
         race: other.race,
@@ -28,7 +28,7 @@ class Appearance extends Amendable<Appearance> {
         hairColor: other.hairColor,
       );
 
-  Appearance copyWith({
+  AppearanceModel copyWith({
     Gender? gender,
     String? race,
     Height? height,
@@ -36,7 +36,7 @@ class Appearance extends Amendable<Appearance> {
     String? eyeColor,
     String? hairColor,
   }) {
-    return Appearance(
+    return AppearanceModel(
       gender: gender ?? this.gender,
       race: race ?? this.race,
       height: height ?? this.height,
@@ -46,11 +46,11 @@ class Appearance extends Amendable<Appearance> {
     );
   }
 
-  factory Appearance.amendWith(
-    Appearance original,
+  factory AppearanceModel.amendWith(
+    AppearanceModel original,
     Map<String, dynamic>? amendment,
   ) {
-    return Appearance(
+    return AppearanceModel(
       gender: _genderField.getEnumForAmendment<Gender>(
         original,
         Gender.values,
@@ -83,13 +83,13 @@ class Appearance extends Amendable<Appearance> {
     );
   }
 
-  static Appearance fromJson(Map<String, dynamic>? json) {
+  static AppearanceModel fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return Appearance(
+      return AppearanceModel(
         gender: Gender.unknown,
       );
     }
-    return Appearance(
+    return AppearanceModel(
       gender: _genderField.getEnumFromJson<Gender>(
         Gender.values,
         json,
@@ -107,8 +107,8 @@ class Appearance extends Amendable<Appearance> {
     );
   }
 
-  factory Appearance.fromRow(Row row) {
-    return Appearance(
+  factory AppearanceModel.fromRow(Row row) {
+    return AppearanceModel(
       gender: _genderField.getEnumFromRow(Gender.values, row, Gender.unknown),
       race: _raceField.getNullableStringFromRow(row),
       height: Height.tryParse(_heightField.getNullableStringFromRow(row)).$1,
@@ -126,27 +126,27 @@ class Appearance extends Amendable<Appearance> {
   final String? hairColor;
 
   @override
-  Appearance amendWith(Map<String, dynamic>? amendment) {
-    return Appearance.amendWith(this, amendment);
+  AppearanceModel amendWith(Map<String, dynamic>? amendment) {
+    return AppearanceModel.amendWith(this, amendment);
   }
 
-  static Appearance fromPrompt() {
+  static AppearanceModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
-      return Appearance();
+      return AppearanceModel();
     }
     if (json.length != staticFields.length) {
-      return Appearance();
+      return AppearanceModel();
     }
 
-    return Appearance.fromJson(json);
+    return AppearanceModel.fromJson(json);
   }
 
   bool get isMale => gender == Gender.male;
   int get genderComparisonFactor => isMale ? 1 : -1;
 
   @override
-  int compareTo(Appearance other) {
+  int compareTo(AppearanceModel other) {
     // Sort by non-male first and male second
     // as males are always weaker than everone else who are equal.
     int comparison = genderComparisonFactor.compareTo(
@@ -176,9 +176,9 @@ class Appearance extends Amendable<Appearance> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<Field<Appearance>> get fields => staticFields;
+  List<query<AppearanceModel>> get fields => staticFields;
 
-  static final Field<Appearance> _genderField = Field<Appearance>(
+  static final query<AppearanceModel> _genderField = query<AppearanceModel>(
     (a) => a?.gender ?? Gender.unknown,
     Gender,
     "gender",
@@ -188,14 +188,14 @@ class Appearance extends Amendable<Appearance> {
     nullable: false,
   );
 
-  static final Field<Appearance> _raceField = Field<Appearance>(
+  static final query<AppearanceModel> _raceField = query<AppearanceModel>(
     (a) => a?.race,
     String,
     "race",
     "Species in Latin or English",
   );
 
-  static Field<Appearance> get _heightField => Field<Appearance>(
+  static query<AppearanceModel> get _heightField => query<AppearanceModel>(
     (a) => a?.height,
     Height,
     'height',
@@ -204,7 +204,7 @@ class Appearance extends Amendable<Appearance> {
     prompt: '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
   );
 
-  static Field<Appearance> get _weightField => Field<Appearance>(
+  static query<AppearanceModel> get _weightField => query<AppearanceModel>(
     (p) => p?.weight,
     Weight,
     'weight',
@@ -213,21 +213,21 @@ class Appearance extends Amendable<Appearance> {
     prompt: '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
   );
 
-  static final Field<Appearance> _eyeColourField = Field<Appearance>(
+  static final query<AppearanceModel> _eyeColourField = query<AppearanceModel>(
     (p) => p?.eyeColor,
     String,
     'eye-color',
     'The character\'s eye color of the most recent appearance',
   );
 
-  static final Field<Appearance> _hairColorField = Field<Appearance>(
+  static final query<AppearanceModel> _hairColorField = query<AppearanceModel>(
     (p) => p?.hairColor,
     String,
     'hair-color',
     'The character\'s hair color of the most recent appearance',
   );
 
-  static final List<Field<Appearance>> staticFields = [
+  static final List<query<AppearanceModel>> staticFields = [
     _genderField,
     _raceField,
     _heightField,

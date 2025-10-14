@@ -2,8 +2,8 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
 
-class PowerStats extends Amendable<PowerStats> {
-  PowerStats({
+class PowerStatsModel extends Amendable<PowerStatsModel> {
+  PowerStatsModel({
     this.intelligence,
     this.strength,
     this.speed,
@@ -12,7 +12,7 @@ class PowerStats extends Amendable<PowerStats> {
     this.combat,
   });
 
-  PowerStats.from(PowerStats other)
+  PowerStatsModel.from(PowerStatsModel other)
     : this(
         intelligence: other.intelligence,
         strength: other.strength,
@@ -22,7 +22,7 @@ class PowerStats extends Amendable<PowerStats> {
         combat: other.combat,
       );
 
-  PowerStats copyWith({
+  PowerStatsModel copyWith({
     int? intelligence,
     int? strength,
     int? speed,
@@ -30,7 +30,7 @@ class PowerStats extends Amendable<PowerStats> {
     int? power,
     int? combat,
   }) {
-    return PowerStats(
+    return PowerStatsModel(
       intelligence: intelligence ?? this.intelligence,
       strength: strength ?? this.strength,
       speed: speed ?? this.speed,
@@ -40,11 +40,11 @@ class PowerStats extends Amendable<PowerStats> {
     );
   }
 
-  factory PowerStats.amendWith(
-    PowerStats original,
+  factory PowerStatsModel.amendWith(
+    PowerStatsModel original,
     Map<String, dynamic>? amendment,
   ) {
-    return PowerStats(
+    return PowerStatsModel(
       intelligence: _intelligenceField.getIntForAmendment(original, amendment),
       strength: _strengthField.getIntForAmendment(original, amendment),
       speed: _speedField.getIntForAmendment(original, amendment),
@@ -54,12 +54,12 @@ class PowerStats extends Amendable<PowerStats> {
     );
   }
 
-  static PowerStats fromJson(Map<String, dynamic>? json) {
+  static PowerStatsModel fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return PowerStats();
+      return PowerStatsModel();
     }
-    return PowerStats(
-      intelligence: _combatField.getNullableIntFromJson(json),
+    return PowerStatsModel(
+      intelligence: _intelligenceField.getNullableIntFromJson(json),
       strength: _strengthField.getNullableIntFromJson(json),
       speed: _speedField.getNullableIntFromJson(json),
       durability: _durabilityField.getNullableIntFromJson(json),
@@ -68,8 +68,8 @@ class PowerStats extends Amendable<PowerStats> {
     );
   }
 
-  factory PowerStats.fromRow(Row row) {
-    return PowerStats(
+  factory PowerStatsModel.fromRow(Row row) {
+    return PowerStatsModel(
       intelligence: _intelligenceField.getNullableIntFromRow(row),
       strength: _strengthField.getNullableIntFromRow(row),
       speed: _speedField.getNullableIntFromRow(row),
@@ -87,11 +87,11 @@ class PowerStats extends Amendable<PowerStats> {
   final int? combat;
 
   @override
-  PowerStats amendWith(Map<String, dynamic>? amendment) {
-    return PowerStats.amendWith(this, amendment);
+  PowerStatsModel amendWith(Map<String, dynamic>? amendment) {
+    return PowerStatsModel.amendWith(this, amendment);
   }
 
-  static PowerStats? fromPrompt() {
+  static PowerStatsModel? fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return null;
@@ -100,56 +100,56 @@ class PowerStats extends Amendable<PowerStats> {
       return null;
     }
 
-    return PowerStats.fromJson(json);
+    return PowerStatsModel.fromJson(json);
   }
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<Field<PowerStats>> get fields => staticFields;
+  List<query<PowerStatsModel>> get fields => staticFields;
 
-  static Field<PowerStats> get _intelligenceField => Field<PowerStats>(
+  static query<PowerStatsModel> get _intelligenceField => query<PowerStatsModel>(
     (p) => p?.intelligence,
     int,
     'intelligence',
     'IQ SD 15 (WAIS)',
   );
 
-  static final Field<PowerStats> _strengthField = Field<PowerStats>(
+  static final query<PowerStatsModel> _strengthField = query<PowerStatsModel>(
     (p) => p?.strength,
     int,
     'strength',
     'newton',
   );
 
-  static final Field<PowerStats> _speedField = Field<PowerStats>(
+  static final query<PowerStatsModel> _speedField = query<PowerStatsModel>(
     (p) => p?.speed,
     int,
     'speed',
     'km/h',
   );
 
-  static final Field<PowerStats> _durabilityField = Field<PowerStats>(
+  static final query<PowerStatsModel> _durabilityField = query<PowerStatsModel>(
     (p) => p?.durability,
     int,
     'durability',
     'longevity',
   );
 
-  static final Field<PowerStats> _powerField = Field<PowerStats>(
+  static final query<PowerStatsModel> _powerField = query<PowerStatsModel>(
     (p) => p?.power,
     int,
     'power',
     'whatever',
   );
 
-  static final Field<PowerStats> _combatField = Field<PowerStats>(
+  static final query<PowerStatsModel> _combatField = query<PowerStatsModel>(
     (p) => p?.combat,
     int,
     'combat',
     'fighting skills',
   );
 
-  static final List<Field<PowerStats>> staticFields = [
+  static final List<query<PowerStatsModel>> staticFields = [
     _intelligenceField,
     _strengthField,
     _speedField,

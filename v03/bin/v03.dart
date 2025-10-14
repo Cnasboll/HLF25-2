@@ -1,28 +1,30 @@
 import 'dart:io';
 
-import 'package:v03/models/hero.dart';
+import 'package:v03/managers/hero_data_manager.dart';
+import 'package:v03/managers/hero_data_managing.dart';
+import 'package:v03/models/hero_model.dart';
 import 'package:v03/persistence/hero_repository.dart';
 import 'package:v03/prompts/prompt.dart';
 
 Future<void> main() async {
   print("Welcome to the Hero Manager!");
-  var repo = HeroRepository('v03.db');
+  var heroDataManager = HeroDataManager(HeroRepository('v03.db'));
 
   var doWOrk = true;
   Map<String, (Function, String)> commands = {
-    "c": (() => createHero(repo), "[C]reate a new hero (will prompt for details)"),
-    "l": (() => listHeroes(repo), "[L]ist all heroes"),
+    "c": (() => createHero(heroDataManager), "[C]reate a new hero (will prompt for details)"),
+    "l": (() => listHeroes(heroDataManager), "[L]ist all heroes"),
     "t": (
-      () => listTopNHeroes(repo),
+      () => listTopNHeroes(heroDataManager),
       "List [T]op n heroes (will prompt for n)",
     ),
     "s": (
-      () => listMatchingHeroes(repo),
+      () => listMatchingHeroes(heroDataManager),
       "[S]earch matching heroes (will prompt for a search string)",
     ),
-    "a": (() => amendHero(repo), "[A]mend a hero"),
-    "d": (() => deleteHero(repo), "[D]elete a hero"),
-    "e": (() => deleteAllHeroes(repo), "[E]rase database (delete all heroes)"),
+    "a": (() => amendHero(heroDataManager), "[A]mend a hero"),
+    "d": (() => deleteHero(heroDataManager), "[D]elete a hero"),
+    "e": (() => deleteAllHeroes(heroDataManager), "[E]rase database (delete all heroes)"),
     "q": (
       () => {
         if (promptQuit()) {doWOrk = false},
@@ -36,7 +38,7 @@ Future<void> main() async {
   while (doWOrk) {
     print(prompt);
     try {
-      await mainMenu(repo, commands);
+      await mainMenu(heroDataManager, commands);
     } catch (e) {
       print("Unexpected error: $e");
     }
@@ -69,7 +71,7 @@ Enter a menu option (""");
 }
 
 Future<void> mainMenu(
-  HeroRepository repo,
+  HeroDataManaging heroDataManager,
   Map<String, (Function, String)> commands,
 ) async {
   var input = (stdin.readLineSync() ?? "").toLowerCase().trim();
@@ -93,8 +95,8 @@ bool promptQuit() {
   return true;
 }
 
-void listHeroes(HeroRepository repo) {
-  var heroes = repo.heroes;
+void listHeroes(HeroDataManaging heroDataManager) {
+  var heroes = heroDataManager.heroes;
   if (heroes.isEmpty) {
     print("No heroes found");
   } else {
@@ -105,7 +107,7 @@ void listHeroes(HeroRepository repo) {
   }
 }
 
-void listTopNHeroes(HeroRepository repo) {
+void listTopNHeroes(HeroDataManaging heroDataManager) {
   print("Enter number of heroes to list:");
   var input = (stdin.readLineSync() ?? "").trim();
   var n = int.tryParse(input) ?? 0;
@@ -113,7 +115,7 @@ void listTopNHeroes(HeroRepository repo) {
     print("Invalid number");
     return;
   }
-  var snapshot = repo.heroes;
+  var snapshot = heroDataManager.heroes;
   for (int i = 0; i < n; i++) {
     if (i >= snapshot.length) {
       break;
@@ -122,8 +124,8 @@ void listTopNHeroes(HeroRepository repo) {
   }
 }
 
-void listMatchingHeroes(HeroRepository repo) {
-  var result = search(repo);
+void listMatchingHeroes(HeroDataManaging heroDataManager) {
+  var result = search(heroDataManager);
   if (result == null) {
     return;
   }
@@ -132,16 +134,16 @@ void listMatchingHeroes(HeroRepository repo) {
   }
 }
 
-void deleteAllHeroes(HeroRepository repo) {
+void deleteAllHeroes(HeroDataManaging heroDataManager) {
   if (!promptForYesNo("Do you really want to delete all heroes?")) {
     return;
   }
-  repo.clean();
+  heroDataManager.clean();
   print("Deleted all heroes");
 }
 
-void deleteHero(HeroRepository repo) {
-  Hero? hero = query(repo, "Delete");
+void deleteHero(HeroDataManaging heroDataManager) {
+  HeroModel? hero = query(heroDataManager, "Delete");
   if (hero == null) {
     return;
   }
@@ -152,13 +154,13 @@ void deleteHero(HeroRepository repo) {
     return;
   }
 
-  repo.delete(hero);
+  heroDataManager.delete(hero);
   print('''Deleted hero:
 $hero''');
 }
 
-void createHero(HeroRepository repo) {
-  Hero? hero = Hero.fromPrompt();
+void createHero(HeroDataManaging heroDataManager) {
+  HeroModel? hero = HeroModel.fromPrompt();
   if (hero == null) {
     print("Aborted");
     return;
@@ -168,28 +170,28 @@ void createHero(HeroRepository repo) {
     return;
   }
 
-  repo.persist(hero);
+  heroDataManager.persist(hero);
   print('''Created hero:
 $hero''');
 }
 
-void amendHero(HeroRepository repo) {
-  Hero? hero = query(repo, "Amend");
+void amendHero(HeroDataManaging heroDataManager) {
+  HeroModel? hero = query(heroDataManager, "Amend");
   if (hero == null) {
     return;
   }
   var amededHero = hero.promptForAmendment();
   if (amededHero != null) {
-    repo.persist(amededHero);
+    heroDataManager.persist(amededHero);
     print('''Amended hero:
 $amededHero''');
   }
 }
 
-List<Hero>? search(HeroRepository repo) {
+List<HeroModel>? search(HeroDataManaging heroDataManager) {
   print("Enter a search string:");
   var query = (stdin.readLineSync() ?? "").trim();
-  var results = repo.query(query);
+  var results = heroDataManager.query(query);
   if (results.isEmpty) {
     print("No heroes found");
     return null;
@@ -198,8 +200,8 @@ List<Hero>? search(HeroRepository repo) {
   return results;
 }
 
-Hero? query(HeroRepository repo, String what) {
-  var results = search(repo);
+HeroModel? query(HeroDataManaging heroDataManager, String what) {
+  var results = search(heroDataManager);
   if (results == null) {
     return null;
   }

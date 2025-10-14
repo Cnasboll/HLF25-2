@@ -4,23 +4,23 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
 
-class Work extends Amendable<Work> {
-  Work({this.occupation, this.base});
+class WorkModel extends Amendable<WorkModel> {
+  WorkModel({this.occupation, this.base});
 
-  Work.from(Work other) : this(occupation: other.occupation, base: other.base);
+  WorkModel.from(WorkModel other) : this(occupation: other.occupation, base: other.base);
 
-  Work copyWith({String? occupation, String? base}) {
-    return Work(
+  WorkModel copyWith({String? occupation, String? base}) {
+    return WorkModel(
       occupation: occupation ?? this.occupation,
       base: base ?? this.base,
     );
   }
 
-  factory Work.amendWith(
-    Work original,
+  factory WorkModel.amendWith(
+    WorkModel original,
     Map<String, dynamic>? amendment,
   ) {
-    return Work(
+    return WorkModel(
       occupation: _occupationField.getNullableStringFromJsonForAmendment(
         original,
         amendment,
@@ -32,18 +32,18 @@ class Work extends Amendable<Work> {
     );
   }
 
-  static Work fromJson(Map<String, dynamic>? json) {
+  static WorkModel fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return Work();
+      return WorkModel();
     }
-    return Work(
+    return WorkModel(
       occupation: _occupationField.getNullableStringFromJson(json),
       base: _baseField.getNullableStringFromJson(json),
     );
   }
 
-  factory Work.fromRow(Row row) {
-    return Work(
+  factory WorkModel.fromRow(Row row) {
+    return WorkModel(
       occupation: _occupationField.getNullableStringFromRow(row) ?? "",
       base: _baseField.getNullableStringFromRow(row) ?? "",
     );
@@ -53,38 +53,38 @@ class Work extends Amendable<Work> {
   final String? base;
 
   @override
-  Work amendWith(Map<String, dynamic>? amendment) {
-    return Work.amendWith(this, amendment);
+  WorkModel amendWith(Map<String, dynamic>? amendment) {
+    return WorkModel.amendWith(this, amendment);
   }
 
-  static Work fromPrompt() {
+  static WorkModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
-      return Work();
+      return WorkModel();
     }
     if (json.length != staticFields.length) {
-      return Work();
+      return WorkModel();
     }
 
-    return Work.fromJson(json);
+    return WorkModel.fromJson(json);
   }
 
   @override
-  List<Field<Work>> get fields => staticFields;
+  List<query<WorkModel>> get fields => staticFields;
 
-  static Field<Work> get _occupationField => Field<Work>(
+  static query<WorkModel> get _occupationField => query<WorkModel>(
     (p) => p?.occupation,
     String,
     'occupation',
     'Occupation of the character',
   );
 
-  static final Field<Work> _baseField = Field<Work>(
+  static final query<WorkModel> _baseField = query<WorkModel>(
     (p) => p?.base,
     String,
     'base',
     'A place where the character works or lives or hides rather frequently',
   );
 
-  static final List<Field<Work>> staticFields = [_occupationField, _baseField];
+  static final List<query<WorkModel>> staticFields = [_occupationField, _baseField];
 }

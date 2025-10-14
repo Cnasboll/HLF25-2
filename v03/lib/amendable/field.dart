@@ -11,8 +11,8 @@ typedef LookupField<T> = Object? Function(T?);
 typedef FormatField<T> = String Function(T?);
 typedef SQLGetter<T> = Object? Function(T?);
 
-class Field<T> {
-  Field(
+class query<T> {
+  query(
     this.getter,
     this.type,
     this.name,
@@ -26,7 +26,7 @@ class Field<T> {
     bool? mutable,
     String? jsonName,
     String? sqlLiteName,
-    List<Field>? children,
+    List<query>? children,
     LookupField<T>? sqliteGetter,
   }) : mutable = mutable ?? !primary,
        format = format ?? ((t) => getter(t).toString()),
@@ -106,6 +106,24 @@ class Field<T> {
       }
     }
     return mutable;
+  }
+
+  bool matches(T? t, String query) {
+    var value = getter(t);
+    if (value == null) {
+      return false;
+    }
+
+    if (_children.isEmpty) {
+      return format(t).toLowerCase().contains(query);
+    }
+
+    for (var child in _children) {
+      if (child.matches(value, query)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void formatField(T? t, StringBuffer sb, {String? crumbtrail}) {
@@ -481,7 +499,7 @@ class Field<T> {
   /// Optional prompt suffix to be shown when prompting for this field
   String? prompt;
 
-  final List<Field> _children;
+  final List<query> _children;
 
   static const deepEq = DeepCollectionEquality();
 }

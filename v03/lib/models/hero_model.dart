@@ -1,16 +1,16 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
-import 'package:v03/models/appearance.dart';
-import 'package:v03/models/biography.dart';
-import 'package:v03/models/connections.dart';
-import 'package:v03/models/image.dart';
-import 'package:v03/models/power_stats.dart';
-import 'package:v03/models/work.dart';
+import 'package:v03/models/appearance_model.dart';
+import 'package:v03/models/biography_model.dart';
+import 'package:v03/models/connections_model.dart';
+import 'package:v03/models/image_model.dart';
+import 'package:v03/models/power_stats_model.dart';
+import 'package:v03/models/work_model.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
 
-class Hero extends Amendable<Hero> {
-  Hero({
+class HeroModel extends Amendable<HeroModel> {
+  HeroModel({
     required this.id,
     required this.serverId,
     required this.version,
@@ -23,15 +23,15 @@ class Hero extends Amendable<Hero> {
     required this.image,
   });
 
-  Hero.newId(
+  HeroModel.newId(
     String serverId,
     String name,
-    PowerStats powerStats,
-    Biography biography,
-    Appearance appearance,
-    Work work,
-    Connections connections,
-    Image image,
+    PowerStatsModel powerStats,
+    BiographyModel biography,
+    AppearanceModel appearance,
+    WorkModel work,
+    ConnectionsModel connections,
+    ImageModel image,
   ) : this(
         id: Uuid().v4(),
         version: 1,
@@ -45,11 +45,11 @@ class Hero extends Amendable<Hero> {
         image: image,
       );
 
-  factory Hero.amendWith(
-    Hero original,
+  factory HeroModel.amendWith(
+    HeroModel original,
     Map<String, dynamic>? amendment,
   ) {
-    return Hero(
+    return HeroModel(
       id: original.id,
       version: original.version + 1,
       serverId: original.serverId,
@@ -63,61 +63,61 @@ class Hero extends Amendable<Hero> {
     );
   }
 
-  Hero.fromJsonAndId(Map<String, dynamic> json, String id) : this(
+  HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) : this(
       id : id,
       version: 1,
       serverId: _serverIdField.getStringFromJson(json, "unknown-server-id"),
       name: _nameField.getStringFromJson(json, "unknown-name"),
-      powerStats: PowerStats.fromJson(_powerstatsField.getJsonFromJson(json)),
-      biography: Biography.fromJson(_biographyField.getJsonFromJson(json)),
-      appearance: Appearance.fromJson(_appearanceField.getJsonFromJson(json)),
-      work: Work.fromJson(_workField.getJsonFromJson(json)),
-      connections: Connections.fromJson(_connectionsField.getJsonFromJson(json)),
-      image: Image.fromJson(_imageField.getJsonFromJson(json)),
+      powerStats: PowerStatsModel.fromJson(_powerstatsField.getJsonFromJson(json)),
+      biography: BiographyModel.fromJson(_biographyField.getJsonFromJson(json)),
+      appearance: AppearanceModel.fromJson(_appearanceField.getJsonFromJson(json)),
+      work: WorkModel.fromJson(_workField.getJsonFromJson(json)),
+      connections: ConnectionsModel.fromJson(_connectionsField.getJsonFromJson(json)),
+      image: ImageModel.fromJson(_imageField.getJsonFromJson(json)),
     );
 
-  factory Hero.fromRow(Row row) {
-    return Hero(
+  factory HeroModel.fromRow(Row row) {
+    return HeroModel(
       version: _versionField.getIntFromRow(row, -1),
       id: _idField.getStringFromRow(row, "unknown-id"),
       serverId: _serverIdField.getStringFromRow(row, "unknown-server-id"),
       name: _nameField.getNullableStringFromRow(row) as String,
-      powerStats: PowerStats.fromRow(row),
-      biography: Biography.fromRow(row),
-      appearance: Appearance.fromRow(row),
-      work: Work.fromRow(row),
-      connections: Connections.fromRow(row),
-      image: Image.fromRow(row),
+      powerStats: PowerStatsModel.fromRow(row),
+      biography: BiographyModel.fromRow(row),
+      appearance: AppearanceModel.fromRow(row),
+      work: WorkModel.fromRow(row),
+      connections: ConnectionsModel.fromRow(row),
+      image: ImageModel.fromRow(row),
     );
   }
 
-  Hero.from(Hero other)
+  HeroModel.from(HeroModel other)
     : this(
         id: other.id,
         version: other.version,
         serverId: other.serverId,
         name: other.name,
-        powerStats: PowerStats.from(other.powerStats),
-        biography: Biography.from(other.biography),
-        appearance: Appearance.from(other.appearance),
-        work: Work.from(other.work),
-        connections: Connections.from(other.connections),
-        image: Image.from(other.image),
+        powerStats: PowerStatsModel.from(other.powerStats),
+        biography: BiographyModel.from(other.biography),
+        appearance: AppearanceModel.from(other.appearance),
+        work: WorkModel.from(other.work),
+        connections: ConnectionsModel.from(other.connections),
+        image: ImageModel.from(other.image),
       );
 
-  Hero copyWith({
+  HeroModel copyWith({
     String? id,
     int? version,
     String? serverId,
     String? name,
-    PowerStats? powerStats,
-    Biography? biography,
-    Appearance? appearance,
-    Work? work,
-    Connections? connections,
-    Image? image,
+    PowerStatsModel? powerStats,
+    BiographyModel? biography,
+    AppearanceModel? appearance,
+    WorkModel? work,
+    ConnectionsModel? connections,
+    ImageModel? image,
   }) {
-    return Hero(
+    return HeroModel(
       id: id ?? this.id,
       serverId: serverId ?? this.serverId,
       version: (version ?? 1) + 1,
@@ -132,7 +132,7 @@ class Hero extends Amendable<Hero> {
   }
 
   @override
-  int compareTo(Hero other) {
+  int compareTo(HeroModel other) {
     // Sort by strength, descending by reversing the comparison of powerStats
     // to get descending order
     int comparison = _powerstatsField.compareField(other, this);
@@ -165,17 +165,17 @@ class Hero extends Amendable<Hero> {
   }
 
   @override
-  Hero amendWith(Map<String, dynamic>? amendment) {
-    return Hero.amendWith(this, amendment);
+  HeroModel amendWith(Map<String, dynamic>? amendment) {
+    return HeroModel.amendWith(this, amendment);
   }
 
-  static Hero? fromPrompt() {
+  static HeroModel? fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return null;
     }
 
-    return Hero.fromJsonAndId(json, Uuid().v4());
+    return HeroModel.fromJsonAndId(json, Uuid().v4());
   }
 
   static String generateSQLiteInsertColumnPlaceholders() {
@@ -201,7 +201,7 @@ class Hero extends Amendable<Hero> {
   }
 
   @override
-  List<Field<Hero>> get fields => staticFields;
+  List<query<HeroModel>> get fields => staticFields;
 
   final String id;
   // "ID" field in JSON is "serverId" here to avoid confusion with our own "id" field.
@@ -209,14 +209,14 @@ class Hero extends Amendable<Hero> {
   final String serverId;
   final int version;
   final String name;
-  final PowerStats powerStats;
-  final Biography biography;
-  final Appearance appearance;
-  final Work work;
-  final Connections connections;
-  final Image image;
+  final PowerStatsModel powerStats;
+  final BiographyModel biography;
+  final AppearanceModel appearance;
+  final WorkModel work;
+  final ConnectionsModel connections;
+  final ImageModel image;
 
-  static final Field<Hero> _idField = Field<Hero>(
+  static final query<HeroModel> _idField = query<HeroModel>(
     (h) => h?.id ?? Uuid(),
     String,
     "id",
@@ -224,7 +224,7 @@ class Hero extends Amendable<Hero> {
     primary: true,
   );
 
-  static final Field<Hero> _serverIdField = Field<Hero>(
+  static final query<HeroModel> _serverIdField = query<HeroModel>(
     (h) => h?.serverId,
     String,
     "server_id",
@@ -234,7 +234,7 @@ class Hero extends Amendable<Hero> {
     mutable: false
   );
 
-  static final Field<Hero> _versionField = Field<Hero>(
+  static final query<HeroModel> _versionField = query<HeroModel>(
     (v) => v?.version ?? 1,
     int,
     'version',
@@ -243,7 +243,7 @@ class Hero extends Amendable<Hero> {
     assignedBySystem: true,
   );
 
-  static final Field<Hero> _nameField = Field<Hero>(
+  static final query<HeroModel> _nameField = query<HeroModel>(
     (h) => h?.name ?? '',
     String,
     "name",
@@ -251,60 +251,60 @@ class Hero extends Amendable<Hero> {
     nullable: false,
   );
 
-  static final Field<Hero> _powerstatsField = Field<Hero>(
+  static final query<HeroModel> _powerstatsField = query<HeroModel>(
     (h) => h?.powerStats,
-    PowerStats,
+    PowerStatsModel,
     "powerstats",
     "Power statistics which is mostly misused",
-    children: PowerStats.staticFields,
+    children: PowerStatsModel.staticFields,
   );
 
-  static final Field<Hero> _biographyField = Field<Hero>(
+  static final query<HeroModel> _biographyField = query<HeroModel>(
     (h) => h?.biography,
-    Biography,
+    BiographyModel,
     "biography",
     "Hero's quite biased biography",
     format: (h) => "Biography: ${h?.biography}",
-    children: Biography.staticFields,
+    children: BiographyModel.staticFields,
   );
 
-  static final Field<Hero> _workField = Field<Hero>(
+  static final query<HeroModel> _workField = query<HeroModel>(
     (h) => h?.work,
-    Work,
+    WorkModel,
     "work",
     "Hero's work",
     format: (h) => "Work: ${h?.work}",
-    children: Work.staticFields,
+    children: WorkModel.staticFields,
   );
 
-  static final Field<Hero> _appearanceField = Field<Hero>(
+  static final query<HeroModel> _appearanceField = query<HeroModel>(
     (h) => h?.appearance,
-    Appearance,
+    AppearanceModel,
     "appearance",
     "Hero's appearance",
     format: (h) => "Appearance: ${h?.appearance}",
-    children: Appearance.staticFields,
+    children: AppearanceModel.staticFields,
   );
 
-  static final Field<Hero> _connectionsField = Field<Hero>(
+  static final query<HeroModel> _connectionsField = query<HeroModel>(
     (h) => h?.connections,
-    Connections,
+    ConnectionsModel,
     "connections",
     "Hero's connections",
     format: (h) => "Connections: ${h?.connections}",
-    children: Connections.staticFields,
+    children: ConnectionsModel.staticFields,
   );
 
-  static final Field<Hero> _imageField = Field<Hero>(
+  static final query<HeroModel> _imageField = query<HeroModel>(
     (h) => h?.image,
-    Image,
+    ImageModel,
     "image",
     "Hero's image",
     format: (h) => "Image: ${h?.image}",
-    children: Image.staticFields,
+    children: ImageModel.staticFields,
   );
 
-  static final List<Field<Hero>> staticFields = [
+  static final List<query<HeroModel>> staticFields = [
     _idField,
     _versionField,
     _serverIdField,

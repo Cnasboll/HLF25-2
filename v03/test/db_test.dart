@@ -1,12 +1,13 @@
 import 'dart:io';
 
-import 'package:v03/models/appearance.dart';
-import 'package:v03/models/biography.dart';
-import 'package:v03/models/connections.dart';
-import 'package:v03/models/hero.dart';
-import 'package:v03/models/image.dart';
-import 'package:v03/models/power_stats.dart';
-import 'package:v03/models/work.dart';
+import 'package:v03/managers/hero_data_manager.dart';
+import 'package:v03/models/appearance_model.dart';
+import 'package:v03/models/biography_model.dart';
+import 'package:v03/models/connections_model.dart';
+import 'package:v03/models/hero_model.dart';
+import 'package:v03/models/image_model.dart';
+import 'package:v03/models/power_stats_model.dart';
+import 'package:v03/models/work_model.dart';
 import 'package:v03/persistence/hero_repository.dart';
 import 'package:test/test.dart';
 import 'package:v03/value_types/height.dart';
@@ -22,15 +23,15 @@ Future<void> main() async {
     }
 
     // First create a db instance, clean it, add some heroes, then shutdown
-    var repo = HeroRepository(path);
-    repo.clean();
-    repo.persist(
-      Hero(
+    var heroDataManager = HeroDataManager(HeroRepository(path));
+    heroDataManager.clean();
+    heroDataManager.persist(
+      HeroModel(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
         serverId: "70",
         name: "Batman",
-        powerStats: PowerStats(
+        powerStats: PowerStatsModel(
           intelligence: 100,
           strength: 26,
           speed: 27,
@@ -38,7 +39,7 @@ Future<void> main() async {
           power: 47,
           combat: 100,
         ),
-        biography: Biography(
+        biography: BiographyModel(
           fullName: "Bruce Wayne",
           alterEgos: "No alter egos found.",
           aliases: ["Insider", "Matches Malone"],
@@ -47,7 +48,7 @@ Future<void> main() async {
           publisher: "DC Comics",
           alignment: Alignment.mostlyGood,
         ),
-        appearance: Appearance(
+        appearance: AppearanceModel(
           gender: Gender.male,
           race: "Human",
           height: Height.parseList(["6'2", "188 cm"]),
@@ -55,24 +56,24 @@ Future<void> main() async {
           eyeColor: 'blue',
           hairColor: 'black',
         ),
-        work: Work(
+        work: WorkModel(
           occupation: "CEO of Wayne Enterprises",
           base: "Gotham City",
         ),
-        connections: Connections(
+        connections: ConnectionsModel(
           groupAffiliation: "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
           relatives: "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
         ),
-        image: Image(url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg")
+        image: ImageModel(url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg")
       ),
     );
-    repo.persist(
-      Hero(
+    heroDataManager.persist(
+      HeroModel(
         id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
         version: 1,
         serverId: "69",
         name: "Robin",
-        powerStats: PowerStats(
+        powerStats: PowerStatsModel(
           intelligence: 110,
           strength: 23,
           speed: 28,
@@ -80,7 +81,7 @@ Future<void> main() async {
           power: 30,
           combat: 99,
         ),
-        biography: Biography(
+        biography: BiographyModel(
           fullName: "Dick Grayson",
           alterEgos: "Nightwing",
           aliases: ["Robin", "Nightwing"],
@@ -89,7 +90,7 @@ Future<void> main() async {
           publisher: "DC Comics",
           alignment: Alignment.reasonable,
         ),
-        appearance: Appearance(
+        appearance: AppearanceModel(
           gender: Gender.unknown,
           race: "Human",
           height: Height.parseList(["5'10", "178 cm"]),
@@ -97,24 +98,24 @@ Future<void> main() async {
           eyeColor: 'blue',
           hairColor: 'black',
         ),
-        work: Work(
+        work: WorkModel(
           occupation: "Hero",
           base: "Gotham City",
         ),
-        connections: Connections(
+        connections: ConnectionsModel(
           groupAffiliation: "Teen Titans, Batman Family",
           relatives: "Bruce Wayne (guardian), Alfred Pennyworth (butler)",
         ),
-        image: Image(url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg")
+        image: ImageModel(url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg")
       ),
     );
-    await repo.dispose();
+    await heroDataManager.dispose();
 
     // Now create a new db instance, read the snapshot, and verify
-    repo = HeroRepository(path);
-    var snapshot = repo.heroesById;
+    heroDataManager = HeroDataManager(HeroRepository(path));
+    var snapshot = heroDataManager.heroes;
     expect(2, snapshot.length);
-    var batman = repo.query("batman")[0];
+    var batman = heroDataManager.query("batman")[0];
     expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(batman.version, 1);
     expect(batman.serverId, "70");
@@ -124,7 +125,7 @@ Future<void> main() async {
     expect(batman.biography.alignment, Alignment.mostlyGood);
     expect(batman.appearance.race, "Human");
 
-    var robin = repo.query("robin")[0];
+    var robin = heroDataManager.query("robin")[0];
     expect(robin.id, "008b98a5-3ce6-4448-99f4-d4ce296fcdfc");
     expect(robin.version, 1);
     expect(robin.serverId, "69");
@@ -139,50 +140,50 @@ Future<void> main() async {
       powerStats: batman.powerStats.copyWith(strength: 13),
       biography: batman.biography.copyWith(alignment: Alignment.good),
     );
-    repo.persist(batman);
+    heroDataManager.persist(batman);
 
     // Add Alfred, assign a id
-    var alfred = Hero.newId(
+    var alfred = HeroModel.newId(
       "3",
       "Alfred",
-      PowerStats(strength: 9),
-      Biography(alignment: Alignment.good, fullName: "Alfred Pennyworth"),
-      Appearance(
+      PowerStatsModel(strength: 9),
+      BiographyModel(alignment: Alignment.good, fullName: "Alfred Pennyworth"),
+      AppearanceModel(
         gender: Gender.wontSay,
         race: "Human",
         height: Height.parseList(["5'9", "175 cm"]),
         weight: Weight.parseList(["155 lb", "70 kg"]),
       ),
-      Work(occupation: "Butler", base: "Wayne Manor"),
-      Connections(
+      WorkModel(occupation: "Butler", base: "Wayne Manor"),
+      ConnectionsModel(
         groupAffiliation: "Wayne Manor",
         relatives: "Bruce Wayne (employer)",
       ),
-      Image(
+      ImageModel(
         url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
       ),
     );
-    repo.persist(alfred);
+    heroDataManager.persist(alfred);
 
     //delete Robin
-    repo.delete(robin);
+    heroDataManager.delete(robin);
 
     // then shutdown
-    await repo.dispose();
+    await heroDataManager.dispose();
 
-    repo = HeroRepository(path);
-    snapshot = repo.heroesById;
+    heroDataManager = HeroDataManager(HeroRepository(path));
+    snapshot = heroDataManager.heroes;
     expect(2, snapshot.length);
-    batman = snapshot[batman.id]!;
+    batman = heroDataManager.getById(batman.id)!;
     expect(batman.version, 2);
     expect(batman.name, "Batman");
     expect(batman.powerStats.strength, 13);
 
-    alfred = snapshot[alfred.id]!;
+    alfred = heroDataManager.getById(alfred.id)!;
     expect(alfred.version, 1);
     expect(alfred.name, "Alfred");
     expect(alfred.powerStats.strength, 9);
-    await repo.dispose();
+    await heroDataManager.dispose();
 
     file = File(path);
     if (await file.exists()) {

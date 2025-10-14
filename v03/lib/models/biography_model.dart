@@ -19,8 +19,8 @@ enum Alignment {
   usingMobileSpeakerOnPublicTransport,
 }
 
-class Biography extends Amendable<Biography> {
-  Biography({
+class BiographyModel extends Amendable<BiographyModel> {
+  BiographyModel({
     this.fullName,
     this.alterEgos,
     this.aliases,
@@ -30,7 +30,7 @@ class Biography extends Amendable<Biography> {
     this.alignment,
   });
 
-  Biography.from(Biography other)
+  BiographyModel.from(BiographyModel other)
     : this(
         fullName: other.fullName,
         alterEgos: other.alterEgos,
@@ -43,7 +43,7 @@ class Biography extends Amendable<Biography> {
         alignment: other.alignment,
       );
 
-  Biography copyWith({
+  BiographyModel copyWith({
     String? fullName,
     String? alterEgos,
     List<String>? aliases,
@@ -52,7 +52,7 @@ class Biography extends Amendable<Biography> {
     String? publisher,
     Alignment? alignment,
   }) {
-    return Biography(
+    return BiographyModel(
       fullName: fullName ?? this.fullName,
       alterEgos: alterEgos ?? this.alterEgos,
       aliases: aliases ?? List<String>.from(this.aliases ?? []),
@@ -63,11 +63,11 @@ class Biography extends Amendable<Biography> {
     );
   }
 
-  factory Biography.amendWith(
-    Biography original,
+  factory BiographyModel.amendWith(
+    BiographyModel original,
     Map<String, dynamic>? amendment,
   ) {
-    return Biography(
+    return BiographyModel(
       fullName: _fullNameField.getNullableStringFromJsonForAmendment(
         original,
         amendment,
@@ -98,11 +98,11 @@ class Biography extends Amendable<Biography> {
     );
   }
 
-  static Biography fromJson(Map<String, dynamic>? json) {
+  static BiographyModel fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return Biography();
+      return BiographyModel();
     }
-    return Biography(
+    return BiographyModel(
       fullName: _fullNameField.getNullableStringFromJson(json),
       alterEgos: _alterEgosField.getNullableStringFromJson(json),
       aliases: _aliasesField.getNullableStringListFromJson(json),
@@ -117,8 +117,8 @@ class Biography extends Amendable<Biography> {
     );
   }
 
-  factory Biography.fromRow(Row row) {
-    return Biography(
+  factory BiographyModel.fromRow(Row row) {
+    return BiographyModel(
       fullName: _fullNameField.getNullableStringFromRow(row),
       alterEgos: _alterEgosField.getNullableStringFromRow(row),
       aliases: _aliasesField.getNullableStringListFromRow(row),
@@ -142,37 +142,37 @@ class Biography extends Amendable<Biography> {
   final Alignment? alignment;
 
   @override
-  Biography amendWith(Map<String, dynamic>? amendment) {
-    return Biography.amendWith(this, amendment);
+  BiographyModel amendWith(Map<String, dynamic>? amendment) {
+    return BiographyModel.amendWith(this, amendment);
   }
 
-  static Biography fromPrompt() {
+  static BiographyModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
-      return Biography();
+      return BiographyModel();
     }
     if (json.length != staticFields.length) {
-      return Biography();
+      return BiographyModel();
     }
 
-    return Biography.fromJson(json);
+    return BiographyModel.fromJson(json);
   }
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<Field<Biography>> get fields => staticFields;
+  List<query<BiographyModel>> get fields => staticFields;
 
-  static Field<Biography> get _fullNameField =>
-      Field<Biography>((p) => p?.fullName, String, 'full-name', 'Full');
+  static query<BiographyModel> get _fullNameField =>
+      query<BiographyModel>((p) => p?.fullName, String, 'full-name', 'Full');
 
-  static final Field<Biography> _alterEgosField = Field<Biography>(
+  static final query<BiographyModel> _alterEgosField = query<BiographyModel>(
     (p) => p?.alterEgos,
     String,
     'alter-egos',
     'Such as Jekyll and Hyde',
   );
 
-  static final Field<Biography> _aliasesField = Field<Biography>(
+  static final query<BiographyModel> _aliasesField = query<BiographyModel>(
     (p) => p?.aliases,
     List<String>,
     'aliases',
@@ -183,28 +183,28 @@ class Biography extends Amendable<Biography> {
     prompt: ' as a single value (\'Insider\') without surrounding \' or a list in json format e.g. ["Insider", "Matches Malone"]',
   );
 
-  static final Field<Biography> _placeOfBirthFIeld = Field<Biography>(
+  static final query<BiographyModel> _placeOfBirthFIeld = query<BiographyModel>(
     (p) => p?.placeOfBirth,
     String,
     'place-of-birth',
     'Where the character was born',
   );
 
-  static final Field<Biography> _firstAppearanceField = Field<Biography>(
+  static final query<BiographyModel> _firstAppearanceField = query<BiographyModel>(
     (p) => p?.firstAppearance,
     String,
     'first-appearance',
     'When the character first appeared in print or in court',
   );
 
-  static final Field<Biography> _publisherField = Field<Biography>(
+  static final query<BiographyModel> _publisherField = query<BiographyModel>(
     (p) => p?.publisher,
     String,
     'publisher',
     'The publisher of the character\'s stories or documentary evidence',
   );
 
-  static final Field<Biography> _alignmentField = Field<Biography>(
+  static final query<BiographyModel> _alignmentField = query<BiographyModel>(
     (h) => h?.alignment ?? Alignment.unknown,
     Alignment,
     "alignment",
@@ -214,7 +214,7 @@ class Biography extends Amendable<Biography> {
     nullable: false,
   );
 
-  static final List<Field<Biography>> staticFields = [
+  static final List<query<BiographyModel>> staticFields = [
     _fullNameField,
     _alterEgosField,
     _aliasesField,
