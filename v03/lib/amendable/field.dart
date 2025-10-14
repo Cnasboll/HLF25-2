@@ -172,22 +172,25 @@ class query<T> {
       return 0;
     }
 
-    if (lhs == null && rhs == null) {
+    var lhsValue = getter(lhs);
+    var rhsValue = getter(rhs);
+
+    if (lhsValue == null && rhsValue == null) {
       return 0;
     }
 
-    if (lhs == null) {
+    if (lhsValue == null) {
       return -1; // null is considered smaller
     }
 
-    if (rhs == null) {
+    if (rhsValue == null) {
       return 1;
     }
 
     // If both implement Comparable, use that (most common case).
-    if (lhs is Comparable && rhs is Comparable) {
+    if (lhsValue is Comparable && rhsValue is Comparable) {
       try {
-        final cmp = lhs.compareTo(rhs);
+        final cmp = lhsValue.compareTo(rhsValue);
         if (cmp != 0) {
           return cmp;
         }
@@ -198,16 +201,16 @@ class query<T> {
     }
 
     // Booleans: true > false
-    if (lhs is bool && rhs is bool) {
-      if (lhs != rhs) {
-        return lhs ? 1 : -1;
+    if (lhsValue is bool && rhsValue is bool) {
+      if (lhsValue != rhsValue) {
+        return lhsValue ? 1 : -1;
       }
       return 0;
     }
 
     // Enums: compare by index
-    if (lhs is Enum && rhs is Enum) {
-      final cmp = lhs.index.compareTo(rhs.index);
+    if (lhsValue is Enum && rhsValue is Enum) {
+      final cmp = lhsValue.index.compareTo(rhsValue.index);
       if (cmp != 0) {
         return cmp;
       }
@@ -215,14 +218,14 @@ class query<T> {
     }
 
     // Deep-equal complex structures -> treat equal
-    if (deepEq.equals(lhs, rhs)) {
+    if (deepEq.equals(lhsValue, rhsValue)) {
       return 0;
     }
 
     // Last resort: compare string representations to provide a deterministic
     // ordering even for unknown / mixed types.
-    final lstr = lhs.toString();
-    final rstr = rhs.toString();
+    final lstr = lhsValue.toString();
+    final rstr = rhsValue.toString();
     final cmp = lstr.compareTo(rstr);
     if (cmp != 0) {
       return cmp;

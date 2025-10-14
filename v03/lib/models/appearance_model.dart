@@ -153,25 +153,26 @@ class AppearanceModel extends Amendable<AppearanceModel> {
       other.genderComparisonFactor,
     );
 
-    // Never sort appearances by race as that would be discriminatory, but by height ascending (as tall heroes always have an advantage in all areas of life
-    // and herohood),
-    if (comparison == 0) {
-      _heightField.compareField(other, this);
+    if (comparison != 0) {
+      return comparison;
     }
 
-    if (comparison == 0) {
-      comparison = _weightField.compareField(this, other);
+    // Never sort appearances by race as that would be discriminatory, but by height ascending (as tall heroes always have
+    // an advantage in all areas of life and herohood),
+    comparison = _heightField.compareField(other, this);
+
+    if (comparison != 0) {
+      return comparison;
     }
 
-    if (comparison == 0) {
-      _eyeColourField.compareField(this, other);
+    // if powerStats are the same, sort other fields ascending
+    for (var field in [_weightField, _eyeColourField, _hairColorField]) {
+      comparison = field.compareField(this, other);
+      if (comparison != 0) {
+        return comparison;
+      }
     }
-
-    if (comparison == 0) {
-      comparison = _hairColorField.compareField(this, other);
-    }
-
-    return comparison;
+    return 0;
   }
 
   /// Subclasses may override to contribute additional fields.

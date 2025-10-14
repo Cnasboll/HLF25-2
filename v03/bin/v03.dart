@@ -138,7 +138,7 @@ void deleteAllHeroes(HeroDataManaging heroDataManager) {
   if (!promptForYesNo("Do you really want to delete all heroes?")) {
     return;
   }
-  heroDataManager.clean();
+  heroDataManager.clear();
   print("Deleted all heroes");
 }
 

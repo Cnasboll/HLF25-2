@@ -40,6 +40,20 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
     );
   }
 
+@override
+  int compareTo(PowerStatsModel other) {
+  
+    // Sort by strength, descending first followed by intelligence, speed, durability, power, combat by reversing the comparison
+    // to get descending order.
+    for (var field in [_strengthField, _intelligenceField, _speedField, _durabilityField, _powerField, _combatField]) {
+      int comparison = field.compareField(other, this);
+      if (comparison != 0) {
+        return comparison;
+      }
+    }
+    
+    return 0;
+  }
   factory PowerStatsModel.amendWith(
     PowerStatsModel original,
     Map<String, dynamic>? amendment,

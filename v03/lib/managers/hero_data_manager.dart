@@ -1,7 +1,5 @@
 
 import 'package:v03/managers/hero_data_managing.dart';
-import 'package:v03/models/appearance_model.dart';
-import 'package:v03/models/biography_model.dart';
 import 'package:v03/models/hero_model.dart';
 import 'package:v03/persistence/hero_repository.dart';
 
@@ -27,9 +25,9 @@ class HeroDataManager implements HeroDataManaging {
 
 
   @override
-  void clean() {
+  void clear() {
     _heroesByServerId.clear();
-    _repository.clean();
+    _repository.clear();
   }
 
   @override
@@ -64,7 +62,7 @@ class HeroDataManager implements HeroDataManaging {
   @override
   List<HeroModel> get heroes 
   {
-    var snapshot = _heroesByServerId.values.toList();
+    var snapshot = _repository.heroes;
     snapshot.sort();
     return snapshot;
   }

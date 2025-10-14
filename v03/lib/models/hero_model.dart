@@ -133,35 +133,48 @@ class HeroModel extends Amendable<HeroModel> {
 
   @override
   int compareTo(HeroModel other) {
-    // Sort by strength, descending by reversing the comparison of powerStats
-    // to get descending order
-    int comparison = _powerstatsField.compareField(other, this);
-    // if powerStats are the same, sort by biography
-    if (comparison == 0) {
-      comparison = _biographyField.compareField(this, other);
+    int comparison = powerStats.compareTo(other.powerStats);
+    if (comparison != 0) {
+      return comparison;
     }
 
-    // if powerStats and biography are the same, sort by appearance
-    if (comparison == 0) {
-      comparison = _appearanceField.compareField(this, other);
+    // if powerStats are the same, sort other, fields ascending in order of significance which is
+    // appearance, biography, id, serverId, version, name, work, connections, image
+    // (id is before serverId as it is more unique, version is after serverId
+    comparison = appearance.compareTo(other.appearance);
+    if (comparison != 0) {
+      return comparison;
+    }
+    comparison = biography.compareTo(other.biography);
+    if (comparison != 0) {
+      return comparison;
+    }
+    for (var field in [     
+      _idField,
+      _serverIdField,
+      _versionField,
+      _nameField,
+    ]) {
+      comparison = field.compareField(this, other);
+      if (comparison != 0) {
+        return comparison;
+      }
     }
 
-    // if powerStats, biography and appearance are the same, sort by work
-    if (comparison == 0) {
-      comparison = _workField.compareField(this, other);
+    comparison = work.compareTo(other.work);
+    if (comparison != 0) {
+      return comparison;
+    }
+    comparison = connections.compareTo(other.connections);
+    if (comparison != 0) {
+      return comparison;
+    }
+    comparison = image.compareTo(other.image);
+    if (comparison != 0) {
+      return comparison;
     }
 
-    // ... connections
-    if (comparison == 0) {
-      comparison = _connectionsField.compareField(this, other);
-    }
-
-    // ... image
-    if (comparison == 0) {
-      comparison = _imageField.compareField(this, other);
-    }
-
-    return comparison;
+    return 0;
   }
 
   @override
