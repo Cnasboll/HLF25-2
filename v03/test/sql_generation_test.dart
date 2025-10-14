@@ -73,7 +73,6 @@ void main() {
   test('generate SQLite update clause', () {
     final update = HeroModel.generateSqliteUpdateClause('    ');
     expect(update, '''version=excluded.version,
-    server_id=excluded.server_id,
     name=excluded.name,
     intelligence=excluded.intelligence,
     strength=excluded.strength,

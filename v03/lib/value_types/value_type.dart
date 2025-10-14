@@ -72,7 +72,7 @@ abstract class ValueType<T> extends Equatable implements Comparable<ValueType<T>
         if (!parsedValueCorrespondsMasterButInDifferentUnit && !parsedValueInMasterUnitsCorrespondsToMaster) {
           errors.write(
             "${separator}Conflicting $valueTypeName information:"
-            " ${parsedSystemOfUnits.name} '$input' corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInParsedUnit' in order to match first value of '$valueSource'",
+            " ${parsedSystemOfUnits.name} '$parsedValue' corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInParsedUnit' in order to match first value of '$value'",
           );
         }
         separator = '; ';
