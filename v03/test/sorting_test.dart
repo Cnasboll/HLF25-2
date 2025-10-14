@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:v03/managers/hero_data_manager.dart';
 import 'package:v03/models/appearance_model.dart';
 import 'package:v03/models/biography_model.dart';
 import 'package:v03/models/connections_model.dart';
@@ -8,7 +5,6 @@ import 'package:v03/models/hero_model.dart';
 import 'package:v03/models/image_model.dart';
 import 'package:v03/models/power_stats_model.dart';
 import 'package:v03/models/work_model.dart';
-import 'package:v03/persistence/hero_repository.dart';
 import 'package:test/test.dart';
 import 'package:v03/value_types/height.dart';
 import 'package:v03/value_types/weight.dart';
