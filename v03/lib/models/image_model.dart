@@ -53,9 +53,9 @@ class ImageModel extends Amendable<ImageModel> {
   }
 
   @override
-  List<query<ImageModel>> get fields => staticFields;
+  List<Field<ImageModel>> get fields => staticFields;
 
-  static query<ImageModel> get _urlField => query<ImageModel>(
+  static Field<ImageModel> get _urlField => Field<ImageModel>(
     (p) => p?.url,
     String,
     'url',
@@ -63,5 +63,5 @@ class ImageModel extends Amendable<ImageModel> {
     sqlLiteName: 'image_url',
   );
 
-  static final List<query<ImageModel>> staticFields = [_urlField];
+  static final List<Field<ImageModel>> staticFields = [_urlField];
 }

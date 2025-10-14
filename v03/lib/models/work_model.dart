@@ -70,21 +70,21 @@ class WorkModel extends Amendable<WorkModel> {
   }
 
   @override
-  List<query<WorkModel>> get fields => staticFields;
+  List<Field<WorkModel>> get fields => staticFields;
 
-  static query<WorkModel> get _occupationField => query<WorkModel>(
+  static Field<WorkModel> get _occupationField => Field<WorkModel>(
     (p) => p?.occupation,
     String,
     'occupation',
     'Occupation of the character',
   );
 
-  static final query<WorkModel> _baseField = query<WorkModel>(
+  static final Field<WorkModel> _baseField = Field<WorkModel>(
     (p) => p?.base,
     String,
     'base',
     'A place where the character works or lives or hides rather frequently',
   );
 
-  static final List<query<WorkModel>> staticFields = [_occupationField, _baseField];
+  static final List<Field<WorkModel>> staticFields = [_occupationField, _baseField];
 }

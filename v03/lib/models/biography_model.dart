@@ -160,19 +160,19 @@ class BiographyModel extends Amendable<BiographyModel> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<query<BiographyModel>> get fields => staticFields;
+  List<Field<BiographyModel>> get fields => staticFields;
 
-  static query<BiographyModel> get _fullNameField =>
-      query<BiographyModel>((p) => p?.fullName, String, 'full-name', 'Full');
+  static Field<BiographyModel> get _fullNameField =>
+      Field<BiographyModel>((p) => p?.fullName, String, 'full-name', 'Full');
 
-  static final query<BiographyModel> _alterEgosField = query<BiographyModel>(
+  static final Field<BiographyModel> _alterEgosField = Field<BiographyModel>(
     (p) => p?.alterEgos,
     String,
     'alter-egos',
     'Such as Jekyll and Hyde',
   );
 
-  static final query<BiographyModel> _aliasesField = query<BiographyModel>(
+  static final Field<BiographyModel> _aliasesField = Field<BiographyModel>(
     (p) => p?.aliases,
     List<String>,
     'aliases',
@@ -183,28 +183,28 @@ class BiographyModel extends Amendable<BiographyModel> {
     prompt: ' as a single value (\'Insider\') without surrounding \' or a list in json format e.g. ["Insider", "Matches Malone"]',
   );
 
-  static final query<BiographyModel> _placeOfBirthFIeld = query<BiographyModel>(
+  static final Field<BiographyModel> _placeOfBirthFIeld = Field<BiographyModel>(
     (p) => p?.placeOfBirth,
     String,
     'place-of-birth',
     'Where the character was born',
   );
 
-  static final query<BiographyModel> _firstAppearanceField = query<BiographyModel>(
+  static final Field<BiographyModel> _firstAppearanceField = Field<BiographyModel>(
     (p) => p?.firstAppearance,
     String,
     'first-appearance',
     'When the character first appeared in print or in court',
   );
 
-  static final query<BiographyModel> _publisherField = query<BiographyModel>(
+  static final Field<BiographyModel> _publisherField = Field<BiographyModel>(
     (p) => p?.publisher,
     String,
     'publisher',
     'The publisher of the character\'s stories or documentary evidence',
   );
 
-  static final query<BiographyModel> _alignmentField = query<BiographyModel>(
+  static final Field<BiographyModel> _alignmentField = Field<BiographyModel>(
     (h) => h?.alignment ?? Alignment.unknown,
     Alignment,
     "alignment",
@@ -214,7 +214,7 @@ class BiographyModel extends Amendable<BiographyModel> {
     nullable: false,
   );
 
-  static final List<query<BiographyModel>> staticFields = [
+  static final List<Field<BiographyModel>> staticFields = [
     _fullNameField,
     _alterEgosField,
     _aliasesField,

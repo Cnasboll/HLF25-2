@@ -72,23 +72,23 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
   }
 
   @override
-  List<query<ConnectionsModel>> get fields => staticFields;
+  List<Field<ConnectionsModel>> get fields => staticFields;
 
-  static query<ConnectionsModel> get _groupAffiliationField => query<ConnectionsModel>(
+  static Field<ConnectionsModel> get _groupAffiliationField => Field<ConnectionsModel>(
     (p) => p?.groupAffiliation,
     String,
     'group-affiliation',
     'Groups the character is affiliated with wether currently or in the past and if addmittedly or not',
   );
 
-  static final query<ConnectionsModel> _relativesField = query<ConnectionsModel>(
+  static final Field<ConnectionsModel> _relativesField = Field<ConnectionsModel>(
     (p) => p?.relatives,
     String,
     'relatives',
     'A list of the character\'s relatives by blood, marriage, adoption, or pure association',
   );
 
-  static final List<query<ConnectionsModel>> staticFields = [
+  static final List<Field<ConnectionsModel>> staticFields = [
     _groupAffiliationField,
     _relativesField,
   ];

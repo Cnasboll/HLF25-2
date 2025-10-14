@@ -214,7 +214,7 @@ class HeroModel extends Amendable<HeroModel> {
   }
 
   @override
-  List<query<HeroModel>> get fields => staticFields;
+  List<Field<HeroModel>> get fields => staticFields;
 
   final String id;
   // "ID" field in JSON is "serverId" here to avoid confusion with our own "id" field.
@@ -229,7 +229,7 @@ class HeroModel extends Amendable<HeroModel> {
   final ConnectionsModel connections;
   final ImageModel image;
 
-  static final query<HeroModel> _idField = query<HeroModel>(
+  static final Field<HeroModel> _idField = Field<HeroModel>(
     (h) => h?.id ?? Uuid(),
     String,
     "id",
@@ -237,7 +237,7 @@ class HeroModel extends Amendable<HeroModel> {
     primary: true,
   );
 
-  static final query<HeroModel> _serverIdField = query<HeroModel>(
+  static final Field<HeroModel> _serverIdField = Field<HeroModel>(
     (h) => h?.serverId,
     String,
     "server_id",
@@ -247,7 +247,7 @@ class HeroModel extends Amendable<HeroModel> {
     mutable: false
   );
 
-  static final query<HeroModel> _versionField = query<HeroModel>(
+  static final Field<HeroModel> _versionField = Field<HeroModel>(
     (v) => v?.version ?? 1,
     int,
     'version',
@@ -256,7 +256,7 @@ class HeroModel extends Amendable<HeroModel> {
     assignedBySystem: true,
   );
 
-  static final query<HeroModel> _nameField = query<HeroModel>(
+  static final Field<HeroModel> _nameField = Field<HeroModel>(
     (h) => h?.name ?? '',
     String,
     "name",
@@ -264,7 +264,7 @@ class HeroModel extends Amendable<HeroModel> {
     nullable: false,
   );
 
-  static final query<HeroModel> _powerstatsField = query<HeroModel>(
+  static final Field<HeroModel> _powerstatsField = Field<HeroModel>(
     (h) => h?.powerStats,
     PowerStatsModel,
     "powerstats",
@@ -272,7 +272,7 @@ class HeroModel extends Amendable<HeroModel> {
     children: PowerStatsModel.staticFields,
   );
 
-  static final query<HeroModel> _biographyField = query<HeroModel>(
+  static final Field<HeroModel> _biographyField = Field<HeroModel>(
     (h) => h?.biography,
     BiographyModel,
     "biography",
@@ -281,7 +281,7 @@ class HeroModel extends Amendable<HeroModel> {
     children: BiographyModel.staticFields,
   );
 
-  static final query<HeroModel> _workField = query<HeroModel>(
+  static final Field<HeroModel> _workField = Field<HeroModel>(
     (h) => h?.work,
     WorkModel,
     "work",
@@ -290,7 +290,7 @@ class HeroModel extends Amendable<HeroModel> {
     children: WorkModel.staticFields,
   );
 
-  static final query<HeroModel> _appearanceField = query<HeroModel>(
+  static final Field<HeroModel> _appearanceField = Field<HeroModel>(
     (h) => h?.appearance,
     AppearanceModel,
     "appearance",
@@ -299,7 +299,7 @@ class HeroModel extends Amendable<HeroModel> {
     children: AppearanceModel.staticFields,
   );
 
-  static final query<HeroModel> _connectionsField = query<HeroModel>(
+  static final Field<HeroModel> _connectionsField = Field<HeroModel>(
     (h) => h?.connections,
     ConnectionsModel,
     "connections",
@@ -308,7 +308,7 @@ class HeroModel extends Amendable<HeroModel> {
     children: ConnectionsModel.staticFields,
   );
 
-  static final query<HeroModel> _imageField = query<HeroModel>(
+  static final Field<HeroModel> _imageField = Field<HeroModel>(
     (h) => h?.image,
     ImageModel,
     "image",
@@ -317,7 +317,7 @@ class HeroModel extends Amendable<HeroModel> {
     children: ImageModel.staticFields,
   );
 
-  static final List<query<HeroModel>> staticFields = [
+  static final List<Field<HeroModel>> staticFields = [
     _idField,
     _versionField,
     _serverIdField,

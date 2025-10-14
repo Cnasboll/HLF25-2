@@ -11,24 +11,25 @@ typedef LookupField<T> = Object? Function(T?);
 typedef FormatField<T> = String Function(T?);
 typedef SQLGetter<T> = Object? Function(T?);
 
-class query<T> {
-  query(
+class Field<T> {
+  Field(
     this.getter,
     this.type,
     this.name,
     this.description, {
     this.primary = false,
     this.nullable = true,
-    this.assignedBySystem = false,
     FormatField<T>? format,
     this.comparable = true,
     this.prompt,
+    bool? assignedBySystem,
     bool? mutable,
     String? jsonName,
     String? sqlLiteName,
-    List<query>? children,
+    List<Field>? children,
     LookupField<T>? sqliteGetter,
   }) : mutable = mutable ?? !primary,
+       assignedBySystem = assignedBySystem ?? primary,
        format = format ?? ((t) => getter(t).toString()),
        jsonName = jsonName ?? name,
        sqlLiteName = sqlLiteName ?? name.replaceAll('-', '_').toLowerCase(),
@@ -36,6 +37,9 @@ class query<T> {
        sqliteGetter = sqliteGetter ?? ((t) => getter(t));
 
   bool promptForJson(Map<String, dynamic> json, {String? crumbtrail}) {
+    if (assignedBySystem) {
+      return true;
+    }
     String cr = crumbtrail != null ? "$crumbtrail." : "";
     var fullPath = '$cr$name';
     if (_children.isEmpty) {
@@ -502,7 +506,7 @@ class query<T> {
   /// Optional prompt suffix to be shown when prompting for this field
   String? prompt;
 
-  final List<query> _children;
+  final List<Field> _children;
 
   static const deepEq = DeepCollectionEquality();
 }

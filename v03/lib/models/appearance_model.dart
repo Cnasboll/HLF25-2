@@ -177,9 +177,9 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<query<AppearanceModel>> get fields => staticFields;
+  List<Field<AppearanceModel>> get fields => staticFields;
 
-  static final query<AppearanceModel> _genderField = query<AppearanceModel>(
+  static final Field<AppearanceModel> _genderField = Field<AppearanceModel>(
     (a) => a?.gender ?? Gender.unknown,
     Gender,
     "gender",
@@ -189,14 +189,14 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     nullable: false,
   );
 
-  static final query<AppearanceModel> _raceField = query<AppearanceModel>(
+  static final Field<AppearanceModel> _raceField = Field<AppearanceModel>(
     (a) => a?.race,
     String,
     "race",
     "Species in Latin or English",
   );
 
-  static query<AppearanceModel> get _heightField => query<AppearanceModel>(
+  static Field<AppearanceModel> get _heightField => Field<AppearanceModel>(
     (a) => a?.height,
     Height,
     'height',
@@ -205,7 +205,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     prompt: '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
   );
 
-  static query<AppearanceModel> get _weightField => query<AppearanceModel>(
+  static Field<AppearanceModel> get _weightField => Field<AppearanceModel>(
     (p) => p?.weight,
     Weight,
     'weight',
@@ -214,21 +214,21 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     prompt: '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
   );
 
-  static final query<AppearanceModel> _eyeColourField = query<AppearanceModel>(
+  static final Field<AppearanceModel> _eyeColourField = Field<AppearanceModel>(
     (p) => p?.eyeColor,
     String,
     'eye-color',
     'The character\'s eye color of the most recent appearance',
   );
 
-  static final query<AppearanceModel> _hairColorField = query<AppearanceModel>(
+  static final Field<AppearanceModel> _hairColorField = Field<AppearanceModel>(
     (p) => p?.hairColor,
     String,
     'hair-color',
     'The character\'s hair color of the most recent appearance',
   );
 
-  static final List<query<AppearanceModel>> staticFields = [
+  static final List<Field<AppearanceModel>> staticFields = [
     _genderField,
     _raceField,
     _heightField,

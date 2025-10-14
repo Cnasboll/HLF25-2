@@ -119,51 +119,51 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<query<PowerStatsModel>> get fields => staticFields;
+  List<Field<PowerStatsModel>> get fields => staticFields;
 
-  static query<PowerStatsModel> get _intelligenceField => query<PowerStatsModel>(
+  static Field<PowerStatsModel> get _intelligenceField => Field<PowerStatsModel>(
     (p) => p?.intelligence,
     int,
     'intelligence',
     'IQ SD 15 (WAIS)',
   );
 
-  static final query<PowerStatsModel> _strengthField = query<PowerStatsModel>(
+  static final Field<PowerStatsModel> _strengthField = Field<PowerStatsModel>(
     (p) => p?.strength,
     int,
     'strength',
     'newton',
   );
 
-  static final query<PowerStatsModel> _speedField = query<PowerStatsModel>(
+  static final Field<PowerStatsModel> _speedField = Field<PowerStatsModel>(
     (p) => p?.speed,
     int,
     'speed',
     'km/h',
   );
 
-  static final query<PowerStatsModel> _durabilityField = query<PowerStatsModel>(
+  static final Field<PowerStatsModel> _durabilityField = Field<PowerStatsModel>(
     (p) => p?.durability,
     int,
     'durability',
     'longevity',
   );
 
-  static final query<PowerStatsModel> _powerField = query<PowerStatsModel>(
+  static final Field<PowerStatsModel> _powerField = Field<PowerStatsModel>(
     (p) => p?.power,
     int,
     'power',
     'whatever',
   );
 
-  static final query<PowerStatsModel> _combatField = query<PowerStatsModel>(
+  static final Field<PowerStatsModel> _combatField = Field<PowerStatsModel>(
     (p) => p?.combat,
     int,
     'combat',
     'fighting skills',
   );
 
-  static final List<query<PowerStatsModel>> staticFields = [
+  static final List<Field<PowerStatsModel>> staticFields = [
     _intelligenceField,
     _strengthField,
     _speedField,
