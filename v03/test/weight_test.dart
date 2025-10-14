@@ -45,7 +45,7 @@ void main() {
     final imp2 = Weight.parseList(['210 lb', '95 kg'])!;
     expect(imp2.wholePounds, 210);
 
-    // Note tthatt 95 kgs can correspond to both 209 or 210 pounds but not the other way around
+    // Note that 95 kgs can correspond to both 209 or 210 pounds
     final metric = Weight.parseList(['95 kg', '209 lb'])!;
     expect(metric.wholeKilograms, 95);
 

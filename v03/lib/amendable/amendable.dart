@@ -46,9 +46,6 @@ abstract class Amendable<T extends Amendable<T>> extends Equatable
   Map<String, dynamic> promptForAmendmentJson() {
     Map<String, dynamic> amendment = {};
     for (var field in fields) {
-      if (!field.mutable || field.assignedBySystem) {
-        continue;
-      }
       field.promptForAmendmentJson(this as T, amendment);
     }
     return amendment;
@@ -64,29 +61,12 @@ abstract class Amendable<T extends Amendable<T>> extends Equatable
     return true;
   }
 
-  String formatAmendment(T other) {
-    StringBuffer sb = StringBuffer();
-
+  bool diff(T other, StringBuffer sb) {
+    bool hasDifferences = false;
     for (var field in fields) {
-      var amendment = field.formatAmendment(this as T, other);
-      if (amendment == null) {
-        continue;
-      }
-      sb.writeln(amendment);
+      hasDifferences |= field.diff(this as T, other, sb);
     }
-    return sb.toString();
-  }
-
-  String sideBySide(T other) {
-    var diff = formatAmendment(other);
-    if (diff.isNotEmpty) {
-      return '''
-
-=============
-$diff=============
-  ''';
-    }
-    return '<No differences>';
+    return hasDifferences;
   }
 
   @override
@@ -112,13 +92,18 @@ $diff=============
   T? promptForAmendment() {
     var amendedObject = amendWith(promptForAmendmentJson());
 
-    if (this == amendedObject) {
+    var sb = StringBuffer();
+    if (!diff(amendedObject, sb)) {
       print("No amendments made");
       return null;
     }
 
     if (!promptForYesNo(
-      '''Save the following amendments?${sideBySide(amendedObject)}''',
+      '''Save the following amendments?
+
+=============
+${sb.toString()}=============
+''',
     )) {
       return null;
     }

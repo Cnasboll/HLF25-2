@@ -64,11 +64,22 @@ void main() {
         "height": ["6'1", "186 cm"]
       },
       "biography": {
+        "aliases" :  ["Mystical"],
         "alignment": "reasonable"
       }
     };
 
     final fatman = batman.amendWith(amedment);
+
+    StringBuffer sb = StringBuffer();
+    batman.diff(fatman, sb);
+    expect(sb.toString(), '''powerstats.intelligence: 100 -> 96
+powerstats.durability: 50 -> 45
+biography.aliases: [Insider, Matches Malone] -> [Mystical]
+biography.alignment: good -> reasonable
+appearance.height: 6'2" -> 6'1"
+appearance.weight: 210 lb -> 220 lb
+''');
 
     expect(fatman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(fatman.serverId, "70");
@@ -88,7 +99,7 @@ void main() {
     var biography = fatman.biography;
     expect(biography.fullName, "Bruce Wayne");
     expect(biography.alterEgos, "No alter egos found.");
-    expect(biography.aliases, ["Insider", "Matches Malone"]);
+    expect(biography.aliases, ["Mystical"]);
     expect(
       biography.placeOfBirth,
       "Crest Hill, Bristol Township; Gotham County",

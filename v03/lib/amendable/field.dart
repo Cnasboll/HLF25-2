@@ -61,10 +61,14 @@ class Field<T> {
     return true;
   }
 
-  void promptForAmendmentJson(T t,
+  void promptForAmendmentJson(
+    T t,
     Map<String, dynamic> amendment, {
     String? crumbtrail,
   }) {
+    if (!mutable || assignedBySystem) {
+      return;
+    }
     String cr = crumbtrail != null ? "$crumbtrail." : "";
     var fullPath = '$cr$name';
     if (_children.isEmpty) {
@@ -74,9 +78,7 @@ class Field<T> {
         "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
       );
       var input = (stdin.readLineSync() ?? "").trim();
-      if (input.isEmpty) {
-        amendment[jsonName] = current;
-      } else {
+      if (input.isNotEmpty) {
         amendment[jsonName] = input;
       }
       return;
@@ -85,13 +87,17 @@ class Field<T> {
     if (promptForYes('Amend $fullPath?')) {
       var childAmendment = amendment[jsonName] = <String, dynamic>{};
       for (var child in _children) {
-        child.promptForAmendmentJson(getter(t), childAmendment, crumbtrail: fullPath);
+        child.promptForAmendmentJson(
+          getter(t),
+          childAmendment,
+          crumbtrail: fullPath,
+        );
       }
     }
   }
 
   bool validateAmendment(T lhs, T rhs) {
-    if (lhs == rhs) {
+    if (lhs == rhs || mutable) {
       return true;
     }
     for (var child in _children) {
@@ -120,33 +126,26 @@ class Field<T> {
     }
   }
 
-  String? formatAmendment(T? lhs, T? rhs, {String? crumbtrail}) {
-    if (!mutable || assignedBySystem) {
-      return null;
-    }
+  bool diff(T? lhs, T? rhs, StringBuffer sb, {String? crumbtrail}) {
+    var lhsValue = getter(lhs);
+    var rhsValue = getter(rhs);
 
-    if (getter(lhs) == getter(rhs)) {
-      return null;
+    if (!mutable || assignedBySystem || lhsValue == rhsValue) {
+      return false;
     }
 
     if (_children.isEmpty) {
       String cr = crumbtrail != null ? "$crumbtrail." : "";
-      return "$cr$name: ${format(lhs)} => ${format(rhs)}";
+      sb.writeln("$cr$name: ${format(lhs)} -> ${format(rhs)}");
+      return true;
     }
 
-    StringBuffer amedment = StringBuffer();
+    bool hasChildDifferences = false;
     for (var child in _children) {
       var cr = crumbtrail != null ? "$crumbtrail.$name" : name;
-      var childAmendment = child.formatAmendment(lhs, rhs, crumbtrail: cr);
-      if (childAmendment != null) {
-        amedment.writeln(childAmendment);
-      }
+      hasChildDifferences |= child.diff(lhsValue, rhsValue, sb, crumbtrail: cr);
     }
-
-    if (amedment.isEmpty) {
-      return null;
-    }
-    return amedment.toString();
+    return hasChildDifferences;
   }
 
   int compareField(T lhs, T rhs) {
