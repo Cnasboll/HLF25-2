@@ -10,7 +10,7 @@ Future<void> main() async {
 
   var doWOrk = true;
   Map<String, (Function, String)> commands = {
-    "a": (() => createHero(repo), "[A]dd a new hero (will prompt for details)"),
+    "c": (() => createHero(repo), "[C]reate a new hero (will prompt for details)"),
     "l": (() => listHeroes(repo), "[L]ist all heroes"),
     "t": (
       () => listTopNHeroes(repo),
@@ -20,9 +20,9 @@ Future<void> main() async {
       () => listMatchingHeroes(repo),
       "[S]earch matching heroes (will prompt for a search string)",
     ),
-    "u": (() => updateHero(repo), "[U]pdate a hero"),
+    "a": (() => amendHero(repo), "[A]mend a hero"),
     "d": (() => deleteHero(repo), "[D]elete a hero"),
-    "c": (() => deleteAllHeroes(repo), "[C]lean database (delete all heroes)"),
+    "e": (() => deleteAllHeroes(repo), "[E]rase database (delete all heroes)"),
     "q": (
       () => {
         if (promptQuit()) {doWOrk = false},
@@ -173,16 +173,16 @@ void createHero(HeroRepository repo) {
 $hero''');
 }
 
-void updateHero(HeroRepository repo) {
-  Hero? hero = query(repo, "Update");
+void amendHero(HeroRepository repo) {
+  Hero? hero = query(repo, "Amend");
   if (hero == null) {
     return;
   }
-  var updatedHero = hero.promptForUpdated();
-  if (updatedHero != null) {
-    repo.persist(updatedHero);
-    print('''Updated hero:
-$updatedHero''');
+  var amededHero = hero.promptForAmendment();
+  if (amededHero != null) {
+    repo.persist(amededHero);
+    print('''Amended hero:
+$amededHero''');
   }
 }
 

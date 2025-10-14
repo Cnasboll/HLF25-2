@@ -6,10 +6,10 @@ import 'package:v03/models/connections.dart';
 import 'package:v03/models/image.dart';
 import 'package:v03/models/power_stats.dart';
 import 'package:v03/models/work.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 
-class Hero extends Updateable<Hero> {
+class Hero extends Amendable<Hero> {
   Hero({
     required this.id,
     required this.serverId,
@@ -45,7 +45,7 @@ class Hero extends Updateable<Hero> {
         image: image,
       );
 
-  factory Hero.fromJsonAmendment(
+  factory Hero.amendWith(
     Hero original,
     Map<String, dynamic>? amendment,
   ) {
@@ -54,28 +54,12 @@ class Hero extends Updateable<Hero> {
       version: original.version + 1,
       serverId: original.serverId,
       name: _nameField.getStringFromJsonForAmendment(original, amendment),
-      powerStats: PowerStats.amendOrCreate(
-        _powerstatsField,
-        original.powerStats,
-        amendment,
-      ),
-      biography: Biography.amendOrCreate(
-        _biographyField,
-        original.biography,
-        amendment,
-      ),
-      appearance: Appearance.amendOrCreate(
-        _appearanceField,
-        original.appearance,
-        amendment,
-      ),
-      work: Work.amendOrCreate(_workField, original.work, amendment),
-      connections: Connections.amendOrCreate(
-        _connectionsField,
-        original.connections,
-        amendment,
-      ),
-      image: Image.amendOrCreate(_imageField, original.image, amendment),
+      powerStats: original.powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
+      biography: original.biography.fromChildJsonAmendment(_biographyField, amendment),
+      appearance: original.appearance.fromChildJsonAmendment(_appearanceField, amendment),
+      work: original.work.fromChildJsonAmendment(_workField, amendment),
+      connections: original.connections.fromChildJsonAmendment(_connectionsField, amendment),
+      image: original.image.fromChildJsonAmendment(_imageField, amendment),
     );
   }
 
@@ -181,12 +165,12 @@ class Hero extends Updateable<Hero> {
   }
 
   @override
-  Hero fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return Hero.fromJsonAmendment(this, amendment);
+  Hero amendWith(Map<String, dynamic>? amendment) {
+    return Hero.amendWith(this, amendment);
   }
 
   static Hero? fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return null;
     }
@@ -247,6 +231,7 @@ class Hero extends Updateable<Hero> {
     "Server assigned string ID",
     jsonName: "id",
     nullable: false,
+    mutable: false
   );
 
   static final Field<Hero> _versionField = Field<Hero>(

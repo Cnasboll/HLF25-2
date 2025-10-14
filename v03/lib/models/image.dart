@@ -1,10 +1,10 @@
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 
-class Image extends Updateable<Image> {
+class Image extends Amendable<Image> {
   Image({this.url});
 
   Image.from(Image other) : this(url: other.url);
@@ -13,7 +13,7 @@ class Image extends Updateable<Image> {
     return Image(url: url ?? this.url);
   }
 
-  factory Image.fromJsonAmendment(
+  factory Image.amendWith(
     Image original,
     Map<String, dynamic>? amendment,
   ) {
@@ -35,24 +35,13 @@ class Image extends Updateable<Image> {
 
   final String? url;
 
-  static Image amendOrCreate(
-    Field field,
-    Image? original,
-    Map<String, dynamic>? amendment,
-  ) {
-    if (original == null) {
-      return Image.fromJson(field.getJsonFromJson(amendment));
-    }
-    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
-  }
-
   @override
-  Image fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return Image.fromJsonAmendment(this, amendment);
+  Image amendWith(Map<String, dynamic>? amendment) {
+    return Image.amendWith(this, amendment);
   }
 
   static Image fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return Image();
     }

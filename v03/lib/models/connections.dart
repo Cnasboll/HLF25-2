@@ -1,10 +1,10 @@
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 
-class Connections extends Updateable<Connections> {
+class Connections extends Amendable<Connections> {
   Connections({this.groupAffiliation, this.relatives});
 
   Connections.from(Connections other)
@@ -20,7 +20,7 @@ class Connections extends Updateable<Connections> {
     );
   }
 
-  factory Connections.fromJsonAmendment(
+  factory Connections.amendWith(
     Connections original,
     Map<String, dynamic>? amendment,
   ) {
@@ -54,24 +54,13 @@ class Connections extends Updateable<Connections> {
   final String? groupAffiliation;
   final String? relatives;
 
-  static Connections amendOrCreate(
-    Field field,
-    Connections? original,
-    Map<String, dynamic>? amendment,
-  ) {
-    if (original == null) {
-      return Connections.fromJson(field.getJsonFromJson(amendment));
-    }
-    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
-  }
-
   @override
-  Connections fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return Connections.fromJsonAmendment(this, amendment);
+  Connections amendWith(Map<String, dynamic>? amendment) {
+    return Connections.amendWith(this, amendment);
   }
 
   static Connections fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return Connections();
     }

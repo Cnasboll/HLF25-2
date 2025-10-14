@@ -1,9 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:v03/prompts/prompt.dart';
-import 'package:v03/updateable/field.dart';
-import 'dart:io';
+import 'package:v03/amendable/field.dart';
 
-abstract class Updateable<T extends Updateable<T>> extends Equatable
+abstract class Amendable<T extends Amendable<T>> extends Equatable
     implements Comparable<T> {
   List<Field<T>> get fields;
 
@@ -47,26 +46,16 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
   Map<String, dynamic> promptForAmendmentJson() {
     Map<String, dynamic> amendment = {};
     for (var field in fields) {
-      var current = field.format(this as T);
       if (!field.mutable || field.assignedBySystem) {
         continue;
       }
-
-      print(
-        "Enter ${field.name} (${field.description}) or enter to keep current value ($current):",
-      );
-      var input = (stdin.readLineSync() ?? "").trim();
-      if (input.isEmpty) {
-        amendment[field.jsonName] = current;
-      } else {
-        amendment[field.jsonName] = input;
-      }
+      field.promptForAmendmentJson(this as T, amendment);
     }
     return amendment;
   }
 
-  /// Returns true if this can be updated to other and all immutable fields remain unchanged
-  bool validateUpdate(T other) {
+  /// Returns true if this can be amended to other and all immutable fields remain unchanged
+  bool validateAmendment(T other) {
     for (var field in fields) {
       if (!field.validateAmendment(this as T, other)) {
         return false;
@@ -75,21 +64,21 @@ abstract class Updateable<T extends Updateable<T>> extends Equatable
     return true;
   }
 
-  String formatUpdate(T other) {
+  String formatAmendment(T other) {
     StringBuffer sb = StringBuffer();
 
     for (var field in fields) {
-      var update = field.formatAmendment(this as T, other);
-      if (update == null) {
+      var amendment = field.formatAmendment(this as T, other);
+      if (amendment == null) {
         continue;
       }
-      sb.writeln(update);
+      sb.writeln(amendment);
     }
     return sb.toString();
   }
 
   String sideBySide(T other) {
-    var diff = formatUpdate(other);
+    var diff = formatAmendment(other);
     if (diff.isNotEmpty) {
       return '''
 
@@ -114,22 +103,26 @@ $diff=============
     return sb.toString();
   }
 
-  T fromJsonAmendment(Map<String, dynamic>? amendment);
+  T fromChildJsonAmendment(Field field, Map<String, dynamic>? amendment) {
+    return amendWith(field.getJsonFromJson(amendment));
+  }
 
-  T? promptForUpdated() {
-    var updatedHero = fromJsonAmendment(promptForAmendmentJson());
+  T amendWith(Map<String, dynamic>? amendment);
 
-    if (this == updatedHero) {
-      print("No changes made");
+  T? promptForAmendment() {
+    var amendedObject = amendWith(promptForAmendmentJson());
+
+    if (this == amendedObject) {
+      print("No amendments made");
       return null;
     }
 
     if (!promptForYesNo(
-      '''Save the following changes?${sideBySide(updatedHero)}''',
+      '''Save the following amendments?${sideBySide(amendedObject)}''',
     )) {
       return null;
     }
 
-    return updatedHero;
+    return amendedObject;
   }
 }

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 
 // Levels of evilness
 enum Alignment {
@@ -19,7 +19,7 @@ enum Alignment {
   usingMobileSpeakerOnPublicTransport,
 }
 
-class Biography extends Updateable<Biography> {
+class Biography extends Amendable<Biography> {
   Biography({
     this.fullName,
     this.alterEgos,
@@ -63,12 +63,12 @@ class Biography extends Updateable<Biography> {
     );
   }
 
-  factory Biography.fromJsonAmendment(
+  factory Biography.amendWith(
     Biography original,
     Map<String, dynamic>? amendment,
   ) {
     return Biography(
-      fullName: _publisherField.getNullableStringFromJsonForAmendment(
+      fullName: _fullNameField.getNullableStringFromJsonForAmendment(
         original,
         amendment,
       ),
@@ -141,24 +141,13 @@ class Biography extends Updateable<Biography> {
   final String? publisher;
   final Alignment? alignment;
 
-  static Biography amendOrCreate(
-    Field field,
-    Biography? original,
-    Map<String, dynamic>? amendment,
-  ) {
-    if (original == null) {
-      return Biography.fromJson(field.getJsonFromJson(amendment));
-    }
-    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
-  }
-
   @override
-  Biography fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return Biography.fromJsonAmendment(this, amendment);
+  Biography amendWith(Map<String, dynamic>? amendment) {
+    return Biography.amendWith(this, amendment);
   }
 
   static Biography fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return Biography();
     }

@@ -22,7 +22,7 @@ class Field<T> {
     this.assignedBySystem = false,
     FormatField<T>? format,
     this.comparable = true,
-    this.prompt = null,
+    this.prompt,
     bool? mutable,
     String? jsonName,
     String? sqlLiteName,
@@ -59,6 +59,35 @@ class Field<T> {
       }
     }
     return true;
+  }
+
+  void promptForAmendmentJson(T t,
+    Map<String, dynamic> amendment, {
+    String? crumbtrail,
+  }) {
+    String cr = crumbtrail != null ? "$crumbtrail." : "";
+    var fullPath = '$cr$name';
+    if (_children.isEmpty) {
+      var promptSuffix = prompt != null ? '$prompt' : '';
+      var current = format(t);
+      print(
+        "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
+      );
+      var input = (stdin.readLineSync() ?? "").trim();
+      if (input.isEmpty) {
+        amendment[jsonName] = current;
+      } else {
+        amendment[jsonName] = input;
+      }
+      return;
+    }
+
+    if (promptForYes('Amend $fullPath?')) {
+      var childAmendment = amendment[jsonName] = <String, dynamic>{};
+      for (var child in _children) {
+        child.promptForAmendmentJson(getter(t), childAmendment, crumbtrail: fullPath);
+      }
+    }
   }
 
   bool validateAmendment(T lhs, T rhs) {
@@ -105,19 +134,19 @@ class Field<T> {
       return "$cr$name: ${format(lhs)} => ${format(rhs)}";
     }
 
-    StringBuffer update = StringBuffer();
+    StringBuffer amedment = StringBuffer();
     for (var child in _children) {
       var cr = crumbtrail != null ? "$crumbtrail.$name" : name;
-      var childUpdate = child.formatAmendment(lhs, rhs, crumbtrail: cr);
-      if (childUpdate != null) {
-        update.writeln(childUpdate);
+      var childAmendment = child.formatAmendment(lhs, rhs, crumbtrail: cr);
+      if (childAmendment != null) {
+        amedment.writeln(childAmendment);
       }
     }
 
-    if (update.isEmpty) {
+    if (amedment.isEmpty) {
       return null;
     }
-    return update.toString();
+    return amedment.toString();
   }
 
   int compareField(T lhs, T rhs) {
@@ -256,8 +285,23 @@ class Field<T> {
     T t,
     Map<String, dynamic>? amendment,
   ) {
-    return getNullableStringListFromJson(amendment) ??
-        getter(t) as List<String>?;
+    var l = getNullableStringListFromJson(amendment);
+
+    if (l != null) {
+      return l;
+    }
+
+    var current = getter(t);
+
+    if (current == null) {
+      return null;
+    }
+
+    if (current is List<String>) {
+      return current;
+    }
+
+    return [current.toString()];
   }
 
   List<String> getStringListFromJson(

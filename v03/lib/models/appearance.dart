@@ -2,13 +2,13 @@ import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/value_types/height.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 import 'package:v03/value_types/weight.dart';
 
 enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
 
-class Appearance extends Updateable<Appearance> {
+class Appearance extends Amendable<Appearance> {
   Appearance({
     this.gender,
     this.race,
@@ -46,7 +46,7 @@ class Appearance extends Updateable<Appearance> {
     );
   }
 
-  factory Appearance.fromJsonAmendment(
+  factory Appearance.amendWith(
     Appearance original,
     Map<String, dynamic>? amendment,
   ) {
@@ -125,24 +125,13 @@ class Appearance extends Updateable<Appearance> {
   final String? eyeColor;
   final String? hairColor;
 
-  static Appearance amendOrCreate(
-    Field field,
-    Appearance? original,
-    Map<String, dynamic>? amendment,
-  ) {
-    if (original == null) {
-      return Appearance.fromJson(field.getJsonFromJson(amendment));
-    }
-    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
-  }
-
   @override
-  Appearance fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return Appearance.fromJsonAmendment(this, amendment);
+  Appearance amendWith(Map<String, dynamic>? amendment) {
+    return Appearance.amendWith(this, amendment);
   }
 
   static Appearance fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return Appearance();
     }
@@ -212,7 +201,7 @@ class Appearance extends Updateable<Appearance> {
     'height',
     'Height in centimeters and / or feet and inches',
     sqliteGetter: ((a) => (a?.height).toString()),
-    prompt: '. For multiple representations, enter a list in json format e.g. ["6\'2\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
+    prompt: '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
   );
 
   static Field<Appearance> get _weightField => Field<Appearance>(

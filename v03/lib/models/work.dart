@@ -1,10 +1,10 @@
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 
-class Work extends Updateable<Work> {
+class Work extends Amendable<Work> {
   Work({this.occupation, this.base});
 
   Work.from(Work other) : this(occupation: other.occupation, base: other.base);
@@ -16,7 +16,7 @@ class Work extends Updateable<Work> {
     );
   }
 
-  factory Work.fromJsonAmendment(
+  factory Work.amendWith(
     Work original,
     Map<String, dynamic>? amendment,
   ) {
@@ -52,24 +52,13 @@ class Work extends Updateable<Work> {
   final String? occupation;
   final String? base;
 
-  static Work amendOrCreate(
-    Field field,
-    Work? original,
-    Map<String, dynamic>? amendment,
-  ) {
-    if (original == null) {
-      return Work.fromJson(field.getJsonFromJson(amendment));
-    }
-    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
-  }
-
   @override
-  Work fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return Work.fromJsonAmendment(this, amendment);
+  Work amendWith(Map<String, dynamic>? amendment) {
+    return Work.amendWith(this, amendment);
   }
 
   static Work fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return Work();
     }

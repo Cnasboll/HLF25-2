@@ -3,11 +3,10 @@ import 'package:v03/models/appearance.dart';
 import 'package:v03/models/biography.dart';
 import 'package:v03/models/hero.dart';
 import 'package:test/test.dart';
-import 'package:v03/utils/json_parsing.dart';
 import 'package:v03/value_types/value_type.dart';
 
 void main() {
-  test('Can parse batman himself', () {
+  test('Can amend batman himself after parsing', () {
     final rawJson = '''
 {
   "response": "success",
@@ -53,21 +52,40 @@ void main() {
 ''';
 
     var decoded = json.decode(rawJson);
-    final batman = Hero.fromJsonAndId(decoded, "02ffbb60-762b-4552-8f41-be8aa86869c6");
-    expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
-    expect(batman.serverId, "70");
-    expect(batman.version, 1);
-    expect(batman.name, "Batman");
+    final batman = Hero.fromJsonAndId(
+      decoded,
+      "02ffbb60-762b-4552-8f41-be8aa86869c6",
+    );
 
-    var powerStats = batman.powerStats;
+    var amedment = {
+      "powerstats": {"intelligence": "96", "durability": "45"},
+      "appearance": {
+        "weight": ["220 lb", "100 kg"],
+        "height": ["6'1", "186 cm"]
+      },
+      "biography": {
+        "alignment": "reasonable"
+      }
+    };
+
+    final fatman = batman.amendWith(amedment);
+
+    expect(fatman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
+    expect(fatman.serverId, "70");
+    // auto-incremented 1->2
+    expect(fatman.version, 2);
+    expect(fatman.name, "Batman");
+
+    var powerStats = fatman.powerStats;
     expect(powerStats.strength, 26);
     expect(powerStats.speed, 27);
-    expect(powerStats.intelligence, 100);
-    expect(powerStats.durability, 50);
+    // 100->96, can happen after working too long with handling unit inconsistencies between metric and imperial
+    expect(powerStats.intelligence, 96);
+    expect(powerStats.durability, 45);
     expect(powerStats.power, 47);
     expect(powerStats.combat, 100);
 
-    var biography = batman.biography;
+    var biography = fatman.biography;
     expect(biography.fullName, "Bruce Wayne");
     expect(biography.alterEgos, "No alter egos found.");
     expect(biography.aliases, ["Insider", "Matches Malone"]);
@@ -77,32 +95,35 @@ void main() {
     );
     expect(biography.firstAppearance, "Detective Comics #27");
     expect(biography.publisher, "DC Comics");
-    expect(biography.alignment, Alignment.good);
+    // good->reasonable, can happen with age as complex moral issues arise
+    expect(biography.alignment, Alignment.reasonable);
 
-    var appearance = batman.appearance;
+    var appearance = fatman.appearance;
     expect(appearance.gender, Gender.male);
     expect(appearance.race, "Human");
     var height = appearance.height!;
     // This parsing and verification of integrity between representations of Height and Weight is really the biggest part of this assignment for me.
     // Of couurse it is internally represented in metric but for purposes of formatting the system of units is tied to the value object
     // so the database mapping does write it in the same format as it was original read from the json.
-    expect(height.wholeFeetAndWholeInches, (6, 2));
-    expect(height.wholeCentimeters, 188);
+    expect(height.wholeFeetAndWholeInches, (6, 1));
+    // 188->186 cm can happen with age and posture changes, but the final cm from 186 to 185 was lost to debilitating roundingitis from inches!
+    expect(height.wholeCentimeters, 185);
     expect(height.systemOfUnits, SystemOfUnits.imperial);
     var weight = appearance.weight!;
-    expect(weight.wholePounds, 210);
-    expect(weight.wholeKilograms, 95);
+    // 95->100 kgs, can happen, been there, done that
+    expect(weight.wholePounds, 220);
+    expect(weight.wholeKilograms, 100);
     expect(weight.systemOfUnits, SystemOfUnits.imperial);
     expect(appearance.eyeColor, "blue");
     expect(appearance.hairColor, "black");
 
-    var work = batman.work;
+    var work = fatman.work;
     expect(work.occupation, "Businessman");
     expect(
       work.base,
       "Batcave, Stately Wayne Manor, Gotham City; Hall of Justice, Justice League Watchtower",
     );
-    var connections = batman.connections;
+    var connections = fatman.connections;
     expect(
       connections.groupAffiliation,
       "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
@@ -111,59 +132,10 @@ void main() {
       connections.relatives,
       "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
     );
-    var image = batman.image;
+    var image = fatman.image;
     expect(
       image.url,
       "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
     );
-  });
-
-  test('Can parse single JSON string as list of strings', () {
-    final rawJson = '{"weight": "10 kg"}';
-    var decoded = json.decode(rawJson);
-    final result = getNullableStringList(decoded, 'weight');
-    expect(result, ['10 kg']);
-  });
-
-  test('Can parse single String object as list', () {
-    var decoded = <String, Object?>{'weight': '10 kg'};
-    final result = getNullableStringList(decoded, 'weight');
-    expect(result, ['10 kg']);
-  });
-
-
-  // Special case when the user actually enters a JSON-encoded string on the prompt
-  test('Can parse json-encoded String list object as list', () {
-    var decoded = <String, Object?>{'weight': '["10 kg", "22 lb"]'};
-    final result = getNullableStringList(decoded, 'weight');
-    expect(result, ['10 kg', '22 lb']);
-  });
-
-  /// A consequence of the special handling of JSON-encoded strings is that
-  /// if the user enters a single JSON-encoded string, that is later wrapped
-  /// in JSON, it will be decoded too
-  test('Can parse single JSON string encoded as JSON as list of strings', () {
-    var decoded = <String, Object?>{'weight': '"10 kg"'};
-    final result = getNullableStringList(decoded, 'weight');
-    expect(result, ['10 kg']);
-  });
-
-  test('Can parse single in-representating String object as list', () {
-    var decoded = <String, Object?>{'height': '188'};
-    final result = getNullableStringList(decoded, 'height');
-    expect(result, ['188']);
-  });
-
-  test('Can parse json list', () {
-    final rawJson = '{"weight": ["10 kg", "22 lb"]}';
-    var decoded = json.decode(rawJson);
-    final result = getNullableStringList(decoded, 'weight');
-    expect(result, ['10 kg', '22 lb']);
-  });
-
-  test('Can parse String list literal', () {
-    var decoded = <String, Object?>{'weight': ['10 kg', '22 lb']};
-    final result = getNullableStringList(decoded, 'weight');
-    expect(result, ['10 kg', '22 lb']);
   });
 }

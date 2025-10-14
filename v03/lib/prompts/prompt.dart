@@ -16,6 +16,14 @@ $prompt (y/n)''');
   }
 }
 
+bool promptForYes(String prompt) {
+  print('''
+
+$prompt (y/N)''');
+  var input = (stdin.readLineSync() ?? "").trim().toLowerCase();
+  return input.startsWith("y");
+}
+
 enum YesNoCancel { yes, next, cancel }
 
 YesNoCancel promptForYesNextCancel(String prompt) {

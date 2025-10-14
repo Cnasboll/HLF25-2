@@ -1,8 +1,8 @@
 import 'package:sqlite3/sqlite3.dart';
-import 'package:v03/updateable/field.dart';
-import 'package:v03/updateable/updateable.dart';
+import 'package:v03/amendable/field.dart';
+import 'package:v03/amendable/amendable.dart';
 
-class PowerStats extends Updateable<PowerStats> {
+class PowerStats extends Amendable<PowerStats> {
   PowerStats({
     this.intelligence,
     this.strength,
@@ -40,12 +40,12 @@ class PowerStats extends Updateable<PowerStats> {
     );
   }
 
-  factory PowerStats.fromJsonAmendment(
+  factory PowerStats.amendWith(
     PowerStats original,
     Map<String, dynamic>? amendment,
   ) {
     return PowerStats(
-      intelligence: _combatField.getIntForAmendment(original, amendment),
+      intelligence: _intelligenceField.getIntForAmendment(original, amendment),
       strength: _strengthField.getIntForAmendment(original, amendment),
       speed: _speedField.getIntForAmendment(original, amendment),
       durability: _durabilityField.getIntForAmendment(original, amendment),
@@ -86,24 +86,13 @@ class PowerStats extends Updateable<PowerStats> {
   final int? power;
   final int? combat;
 
-  static PowerStats amendOrCreate(
-    Field field,
-    PowerStats? original,
-    Map<String, dynamic>? amendment,
-  ) {
-    if (original == null) {
-      return PowerStats.fromJson(field.getJsonFromJson(amendment));
-    }
-    return original.fromJsonAmendment(field.getJsonFromJson(amendment));
-  }
-
   @override
-  PowerStats fromJsonAmendment(Map<String, dynamic>? amendment) {
-    return PowerStats.fromJsonAmendment(this, amendment);
+  PowerStats amendWith(Map<String, dynamic>? amendment) {
+    return PowerStats.amendWith(this, amendment);
   }
 
   static PowerStats? fromPrompt() {
-    var json = Updateable.promptForJson(staticFields);
+    var json = Amendable.promptForJson(staticFields);
     if (json == null) {
       return null;
     }
