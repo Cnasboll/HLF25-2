@@ -191,6 +191,7 @@ class Biography extends Updateable<Biography> {
     // This is a list of strings, so we need special handling as I cann't be arsed to make another table for it
     //but putting JSON in column is an anti-pattern. I pray to the SQL gods for forgiveness. /O.I
     sqliteGetter: ((p) => jsonEncode(p?.aliases)),
+    prompt: ' as a single value (\'Insider\') without surrounding \' or a list in json format e.g. ["Insider", "Matches Malone"]',
   );
 
   static final Field<Biography> _placeOfBirthFIeld = Field<Biography>(

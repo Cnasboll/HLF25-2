@@ -14,9 +14,16 @@ List<String>? getNullableStringList(Map<String, dynamic>? json, String jsonName)
         return [list.toString()];
       }
     }
+
     if (list is String) {
       // Single string, return as single-item list
       return [list];
     }
+
+    if (list is !List) {
+      // Not a list, return as single-item list
+      return [list.toString()];
+    }
+    
     return List<String>.from(list);
   }

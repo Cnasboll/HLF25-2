@@ -22,6 +22,7 @@ class Field<T> {
     this.assignedBySystem = false,
     FormatField<T>? format,
     this.comparable = true,
+    this.prompt = null,
     bool? mutable,
     String? jsonName,
     String? sqlLiteName,
@@ -39,7 +40,8 @@ class Field<T> {
     var fullPath = '$cr$name';
     if (_children.isEmpty) {
       String abortPrompt = crumbtrail != null ? "finish populating $crumbtrail" : "abort";
-      print("Enter $fullPath ($description) or enter to $abortPrompt:");
+      var promptSuffix = prompt != null ? '$prompt' : '';
+      print("Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:");
       var input = (stdin.readLineSync() ?? "").trim();
       if (input.isEmpty) {
         return false;
@@ -432,6 +434,9 @@ class Field<T> {
 
   /// True if field should be part of comparisons
   bool comparable;
+
+  /// Optional prompt suffix to be shown when prompting for this field
+  String? prompt;
 
   final List<Field> _children;
 

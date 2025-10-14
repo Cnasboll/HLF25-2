@@ -24,7 +24,7 @@ class Hero extends Updateable<Hero> {
   });
 
   Hero.newId(
-    int serverId,
+    String serverId,
     String name,
     PowerStats powerStats,
     Biography biography,
@@ -82,7 +82,7 @@ class Hero extends Updateable<Hero> {
   Hero.fromJsonAndId(Map<String, dynamic> json, String id) : this(
       id : id,
       version: 1,
-      serverId: _serverIdField.getIntFromJson(json, -1),
+      serverId: _serverIdField.getStringFromJson(json, "unknown-server-id"),
       name: _nameField.getStringFromJson(json, "unknown-name"),
       powerStats: PowerStats.fromJson(_powerstatsField.getJsonFromJson(json)),
       biography: Biography.fromJson(_biographyField.getJsonFromJson(json)),
@@ -96,7 +96,7 @@ class Hero extends Updateable<Hero> {
     return Hero(
       version: _versionField.getIntFromRow(row, -1),
       id: _idField.getStringFromRow(row, "unknown-id"),
-      serverId: _serverIdField.getNullableIntFromRow(row) as int,
+      serverId: _serverIdField.getStringFromRow(row, "unknown-server-id"),
       name: _nameField.getNullableStringFromRow(row) as String,
       powerStats: PowerStats.fromRow(row),
       biography: Biography.fromRow(row),
@@ -124,7 +124,7 @@ class Hero extends Updateable<Hero> {
   Hero copyWith({
     String? id,
     int? version,
-    int? serverId,
+    String? serverId,
     String? name,
     PowerStats? powerStats,
     Biography? biography,
@@ -220,7 +220,9 @@ class Hero extends Updateable<Hero> {
   List<Field<Hero>> get fields => staticFields;
 
   final String id;
-  final int serverId;
+  // "ID" field in JSON is "serverId" here to avoid confusion with our own "id" field.
+  // It appears to be an integer in the JSON, but is actually a string.
+  final String serverId;
   final int version;
   final String name;
   final PowerStats powerStats;
@@ -240,9 +242,9 @@ class Hero extends Updateable<Hero> {
 
   static final Field<Hero> _serverIdField = Field<Hero>(
     (h) => h?.serverId,
-    int,
+    String,
     "server_id",
-    "Server assigned integer",
+    "Server assigned string ID",
     jsonName: "id",
     nullable: false,
   );

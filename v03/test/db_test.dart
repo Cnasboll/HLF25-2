@@ -28,7 +28,7 @@ Future<void> main() async {
       Hero(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
-        serverId: 70,
+        serverId: "70",
         name: "Batman",
         powerStats: PowerStats(
           intelligence: 100,
@@ -70,7 +70,7 @@ Future<void> main() async {
       Hero(
         id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
         version: 1,
-        serverId: 69,
+        serverId: "69",
         name: "Robin",
         powerStats: PowerStats(
           intelligence: 110,
@@ -117,33 +117,33 @@ Future<void> main() async {
     var batman = repo.query("batman")[0];
     expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(batman.version, 1);
-    expect(batman.serverId, 70);
+    expect(batman.serverId, "70");
     expect(batman.name, "Batman");
-    expect(batman.powerStats!.strength, 26);
-    expect(batman.appearance!.gender, Gender.male);
-    expect(batman.biography!.alignment, Alignment.mostlyGood);
-    expect(batman.appearance!.race, "Human");
+    expect(batman.powerStats.strength, 26);
+    expect(batman.appearance.gender, Gender.male);
+    expect(batman.biography.alignment, Alignment.mostlyGood);
+    expect(batman.appearance.race, "Human");
 
     var robin = repo.query("robin")[0];
     expect(robin.id, "008b98a5-3ce6-4448-99f4-d4ce296fcdfc");
     expect(robin.version, 1);
-    expect(robin.serverId, 69);
+    expect(robin.serverId, "69");
     expect(robin.name, "Robin");
-    expect(robin.powerStats!.strength, 23);
-    expect(robin.appearance!.gender, Gender.unknown);
-    expect(robin.biography!.alignment, Alignment.reasonable);
-    expect(robin.appearance!.race, "Human");
+    expect(robin.powerStats.strength, 23);
+    expect(robin.appearance.gender, Gender.unknown);
+    expect(robin.biography.alignment, Alignment.reasonable);
+    expect(robin.appearance.race, "Human");
 
     // Modify Batman's strength and aligment
     batman = batman.copyWith(
-      powerStats: batman.powerStats!.copyWith(strength: 13),
-      biography: batman.biography!.copyWith(alignment: Alignment.good),
+      powerStats: batman.powerStats.copyWith(strength: 13),
+      biography: batman.biography.copyWith(alignment: Alignment.good),
     );
     repo.persist(batman);
 
     // Add Alfred, assign a id
     var alfred = Hero.newId(
-      3,
+      "3",
       "Alfred",
       PowerStats(strength: 9),
       Biography(alignment: Alignment.good, fullName: "Alfred Pennyworth"),
@@ -176,12 +176,12 @@ Future<void> main() async {
     batman = snapshot[batman.id]!;
     expect(batman.version, 2);
     expect(batman.name, "Batman");
-    expect(batman.powerStats!.strength, 13);
+    expect(batman.powerStats.strength, 13);
 
     alfred = snapshot[alfred.id]!;
     expect(alfred.version, 1);
     expect(alfred.name, "Alfred");
-    expect(alfred.powerStats!.strength, 9);
+    expect(alfred.powerStats.strength, 9);
     await repo.dispose();
 
     file = File(path);

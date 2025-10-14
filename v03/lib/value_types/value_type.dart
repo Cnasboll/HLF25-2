@@ -14,7 +14,7 @@ abstract class ValueType<T> extends Equatable implements Comparable<ValueType<T>
     String valueTypeName,
     (T?, String?) Function(String) tryParse,
   ) {
-    // Null is also accepted and means no information provided but an empty list is an error
+    // Null is also accepted and means no information provided (i.e. keep current for amendments), but an *empty* list is an error
     if (valueInVariousUnits == null) {
       return (null, null);
     }
@@ -54,17 +54,25 @@ abstract class ValueType<T> extends Equatable implements Comparable<ValueType<T>
         var parsedValueInMasterUnit =
             parsedValue.as(value.systemOfUnits) as ValueType<T>;
 
-        var masterInSecondaryUnits = value.as(parsedSystemOfUnits);
+        var masterInParsedUnit = value.as(parsedSystemOfUnits);
 
-        // In the example we have ['210 lb', '95 kg']. 210 lb is 95.25 kg but 95 kg is 209.44 pounds
-        // so '95 kg' is  rounded version of '210 lb' and imperial is the master system of units,
+        // CASE 1: In the example we have ['210 lb', '95 kg']. 210 lb is 95.25 kg but 95 kg is 209.44 pounds so
+        // an alternative representation would be ['95 kg', '209 lb'] (not 210!) for the same weight but master in metric!
+        // So '95 kg' is a rounded version of '210 lb'. In that case imperial, i.e. the first value, is the master system of units,
         // Verify that in this case '95 kg' is indeed a rounded version of '210 lb'
-        // '155 lb' is 70.3068 kg, so '70 kg' is a rounded version of '155 lb'
-        // But '70 kg' is 154.323 lb, so '154 lb' is not a rounded version of '70 kg' so both checks are needed
-        if (parsedValueInMasterUnit != value && masterInSecondaryUnits != parsedValue) {        
+        bool parsedValueCorrespondsMasterButInDifferentUnit =
+            parsedValue == masterInParsedUnit;
+
+        // CASE 2: Try the other way around -- ['95 kg', '210 lb']. As 95 kgs converted to pounds is 209.44 then we would expect a second
+        // rounded value of '209 lb' but we got something else, '210 lb', so this is a conflict.
+        // We do a second test to verify that a rounded version of '210 lb' is indeed '95 kg' as per CASE 1 above so both tests need to fail to detect
+        // a real conflict!
+        bool parsedValueInMasterUnitsCorrespondsToMaster = parsedValueInMasterUnit == value;
+
+        if (!parsedValueCorrespondsMasterButInDifferentUnit && !parsedValueInMasterUnitsCorrespondsToMaster) {
           errors.write(
             "${separator}Conflicting $valueTypeName information:"
-            " ${parsedSystemOfUnits.name} '$input' corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInSecondaryUnits' in order to match first value of '$valueSource'",
+            " ${parsedSystemOfUnits.name} '$input' corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInParsedUnit' in order to match first value of '$valueSource'",
           );
         }
         separator = '; ';

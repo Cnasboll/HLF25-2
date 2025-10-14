@@ -212,6 +212,7 @@ class Appearance extends Updateable<Appearance> {
     'height',
     'Height in centimeters and / or feet and inches',
     sqliteGetter: ((a) => (a?.height).toString()),
+    prompt: '. For multiple representations, enter a list in json format e.g. ["6\'2\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
   );
 
   static Field<Appearance> get _weightField => Field<Appearance>(
@@ -220,6 +221,7 @@ class Appearance extends Updateable<Appearance> {
     'weight',
     'Weight in kilograms and / or pounds',
     sqliteGetter: ((a) => (a?.weight).toString()),
+    prompt: '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
   );
 
   static final Field<Appearance> _eyeColourField = Field<Appearance>(

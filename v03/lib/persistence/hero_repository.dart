@@ -14,7 +14,7 @@ class HeroRepository {
     return HeroRepository.cache(db, heroes, heroesByServerId);
   }
 
-  static (Database, Map<String, Hero>, Map<int, Hero>) initDb(path) {
+  static (Database, Map<String, Hero>, Map<String, Hero>) initDb(path) {
     var db = sqlite3.open(path);
     createTableIfNotExists(db);
     var (snapshot, heroesByServerId) = readSnapshot(db);
@@ -28,9 +28,9 @@ ${Hero.generateSqliteColumnDeclarations('    ')}
 )''');
   }
 
-  static (Map<String, Hero>, Map<int, Hero>) readSnapshot(Database db) {
+  static (Map<String, Hero>, Map<String, Hero>) readSnapshot(Database db) {
     var snapshot = <String, Hero>{};
-    var heroesByServerId = <int, Hero>{};
+    var heroesByServerId = <String, Hero>{};
 
     for (var row in db.select('SELECT * FROM heroes')) {
       var hero = Hero.fromRow(row);
@@ -86,9 +86,9 @@ SET ${Hero.generateSqliteUpdateClause('    ')}
               (hero.id.toLowerCase().contains(lower)) ||
               (hero.serverId.toString().contains(lower)) ||
               hero.name.toLowerCase().contains(lower) ||
-              (hero.appearance?.gender ?? Gender.unknown).name.contains(lower) ||
-              (hero.powerStats?.strength ?? 0).toString().contains(lower) ||
-              (hero.biography?.alignment ?? Alignment.unknown).name.contains(lower),
+              (hero.appearance.gender ?? Gender.unknown).name.contains(lower) ||
+              (hero.powerStats.strength ?? 0).toString().contains(lower) ||
+              (hero.biography.alignment ?? Alignment.unknown).name.contains(lower),
         )
         .toList();
 
@@ -107,7 +107,7 @@ SET ${Hero.generateSqliteUpdateClause('    ')}
 
   final JobQueue _jobQueue = JobQueue();
   Map<String, Hero> _cache = {};
-  Map<int, Hero> _heroesByServerId = {};
+  Map<String, Hero> _heroesByServerId = {};
 
   Database _db;
 

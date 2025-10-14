@@ -59,7 +59,7 @@ void main() {
     expect(batman.version, 1);
     expect(batman.name, "Batman");
 
-    var powerStats = batman.powerStats!;
+    var powerStats = batman.powerStats;
     expect(powerStats.strength, 26);
     expect(powerStats.speed, 27);
     expect(powerStats.intelligence, 100);
@@ -67,7 +67,7 @@ void main() {
     expect(powerStats.power, 47);
     expect(powerStats.combat, 100);
 
-    var biography = batman.biography!;
+    var biography = batman.biography;
     expect(biography.fullName, "Bruce Wayne");
     expect(biography.alterEgos, "No alter egos found.");
     expect(biography.aliases, ["Insider", "Matches Malone"]);
@@ -79,7 +79,7 @@ void main() {
     expect(biography.publisher, "DC Comics");
     expect(biography.alignment, Alignment.good);
 
-    var appearance = batman.appearance!;
+    var appearance = batman.appearance;
     expect(appearance.gender, Gender.male);
     expect(appearance.race, "Human");
     var height = appearance.height!;
@@ -96,13 +96,13 @@ void main() {
     expect(appearance.eyeColor, "blue");
     expect(appearance.hairColor, "black");
 
-    var work = batman.work!;
+    var work = batman.work;
     expect(work.occupation, "Businessman");
     expect(
       work.base,
       "Batcave, Stately Wayne Manor, Gotham City; Hall of Justice, Justice League Watchtower",
     );
-    var connections = batman.connections!;
+    var connections = batman.connections;
     expect(
       connections.groupAffiliation,
       "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
@@ -111,7 +111,7 @@ void main() {
       connections.relatives,
       "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
     );
-    var image = batman.image!;
+    var image = batman.image;
     expect(
       image.url,
       "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
@@ -131,6 +131,7 @@ void main() {
     expect(result, ['10 kg']);
   });
 
+
   // Special case when the user actually enters a JSON-encoded string on the prompt
   test('Can parse json-encoded String list object as list', () {
     var decoded = <String, Object?>{'weight': '["10 kg", "22 lb"]'};
@@ -147,6 +148,11 @@ void main() {
     expect(result, ['10 kg']);
   });
 
+  test('Can parse single in-representating String object as list', () {
+    var decoded = <String, Object?>{'height': '188'};
+    final result = getNullableStringList(decoded, 'height');
+    expect(result, ['188']);
+  });
 
   test('Can parse json list', () {
     final rawJson = '{"weight": ["10 kg", "22 lb"]}';
