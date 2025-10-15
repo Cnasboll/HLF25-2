@@ -5,6 +5,7 @@ import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/height.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
+import 'package:v03/value_types/value_type.dart';
 import 'package:v03/value_types/weight.dart';
 
 enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
@@ -99,8 +100,8 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     return AppearanceModel(
       gender: _genderField.getEnumFromRow(Gender.values, row, Gender.unknown),
       race: _raceField.getNullableStringFromRow(row),
-      height: Height.tryParse(_heightField.getNullableStringFromRow(row)).$1,
-      weight: Weight.tryParse(_weightField.getNullableStringFromRow(row)).$1,
+      height: Height.fromRow(_heightField, row),
+      weight: Weight.fromRow(_weightField, row),
       eyeColor: _eyeColourField.getNullableStringFromRow(row),
       hairColor: _hairColorField.getNullableStringFromRow(row),
     );
@@ -186,7 +187,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     (m) => m.height,
     "Height",
     'Height in centimeters and / or feet and inches',
-    sqliteGetter: ((m) => (m.height).toString()),
+    // Note that the database columns are height_m and height_system_of_units for presentation, so mapped to TWO columns
+    // we don't STORE the string "6'2" but the numeric value 1.8796 and the systemOfUnits enum value "imperial" to document the source
+    // for UI formatting
+    sqLiteNames: ["height_m", "height_system_of_units"],
+    sqliteGetter: (m) => ValueType.toSQLColumns(m.height),
     prompt:
         '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
   );
@@ -195,7 +200,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     (m) => m.weight,
     "Weight",
     'Weight in kilograms and / or pounds',
-    sqliteGetter: ((m) => (m.weight).toString()),
+    // Note that the database columns are weight_kg and weight_system_of_units for presentation, so mapped to TWO columns
+    // we don't STORE "210 lb" but the numeric value 95.2543977 and the systemOfUnits enum value "imperial" to document the source
+    // for UI formatting
+    sqLiteNames: ["weight_kg", "weight_system_of_units"],
+    sqliteGetter: (m) => ValueType.toSQLColumns(m.weight),
     prompt:
         '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
   );

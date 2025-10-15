@@ -52,7 +52,7 @@ Future<void> main() async {
           gender: Gender.male,
           race: "Human",
           height: Height.parseList(["6'2", "188 cm"]),
-          weight: Weight.parseList(["209 lb", "95 kg"]),
+          weight: Weight.parseList(["210 lb", "95 kg"]),
           eyeColor: 'blue',
           hairColor: 'black',
         ),

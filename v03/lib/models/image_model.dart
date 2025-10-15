@@ -60,7 +60,7 @@ class ImageModel extends Amendable<ImageModel> {
     (p) => p.url,
     'Url',
     'The URL of the image',
-    sqlLiteName: 'image_url',
+    sqliteName: 'image_url',
   );
 
   static final List<FieldBase<ImageModel>> staticFields = [_urlField];

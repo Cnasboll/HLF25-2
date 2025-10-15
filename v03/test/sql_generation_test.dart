@@ -24,8 +24,10 @@ void main() {
       alignment,
       gender,
       race,
-      height,
-      weight,
+      height_m,
+      height_system_of_units,
+      weight_kg,
+      weight_system_of_units,
       eye_colour,
       hair_colour,
       occupation,
@@ -58,8 +60,10 @@ void main() {
   alignment TEXT NOT NULL,
   gender TEXT NOT NULL,
   race TEXT NULL,
-  height TEXT NULL,
-  weight TEXT NULL,
+  height_m FLOAT NULL,
+  height_system_of_units TEXT NULL,
+  weight_kg FLOAT NULL,
+  weight_system_of_units TEXT NULL,
   eye_colour TEXT NULL,
   hair_colour TEXT NULL,
   occupation TEXT NULL,
@@ -89,8 +93,10 @@ void main() {
     alignment=excluded.alignment,
     gender=excluded.gender,
     race=excluded.race,
-    height=excluded.height,
-    weight=excluded.weight,
+    height_m=excluded.height_m,
+    height_system_of_units=excluded.height_system_of_units,
+    weight_kg=excluded.weight_kg,
+    weight_system_of_units=excluded.weight_system_of_units,
     eye_colour=excluded.eye_colour,
     hair_colour=excluded.hair_colour,
     occupation=excluded.occupation,
@@ -103,6 +109,6 @@ void main() {
 
     test('generate SQLite insert column placeholders', () {
     final placeholders = HeroModel.generateSQLiteInsertColumnPlaceholders();
-    expect(placeholders, '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?');
+    expect(placeholders, '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?');
   });
 }

@@ -1,3 +1,5 @@
+import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/value_type.dart';
 
 enum WeightUnit { pounds, kilograms }
@@ -7,6 +9,14 @@ class Weight extends ValueType<Weight> {
   Weight(super.value, super.systemOfUnits);
   Weight.fromPounds(int pounds) : this(poundsToKilograms(pounds.toDouble()), SystemOfUnits.imperial);
   Weight.fromKilograms(int kilograms) : this(kilograms.toDouble(), SystemOfUnits.metric);
+
+static Weight? fromRow(FieldBase fieldBase, Row row) {
+    var (metres, systemOfUnits) = ValueType.fromRow(fieldBase, row);
+    if (metres == null) {
+      return null;
+    }
+    return Weight(metres, systemOfUnits);
+  }
 
   static Weight parse(String input) {
     var (value, error) = tryParse(input);

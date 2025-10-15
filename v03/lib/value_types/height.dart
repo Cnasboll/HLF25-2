@@ -1,3 +1,5 @@
+import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/value_type.dart';
 
 enum HeightUnit { feet, inches, centimeters }
@@ -9,6 +11,16 @@ class Height extends ValueType<Height> {
   Height.fromFeetAndInches(int feet, double inches) : this(feetAndInchesToMeters(feet, inches), SystemOfUnits.imperial);
   Height.fromCentimeters(int centimeters) : this(centimeters.toDouble() / 100.0, SystemOfUnits.metric);
   Height.fromMeters(int meters) : this(meters.toDouble(), SystemOfUnits.metric);
+
+  static Height? fromRow(FieldBase fieldBase, Row row)
+  {
+    var (metres, systemOfUnits) = ValueType.fromRow(fieldBase, row);
+    if (metres == null)
+    {
+      return null;
+    }
+    return Height(metres, systemOfUnits);
+  }
 
   static Height parse(String input) {
     var (value, error) = tryParse(input);
