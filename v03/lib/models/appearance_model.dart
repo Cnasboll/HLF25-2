@@ -165,7 +165,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
       return comparison;
     }
 
-    // if powerStats are the same, sort other fields ascending
+    // Sort other fields ascending
     for (var field in [_weightField, _eyeColourField, _hairColorField]) {
       comparison = field.compareField(this, other);
       if (comparison != 0) {
