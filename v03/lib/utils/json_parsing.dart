@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-List<String>? getNullableStringList(Map<String, dynamic>? json, String jsonName) {
-    var list = json?[jsonName];
+List<String>? getNullableStringListFromMap(Map<String, dynamic>? map, String key) {
+    var list = map?[key];
     if (list == null) {
       return null;
     }

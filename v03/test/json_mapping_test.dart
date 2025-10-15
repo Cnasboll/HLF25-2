@@ -121,13 +121,13 @@ void main() {
   test('Can parse single JSON string as list of strings', () {
     final rawJson = '{"weight": "10 kg"}';
     var decoded = json.decode(rawJson);
-    final result = getNullableStringList(decoded, 'weight');
+    final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg']);
   });
 
   test('Can parse single String object as list', () {
     var decoded = <String, Object?>{'weight': '10 kg'};
-    final result = getNullableStringList(decoded, 'weight');
+    final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg']);
   });
 
@@ -135,7 +135,7 @@ void main() {
   // Special case when the user actually enters a JSON-encoded string on the prompt
   test('Can parse json-encoded String list object as list', () {
     var decoded = <String, Object?>{'weight': '["10 kg", "22 lb"]'};
-    final result = getNullableStringList(decoded, 'weight');
+    final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg', '22 lb']);
   });
 
@@ -144,26 +144,26 @@ void main() {
   /// in JSON, it will be decoded too
   test('Can parse single JSON string encoded as JSON as list of strings', () {
     var decoded = <String, Object?>{'weight': '"10 kg"'};
-    final result = getNullableStringList(decoded, 'weight');
+    final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg']);
   });
 
   test('Can parse single in-representating String object as list', () {
     var decoded = <String, Object?>{'height': '188'};
-    final result = getNullableStringList(decoded, 'height');
+    final result = getNullableStringListFromMap(decoded, 'height');
     expect(result, ['188']);
   });
 
   test('Can parse json list', () {
     final rawJson = '{"weight": ["10 kg", "22 lb"]}';
     var decoded = json.decode(rawJson);
-    final result = getNullableStringList(decoded, 'weight');
+    final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg', '22 lb']);
   });
 
   test('Can parse String list literal', () {
     var decoded = <String, Object?>{'weight': ['10 kg', '22 lb']};
-    final result = getNullableStringList(decoded, 'weight');
+    final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg', '22 lb']);
   });
 }

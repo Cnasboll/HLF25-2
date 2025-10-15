@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
+import 'package:v03/amendable/field_base.dart';
 
 class ImageModel extends Amendable<ImageModel> {
   ImageModel({this.url});
@@ -18,7 +19,7 @@ class ImageModel extends Amendable<ImageModel> {
     Map<String, dynamic>? amendment,
   ) {
     return ImageModel(
-      url: _urlField.getNullableStringFromJsonForAmendment(original, amendment),
+      url: _urlField.getNullableStringForAmendment(original, amendment),
     );
   }
 
@@ -26,7 +27,7 @@ class ImageModel extends Amendable<ImageModel> {
     if (json == null) {
       return ImageModel();
     }
-    return ImageModel(url: _urlField.getNullableStringFromJson(json));
+    return ImageModel(url: _urlField.getNullableString(json));
   }
 
   factory ImageModel.fromRow(Row row) {
@@ -53,15 +54,14 @@ class ImageModel extends Amendable<ImageModel> {
   }
 
   @override
-  List<Field<ImageModel>> get fields => staticFields;
+  List<FieldBase<ImageModel>> get fields => staticFields;
 
-  static Field<ImageModel> get _urlField => Field<ImageModel>(
-    (p) => p?.url,
-    String,
+  static FieldBase<ImageModel> get _urlField => Field.infer(
+    (p) => p.url,
     'url',
     'The URL of the image',
     sqlLiteName: 'image_url',
   );
 
-  static final List<Field<ImageModel>> staticFields = [_urlField];
+  static final List<FieldBase<ImageModel>> staticFields = [_urlField];
 }

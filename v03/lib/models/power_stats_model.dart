@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
+import 'package:v03/amendable/field_base.dart';
 
 class PowerStatsModel extends Amendable<PowerStatsModel> {
   PowerStatsModel({
@@ -73,12 +74,12 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
       return PowerStatsModel();
     }
     return PowerStatsModel(
-      intelligence: _intelligenceField.getNullableIntFromJson(json),
-      strength: _strengthField.getNullableIntFromJson(json),
-      speed: _speedField.getNullableIntFromJson(json),
-      durability: _durabilityField.getNullableIntFromJson(json),
-      power: _powerField.getNullableIntFromJson(json),
-      combat: _combatField.getNullableIntFromJson(json),
+      intelligence: _intelligenceField.getNullableInt(json),
+      strength: _strengthField.getNullableInt(json),
+      speed: _speedField.getNullableInt(json),
+      durability: _durabilityField.getNullableInt(json),
+      power: _powerField.getNullableInt(json),
+      combat: _combatField.getNullableInt(json),
     );
   }
 
@@ -119,51 +120,45 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<Field<PowerStatsModel>> get fields => staticFields;
+  List<FieldBase<PowerStatsModel>> get fields => staticFields;
 
-  static Field<PowerStatsModel> get _intelligenceField => Field<PowerStatsModel>(
-    (p) => p?.intelligence,
-    int,
+  static FieldBase<PowerStatsModel> get _intelligenceField => Field.infer(
+    (m) => m.intelligence,
     'intelligence',
     'IQ SD 15 (WAIS)',
   );
 
-  static final Field<PowerStatsModel> _strengthField = Field<PowerStatsModel>(
-    (p) => p?.strength,
-    int,
+  static FieldBase<PowerStatsModel> get _strengthField => Field.infer(
+    (m) => m.strength,
     'strength',
     'newton',
   );
 
-  static final Field<PowerStatsModel> _speedField = Field<PowerStatsModel>(
-    (p) => p?.speed,
-    int,
+  static FieldBase<PowerStatsModel> get _speedField => Field.infer(
+    (m) => m.speed,
     'speed',
     'km/h',
   );
 
-  static final Field<PowerStatsModel> _durabilityField = Field<PowerStatsModel>(
-    (p) => p?.durability,
-    int,
+  static FieldBase<PowerStatsModel> get _durabilityField => Field.infer(
+    (m) => m.durability,
     'durability',
     'longevity',
   );
 
-  static final Field<PowerStatsModel> _powerField = Field<PowerStatsModel>(
-    (p) => p?.power,
-    int,
+  static FieldBase<PowerStatsModel> get _powerField => Field.infer(
+    (m) => m.power,
     'power',
     'whatever',
   );
 
-  static final Field<PowerStatsModel> _combatField = Field<PowerStatsModel>(
-    (p) => p?.combat,
-    int,
+  static FieldBase<PowerStatsModel> get _combatField => Field.infer(
+    (m) => m.combat,
     'combat',
     'fighting skills',
   );
 
-  static final List<Field<PowerStatsModel>> staticFields = [
+  static final List<FieldBase<PowerStatsModel>> staticFields = [
     _intelligenceField,
     _strengthField,
     _speedField,

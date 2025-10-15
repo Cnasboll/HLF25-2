@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
+import 'package:v03/amendable/field_base.dart';
 
 class ConnectionsModel extends Amendable<ConnectionsModel> {
   ConnectionsModel({this.groupAffiliation, this.relatives});
@@ -25,9 +26,11 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
     Map<String, dynamic>? amendment,
   ) {
     return ConnectionsModel(
-      groupAffiliation: _groupAffiliationField
-          .getNullableStringFromJsonForAmendment(original, amendment),
-      relatives: _relativesField.getNullableStringFromJsonForAmendment(
+      groupAffiliation: _groupAffiliationField.getNullableStringForAmendment(
+        original,
+        amendment,
+      ),
+      relatives: _relativesField.getNullableStringForAmendment(
         original,
         amendment,
       ),
@@ -39,8 +42,8 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
       return ConnectionsModel();
     }
     return ConnectionsModel(
-      groupAffiliation: _groupAffiliationField.getNullableStringFromJson(json),
-      relatives: _relativesField.getNullableStringFromJson(json),
+      groupAffiliation: _groupAffiliationField.getNullableString(json),
+      relatives: _relativesField.getNullableString(json),
     );
   }
 
@@ -72,23 +75,21 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
   }
 
   @override
-  List<Field<ConnectionsModel>> get fields => staticFields;
+  List<FieldBase<ConnectionsModel>> get fields => staticFields;
 
-  static Field<ConnectionsModel> get _groupAffiliationField => Field<ConnectionsModel>(
-    (p) => p?.groupAffiliation,
-    String,
+  static FieldBase<ConnectionsModel> get _groupAffiliationField => Field.infer(
+    (m) => m.groupAffiliation,
     'group-affiliation',
     'Groups the character is affiliated with wether currently or in the past and if addmittedly or not',
   );
 
-  static final Field<ConnectionsModel> _relativesField = Field<ConnectionsModel>(
-    (p) => p?.relatives,
-    String,
+  static final FieldBase<ConnectionsModel> _relativesField = Field.infer(
+    (m) => m.relatives,
     'relatives',
     'A list of the character\'s relatives by blood, marriage, adoption, or pure association',
   );
 
-  static final List<Field<ConnectionsModel>> staticFields = [
+  static final List<FieldBase<ConnectionsModel>> staticFields = [
     _groupAffiliationField,
     _relativesField,
   ];

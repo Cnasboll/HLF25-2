@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/height.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
@@ -56,10 +57,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
         Gender.values,
         amendment,
       ),
-      race: _raceField.getNullableStringFromJsonForAmendment(
-        original,
-        amendment,
-      ),
+      race: _raceField.getNullableStringForAmendment(original, amendment),
       height: Height.parseList(
         _heightField.getNullableStringListFromJsonForAmendment(
           original,
@@ -72,11 +70,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
           amendment,
         ),
       ),
-      eyeColor: _eyeColourField.getNullableStringFromJsonForAmendment(
+      eyeColor: _eyeColourField.getNullableStringForAmendment(
         original,
         amendment,
       ),
-      hairColor: _hairColorField.getNullableStringFromJsonForAmendment(
+      hairColor: _hairColorField.getNullableStringForAmendment(
         original,
         amendment,
       ),
@@ -85,25 +83,15 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   static AppearanceModel fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return AppearanceModel(
-        gender: Gender.unknown,
-      );
+      return AppearanceModel(gender: Gender.unknown);
     }
     return AppearanceModel(
-      gender: _genderField.getEnumFromJson<Gender>(
-        Gender.values,
-        json,
-        Gender.unknown,
-      ),
-      race: _raceField.getNullableStringFromJson(json),
-      height: Height.parseList(
-        _heightField.getNullableStringListFromJson(json),
-      ),
-      weight: Weight.parseList(
-        _weightField.getNullableStringListFromJson(json),
-      ),
-      eyeColor: _eyeColourField.getNullableStringFromJson(json),
-      hairColor: _hairColorField.getNullableStringFromJson(json),
+      gender: _genderField.getEnum<Gender>(Gender.values, json, Gender.unknown),
+      race: _raceField.getNullableString(json),
+      height: Height.parseList(_heightField.getNullableStringList(json)),
+      weight: Weight.parseList(_weightField.getNullableStringList(json)),
+      eyeColor: _eyeColourField.getNullableString(json),
+      hairColor: _hairColorField.getNullableString(json),
     );
   }
 
@@ -177,58 +165,56 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<Field<AppearanceModel>> get fields => staticFields;
+  List<FieldBase<AppearanceModel>> get fields => staticFields;
 
-  static final Field<AppearanceModel> _genderField = Field<AppearanceModel>(
-    (a) => a?.gender ?? Gender.unknown,
-    Gender,
+  static final FieldBase<AppearanceModel> _genderField = Field.infer(
+    (m) => m.gender ?? Gender.unknown,
     "gender",
     Gender.values.map((e) => e.name).join(', '),
-    format: (a) => (a?.gender ?? Gender.unknown).name,
-    sqliteGetter: (a) => (a?.gender ?? Gender.unknown).name,
+    format: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
+    sqliteGetter: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
     nullable: false,
   );
 
-  static final Field<AppearanceModel> _raceField = Field<AppearanceModel>(
-    (a) => a?.race,
-    String,
+  static final FieldBase<AppearanceModel> _raceField = Field.infer(
+    (m) => m.race,
     "race",
     "Species in Latin or English",
   );
 
-  static Field<AppearanceModel> get _heightField => Field<AppearanceModel>(
-    (a) => a?.height,
-    Height,
-    'height',
+  static FieldBase<AppearanceModel> get _heightField => Field.infer(
+    (m) => m.height,
+    "height",
     'Height in centimeters and / or feet and inches',
-    sqliteGetter: ((a) => (a?.height).toString()),
-    prompt: '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
+    sqliteGetter: ((m) => (m.height).toString()),
+    prompt:
+        '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
   );
 
-  static Field<AppearanceModel> get _weightField => Field<AppearanceModel>(
-    (p) => p?.weight,
-    Weight,
-    'weight',
+  static FieldBase<AppearanceModel> get _weightField => Field.infer(
+    (m) => m.weight,
+    "weight",
     'Weight in kilograms and / or pounds',
-    sqliteGetter: ((a) => (a?.weight).toString()),
-    prompt: '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
+    sqliteGetter: ((m) => (m.weight).toString()),
+    prompt:
+        '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
   );
 
-  static final Field<AppearanceModel> _eyeColourField = Field<AppearanceModel>(
-    (p) => p?.eyeColor,
-    String,
-    'eye-color',
+  static final FieldBase<AppearanceModel> _eyeColourField = Field.infer(
+    (m) => m.eyeColor,
+    "Eye Colour", // British spelling as we're in Europe
+    jsonName: "eye-color",
     'The character\'s eye color of the most recent appearance',
   );
 
-  static final Field<AppearanceModel> _hairColorField = Field<AppearanceModel>(
-    (p) => p?.hairColor,
-    String,
-    'hair-color',
+  static final FieldBase<AppearanceModel> _hairColorField = Field.infer(
+    (m) => m.hairColor,
+    "Hair Colour",
+    jsonName: "hair-color", // British spelling as we're in Europe
     'The character\'s hair color of the most recent appearance',
   );
 
-  static final List<Field<AppearanceModel>> staticFields = [
+  static final List<FieldBase<AppearanceModel>> staticFields = [
     _genderField,
     _raceField,
     _heightField,

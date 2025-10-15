@@ -1,10 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:v03/prompts/prompt.dart';
-import 'package:v03/amendable/field.dart';
-
+import 'package:v03/amendable/field_base.dart';
 abstract class Amendable<T extends Amendable<T>> extends Equatable
     implements Comparable<T> {
-  List<Field<T>> get fields;
+  List<FieldBase<T>> get fields;
 
   @override
   List<Object?> get props => fields.map((f) => f.getter(this as T)).toList();
@@ -30,7 +29,7 @@ abstract class Amendable<T extends Amendable<T>> extends Equatable
     return 0;
   }
 
-  static Map<String, dynamic>? promptForJson(List<Field> fields) {
+  static Map<String, dynamic>? promptForJson<T>(List<FieldBase<T>> fields) {
     Map<String, dynamic> json = {};
     for (var field in fields) {
       if (!field.promptForJson(json)) {
@@ -90,8 +89,8 @@ abstract class Amendable<T extends Amendable<T>> extends Equatable
     return sb.toString();
   }
 
-  T fromChildJsonAmendment(Field field, Map<String, dynamic>? amendment) {
-    return amendWith(field.getJsonFromJson(amendment));
+  T fromChildJsonAmendment(FieldBase field, Map<String, dynamic>? amendment) {
+    return amendWith(field.getJson(amendment));
   }
 
   T amendWith(Map<String, dynamic>? amendment);

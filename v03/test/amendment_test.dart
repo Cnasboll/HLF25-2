@@ -75,8 +75,8 @@ void main() {
     batman.diff(fatman, sb);
     expect(sb.toString(), '''powerstats.intelligence: 100 -> 96
 powerstats.durability: 50 -> 45
-biography.aliases: [Insider, Matches Malone] -> [Mystical]
-biography.alignment: good -> reasonable
+biography.Aliases: [Insider, Matches Malone] -> [Mystical]
+biography.Alignment: good -> reasonable
 appearance.height: 6'2" -> 6'1"
 appearance.weight: 210 lb -> 220 lb
 ''');

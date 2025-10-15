@@ -3,11 +3,13 @@ import 'dart:core';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
+import 'package:v03/amendable/field_base.dart';
 
 class WorkModel extends Amendable<WorkModel> {
   WorkModel({this.occupation, this.base});
 
-  WorkModel.from(WorkModel other) : this(occupation: other.occupation, base: other.base);
+  WorkModel.from(WorkModel other)
+    : this(occupation: other.occupation, base: other.base);
 
   WorkModel copyWith({String? occupation, String? base}) {
     return WorkModel(
@@ -21,14 +23,11 @@ class WorkModel extends Amendable<WorkModel> {
     Map<String, dynamic>? amendment,
   ) {
     return WorkModel(
-      occupation: _occupationField.getNullableStringFromJsonForAmendment(
+      occupation: _occupationField.getNullableStringForAmendment(
         original,
         amendment,
       ),
-      base: _baseField.getNullableStringFromJsonForAmendment(
-        original,
-        amendment,
-      ),
+      base: _baseField.getNullableStringForAmendment(original, amendment),
     );
   }
 
@@ -37,8 +36,8 @@ class WorkModel extends Amendable<WorkModel> {
       return WorkModel();
     }
     return WorkModel(
-      occupation: _occupationField.getNullableStringFromJson(json),
-      base: _baseField.getNullableStringFromJson(json),
+      occupation: _occupationField.getNullableString(json),
+      base: _baseField.getNullableString(json),
     );
   }
 
@@ -70,21 +69,22 @@ class WorkModel extends Amendable<WorkModel> {
   }
 
   @override
-  List<Field<WorkModel>> get fields => staticFields;
+  List<FieldBase<WorkModel>> get fields => staticFields;
 
-  static Field<WorkModel> get _occupationField => Field<WorkModel>(
-    (p) => p?.occupation,
-    String,
+  static FieldBase<WorkModel> get _occupationField => Field.infer(
+    (m) => m.occupation,
     'occupation',
     'Occupation of the character',
   );
 
-  static final Field<WorkModel> _baseField = Field<WorkModel>(
-    (p) => p?.base,
-    String,
+  static FieldBase<WorkModel> get _baseField => Field.infer(
+    (m) => m.base,
     'base',
     'A place where the character works or lives or hides rather frequently',
   );
 
-  static final List<Field<WorkModel>> staticFields = [_occupationField, _baseField];
+  static final List<FieldBase<WorkModel>> staticFields = [
+    _occupationField,
+    _baseField,
+  ];
 }

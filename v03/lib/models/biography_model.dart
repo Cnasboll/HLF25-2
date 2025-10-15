@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
+import 'package:v03/amendable/field_base.dart';
 
 // Levels of evilness
 enum Alignment {
@@ -68,11 +69,11 @@ class BiographyModel extends Amendable<BiographyModel> {
     Map<String, dynamic>? amendment,
   ) {
     return BiographyModel(
-      fullName: _fullNameField.getNullableStringFromJsonForAmendment(
+      fullName: _fullNameField.getNullableStringForAmendment(
         original,
         amendment,
       ),
-      alterEgos: _alterEgosField.getNullableStringFromJsonForAmendment(
+      alterEgos: _alterEgosField.getNullableStringForAmendment(
         original,
         amendment,
       ),
@@ -80,13 +81,15 @@ class BiographyModel extends Amendable<BiographyModel> {
         original,
         amendment,
       ),
-      placeOfBirth: _placeOfBirthFIeld.getNullableStringFromJsonForAmendment(
+      placeOfBirth: _placeOfBirthField.getNullableStringForAmendment(
         original,
         amendment,
       ),
-      firstAppearance: _firstAppearanceField
-          .getNullableStringFromJsonForAmendment(original, amendment),
-      publisher: _publisherField.getNullableStringFromJsonForAmendment(
+      firstAppearance: _firstAppearanceField.getNullableStringForAmendment(
+        original,
+        amendment,
+      ),
+      publisher: _publisherField.getNullableStringForAmendment(
         original,
         amendment,
       ),
@@ -103,13 +106,13 @@ class BiographyModel extends Amendable<BiographyModel> {
       return BiographyModel();
     }
     return BiographyModel(
-      fullName: _fullNameField.getNullableStringFromJson(json),
-      alterEgos: _alterEgosField.getNullableStringFromJson(json),
-      aliases: _aliasesField.getNullableStringListFromJson(json),
-      placeOfBirth: _placeOfBirthFIeld.getNullableStringFromJson(json),
-      firstAppearance: _firstAppearanceField.getNullableStringFromJson(json),
-      publisher: _publisherField.getNullableStringFromJson(json),
-      alignment: _alignmentField.getEnumFromJson<Alignment>(
+      fullName: _fullNameField.getNullableString(json),
+      alterEgos: _alterEgosField.getNullableString(json),
+      aliases: _aliasesField.getNullableStringList(json),
+      placeOfBirth: _placeOfBirthField.getNullableString(json),
+      firstAppearance: _firstAppearanceField.getNullableString(json),
+      publisher: _publisherField.getNullableString(json),
+      alignment: _alignmentField.getEnum<Alignment>(
         Alignment.values,
         json,
         Alignment.unknown,
@@ -122,7 +125,7 @@ class BiographyModel extends Amendable<BiographyModel> {
       fullName: _fullNameField.getNullableStringFromRow(row),
       alterEgos: _alterEgosField.getNullableStringFromRow(row),
       aliases: _aliasesField.getNullableStringListFromRow(row),
-      placeOfBirth: _placeOfBirthFIeld.getNullableStringFromRow(row),
+      placeOfBirth: _placeOfBirthField.getNullableStringFromRow(row),
       firstAppearance: _firstAppearanceField.getNullableStringFromRow(row),
       publisher: _publisherField.getNullableStringFromRow(row),
       alignment: _alignmentField.getEnumFromRow<Alignment>(
@@ -160,66 +163,72 @@ class BiographyModel extends Amendable<BiographyModel> {
 
   /// Subclasses may override to contribute additional fields.
   @override
-  List<Field<BiographyModel>> get fields => staticFields;
+  List<FieldBase<BiographyModel>> get fields => staticFields;
 
-  static Field<BiographyModel> get _fullNameField =>
-      Field<BiographyModel>((p) => p?.fullName, String, 'full-name', 'Full');
-
-  static final Field<BiographyModel> _alterEgosField = Field<BiographyModel>(
-    (p) => p?.alterEgos,
-    String,
-    'alter-egos',
-    'Such as Jekyll and Hyde',
+  static FieldBase<BiographyModel> get _fullNameField => Field.infer(
+    (m) => m.fullName,
+    "Full Name",
+    jsonName: "full-name",
+    "Full",
   );
 
-  static final Field<BiographyModel> _aliasesField = Field<BiographyModel>(
-    (p) => p?.aliases,
-    List<String>,
-    'aliases',
-    'Other names the character is known by',
+  static final FieldBase<BiographyModel> _alterEgosField = Field.infer(
+    (m) => m.alterEgos,
+    "Alter Egos",
+    jsonName: "alter-egos",
+    "Alter egos of the character",
+  );
+
+  static final FieldBase<BiographyModel> _aliasesField = Field.infer(
+    (m) => m.aliases,
+    "Aliases",
+    jsonName: "aliases",
+    "Other names the character is known by",
     // This is a list of strings, so we need special handling as I cann't be arsed to make another table for it
-    // but putting JSON in column is an anti-pattern. Will I be condemned to purgatory? 
+    // but putting JSON in column is an anti-pattern. Will I be condemned to purgatory?
     // Will the database deities show mercy?
-    sqliteGetter: ((p) => jsonEncode(p?.aliases)),
-    prompt: ' as a single value (\'Insider\') without surrounding \' or a list in json format e.g. ["Insider", "Matches Malone"]',
+    sqliteGetter: ((m) => m.aliases == null ? null : jsonEncode(m.aliases)),
+    prompt:
+        ' as a single value (\'Insider\') without surrounding \' or a list in json format e.g. ["Insider", "Matches Malone"]',
   );
 
-  static final Field<BiographyModel> _placeOfBirthFIeld = Field<BiographyModel>(
-    (p) => p?.placeOfBirth,
-    String,
-    'place-of-birth',
-    'Where the character was born',
+  static final FieldBase<BiographyModel> _placeOfBirthField = Field.infer(
+    (m) => m.placeOfBirth,
+    "Place of Birth",
+    jsonName: "place-of-birth",
+    "Where the character was born",
   );
 
-  static final Field<BiographyModel> _firstAppearanceField = Field<BiographyModel>(
-    (p) => p?.firstAppearance,
-    String,
-    'first-appearance',
-    'When the character first appeared in print or in court',
+  static final FieldBase<BiographyModel> _firstAppearanceField = Field.infer(
+    (m) => m.firstAppearance,
+    "First Appearance",
+    jsonName: "first-appearance",
+    "When the character first appeared in print or in court",
   );
 
-  static final Field<BiographyModel> _publisherField = Field<BiographyModel>(
-    (p) => p?.publisher,
-    String,
-    'publisher',
-    'The publisher of the character\'s stories or documentary evidence',
+  static final FieldBase<BiographyModel> _publisherField = Field.infer(
+    (m) => m.publisher,
+    "Publisher",
+    jsonName: "publisher",
+    "The publisher of the character's stories or documentary evidence",
   );
 
-  static final Field<BiographyModel> _alignmentField = Field<BiographyModel>(
-    (h) => h?.alignment ?? Alignment.unknown,
-    Alignment,
-    "alignment",
-    Alignment.values.map((e) => e.name).join(', '),
-    format: (h) => (h?.alignment ?? Alignment.unknown).name,
-    sqliteGetter:(h) => (h?.alignment ?? Alignment.unknown).name,
+  static final FieldBase<BiographyModel> _alignmentField = Field.infer(
+    (m) => m.alignment ?? Alignment.unknown,
+    "Alignment",
+    jsonName: "alignment",
+    // Use toString().split('.').last so it works on environments without a public `name`
+    "The character's moral alignment (${Alignment.values.map((e) => e.toString().split('.').last).join(', ')})",
+    format: (m) => (m.alignment ?? Alignment.unknown).toString().split('.').last,
+    sqliteGetter: (m) => (m.alignment ?? Alignment.unknown).toString().split('.').last,
     nullable: false,
   );
 
-  static final List<Field<BiographyModel>> staticFields = [
+  static final List<FieldBase<BiographyModel>> staticFields = [
     _fullNameField,
     _alterEgosField,
     _aliasesField,
-    _placeOfBirthFIeld,
+    _placeOfBirthField,
     _firstAppearanceField,
     _publisherField,
     _alignmentField,

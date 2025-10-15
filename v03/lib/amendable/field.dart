@@ -3,18 +3,18 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/amendable/field_base.dart';
 import 'package:v03/prompts/prompt.dart';
 import 'package:v03/utils/enum_parsing.dart';
 import 'package:v03/utils/json_parsing.dart';
 
-typedef LookupField<T> = Object? Function(T?);
-typedef FormatField<T> = String Function(T?);
-typedef SQLGetter<T> = Object? Function(T?);
+typedef LookupField<T, V> = V? Function(T);
+typedef FormatField<T> = String Function(T);
+typedef SQLGetter<T> = Object? Function(T);
 
-class Field<T> {
+class Field<T, V> implements FieldBase<T> {
   Field(
-    this.getter,
-    this.type,
+    this._getter,
     this.name,
     this.description, {
     this.primary = false,
@@ -26,16 +26,52 @@ class Field<T> {
     bool? mutable,
     String? jsonName,
     String? sqlLiteName,
-    List<Field>? children,
-    LookupField<T>? sqliteGetter,
-  }) : mutable = mutable ?? !primary,
+    List<FieldBase>? children,
+    SQLGetter<T>? sqliteGetter,
+  }) : _mutable = mutable ?? !primary,
        assignedBySystem = assignedBySystem ?? primary,
-       format = format ?? ((t) => getter(t).toString()),
+       format = format ?? ((t) => _getter(t).toString()),
        jsonName = jsonName ?? name,
-       sqlLiteName = sqlLiteName ?? name.replaceAll('-', '_').toLowerCase(),
+       sqlLiteName = sqlLiteName ?? name.replaceAll('-', '_').replaceAll(' ', '_').toLowerCase(),
        _children = children ?? [],
-       sqliteGetter = sqliteGetter ?? ((t) => getter(t));
+       sqliteGetter = sqliteGetter ?? ((t) => _getter(t));
 
+  // DRY for type: infer T from the getter's return type
+  factory Field.infer(
+    LookupField<T, V> getter,
+    String name,
+    String description, {
+    bool primary = false,
+    bool nullable = true,
+    FormatField? format,
+    bool comparable = true,
+    String? prompt,
+    bool? assignedBySystem,
+    bool? mutable,
+    String? jsonName,
+    String? sqlLiteName,
+    List<FieldBase>? children,
+    SQLGetter<T>? sqliteGetter,
+  }) {
+    return Field<T, V>(
+      getter,
+      name,
+      description,
+      primary: primary,
+      nullable: nullable,
+      format: format,
+      comparable: comparable,
+      prompt: prompt,
+      assignedBySystem: assignedBySystem,
+      mutable: mutable,
+      jsonName: jsonName,
+      sqlLiteName: sqlLiteName,
+      children: children,
+      sqliteGetter: sqliteGetter,
+    );
+  }
+
+  @override
   bool promptForJson(Map<String, dynamic> json, {String? crumbtrail}) {
     if (assignedBySystem) {
       return true;
@@ -65,6 +101,7 @@ class Field<T> {
     return true;
   }
 
+  @override
   void promptForAmendmentJson(
     T t,
     Map<String, dynamic> amendment, {
@@ -100,6 +137,7 @@ class Field<T> {
     }
   }
 
+  @override
   bool validateAmendment(T lhs, T rhs) {
     if (lhs == rhs || mutable) {
       return true;
@@ -112,7 +150,8 @@ class Field<T> {
     return mutable;
   }
 
-  bool matches(T? t, String query) {
+  @override
+  bool matches(T t, String query) {
     var value = getter(t);
     if (value == null) {
       return false;
@@ -130,7 +169,8 @@ class Field<T> {
     return false;
   }
 
-  void formatField(T? t, StringBuffer sb, {String? crumbtrail}) {
+  @override
+  void formatField(T t, StringBuffer sb, {String? crumbtrail}) {
     var cr = crumbtrail != null ? "$crumbtrail.$name" : name;  
     if (_children.isEmpty) {
       sb.writeln("$cr: ${format(t)}");
@@ -148,7 +188,8 @@ class Field<T> {
     }
   }
 
-  bool diff(T? lhs, T? rhs, StringBuffer sb, {String? crumbtrail}) {
+  @override
+  bool diff(T lhs, T rhs, StringBuffer sb, {String? crumbtrail}) {
     var lhsValue = getter(lhs);
     var rhsValue = getter(rhs);
 
@@ -170,6 +211,7 @@ class Field<T> {
     return hasChildDifferences;
   }
 
+  @override
   int compareField(T lhs, T rhs) {
     if (!comparable) {
       // Not part of comparison
@@ -237,15 +279,18 @@ class Field<T> {
     return 0;
   }
 
+  @override
   int? getIntForAmendment(T t, Map<String, dynamic>? amendment) {
-    return getNullableIntFromJson(amendment) ?? getter(t) as int?;
+    return getNullableInt(amendment) ?? getter(t) as int?;
   }
 
+  @override
   int getIntFromJson(Map<String, dynamic>? json, int defaultValue) {
-    return getNullableIntFromJson(json) ?? defaultValue;
+    return getNullableInt(json) ?? defaultValue;
   }
 
-  int? getNullableIntFromJson(Map<String, dynamic>? json) {
+  @override
+  int? getNullableInt(Map<String, dynamic>? json) {
     var value = json?[jsonName];
 
     if (value == null) {
@@ -259,57 +304,68 @@ class Field<T> {
     return int.tryParse(value.toString());
   }
 
+  @override
   int getIntFromRow(Row row, int defaultValue) {
     return row[sqlLiteName] as int? ?? defaultValue;
   }
 
+  @override
   int? getNullableIntFromRow(Row row) {
     return row[sqlLiteName] as int?;
   }
 
-  String getStringFromJsonForAmendment(T t, Map<String, dynamic>? amendment) {
-    return getStringFromJson(amendment, getter(t) as String);
+  @override
+  String getStringForAmendment(T t, Map<String, dynamic>? amendment) {
+    return getString(amendment, getter(t) as String);
   }
 
-  String? getNullableStringFromJsonForAmendment(
+  @override
+  String? getNullableStringForAmendment(
     T t,
     Map<String, dynamic>? amendment,
   ) {
-    return getNullableStringFromJson(amendment) ?? getter(t) as String?;
+    return getNullableString(amendment) ?? getter(t) as String?;
   }
 
-  String? getNullableStringFromJson(Map<String, dynamic>? json) {
+  @override
+  String? getNullableString(Map<String, dynamic>? json) {
     return json?[jsonName];
   }
 
-  String getStringFromJson(Map<String, dynamic>? json, String defaultValue) {
+  @override
+  String getString(Map<String, dynamic>? json, String defaultValue) {
     return json?[jsonName] ?? defaultValue;
   }
 
-  Map<String, dynamic>? getJsonFromJson(Map<String, dynamic>? json) {
+  @override
+  Map<String, dynamic>? getJson(Map<String, dynamic>? json) {
     return json?[jsonName] as Map<String, dynamic>?;
   }
 
+  @override
   String? getNullableStringFromRow(Row row) {
     return row[sqlLiteName] as String?;
   }
 
+  @override
   String getStringFromRow(Row row, String defaultValue) {
     return row[sqlLiteName] as String? ?? defaultValue;
   }
 
+  @override
   List<String> getStringListFromJsonForAmendment(
     T t,
     Map<String, dynamic>? amendment,
   ) {
-    return getStringListFromJson(amendment, getter(t) as List<String>);
+    return getStringList(amendment, getter(t) as List<String>);
   }
 
+  @override
   List<String>? getNullableStringListFromJsonForAmendment(
     T t,
     Map<String, dynamic>? amendment,
   ) {
-    var l = getNullableStringListFromJson(amendment);
+    var l = getNullableStringList(amendment);
 
     if (l != null) {
       return l;
@@ -328,21 +384,25 @@ class Field<T> {
     return [current.toString()];
   }
 
-  List<String> getStringListFromJson(
+  @override
+  List<String> getStringList(
     Map<String, dynamic>? json,
     List<String> defaultValue,
   ) {
-    return getNullableStringListFromJson(json) ?? defaultValue;
+    return getNullableStringList(json) ?? defaultValue;
   }
 
-  List<String>? getNullableStringListFromJson(Map<String, dynamic>? json) {
-    return getNullableStringList( json, jsonName);
+  @override
+  List<String>? getNullableStringList(Map<String, dynamic>? json) {
+    return getNullableStringListFromMap( json, jsonName);
   }
 
+  @override
   List<String> getStringListFromRow(Row row, List<String> defaultValue) {
     return getNullableStringListFromRow(row) ?? defaultValue;
   }
 
+  @override
   List<String>? getNullableStringListFromRow(Row row) {
     var json = getNullableStringFromRow(row);
     if (json == null) {
@@ -351,25 +411,28 @@ class Field<T> {
     return jsonDecode(json)?.cast<String>();
   }
 
+  @override
   E getEnumForAmendment<E extends Enum>(
     T t,
     Iterable<E> enumValues,
     Map<String, dynamic>? amendment,
   ) {
-    return getEnumFromJson(enumValues, amendment, getter(t) as E);
+    return getEnum(enumValues, amendment, getter(t) as E);
   }
 
-  E getEnumFromJson<E extends Enum>(
+  @override
+  E getEnum<E extends Enum>(
     Iterable<E> enumValues,
     Map<String, dynamic>? amendment,
     E defaultValue,
   ) {
     return enumValues.findMatch(
-          getStringFromJson(amendment, defaultValue.name),
+          getString(amendment, defaultValue.name),
         ) ??
         defaultValue;
   }
 
+  @override
   E getEnumFromRow<E extends Enum>(
     Iterable<E> enumValues,
     Row row,
@@ -381,6 +444,7 @@ class Field<T> {
         defaultValue;
   }
 
+  @override
   String sqlLiteQualifier(/*bool nullable*/) {
     if (primary) {
       return 'PRIMARY KEY';
@@ -390,20 +454,21 @@ class Field<T> {
     return '${qualifier}NULL';
   }
 
+  @override
   String generateSqliteColumnType() {
     String columnType;
 
     // My only nested if statement in this project and hopefully the entire course
 
-    if (type == int) {
+    if (V == int) {
       columnType = "INTEGER";
-    } else if (type == String) {
+    } else if (V == String) {
       columnType = "TEXT";
-    } else if (type == bool) {
+    } else if (V == bool) {
       columnType = "BOOLEAN";
-    } else if (type == double) {
+    } else if (V == double) {
       columnType = "REAL";
-    } else if (type == Enum) {
+    } else if (V == Enum) {
       columnType = "TEXT";
     } else {
       // Fallback to TEXT for complex types
@@ -413,13 +478,15 @@ class Field<T> {
     return "$columnType ${sqlLiteQualifier()}";
   }
 
-  List<Object?> sqliteProps(T? t) {
+  @override
+  List<Object?> sqliteProps(T t) {
     if (_children.isEmpty) {
       return [sqliteGetter(t)];
     }
     return _children.expand((c) => c.sqliteProps(getter(t))).toList();
   }
 
+  @override
   String generateSQLiteInsertColumnPlaceholders() {
     if (_children.isEmpty) {
       return "?";
@@ -429,6 +496,7 @@ class Field<T> {
         .join(',');
   }
 
+  @override
   String generateSqliteColumnNameList(String indent) {
     if (_children.isEmpty) {
       return sqlLiteName;
@@ -438,6 +506,7 @@ class Field<T> {
         .join(',\n$indent');
   }
 
+  @override
   String generateSqliteColumnDeclarations(String indent) {
     if (_children.isEmpty) {
       return "$sqlLiteName ${generateSqliteColumnType()}";
@@ -447,6 +516,7 @@ class Field<T> {
         .join(',\n$indent');
   }
 
+  @override
   String generateSqliteColumnDefinition() {
     if (_children.isEmpty) {
       return "$sqlLiteName ${generateSqliteColumnType()}";
@@ -454,6 +524,7 @@ class Field<T> {
     return '${_children.map((c) => c.generateSqliteColumnDefinition()).join(',\n')}\n';
   }
 
+  @override
   String generateSqliteUpdateClause(String indent) {
     if (_children.isEmpty) {
       return "$sqlLiteName=excluded.$sqlLiteName";
@@ -465,10 +536,10 @@ class Field<T> {
   }
 
   /// Function to get the field from an object
-  LookupField<T> getter;
+  @override
+  LookupField<T, Object?> get getter => _getter;
 
-  /// The type of the field (todo: derive from result of getter?)
-  Type type;
+  LookupField<T, V> _getter;
 
   /// Descriptive name of a field
   String name;
@@ -494,8 +565,10 @@ class Field<T> {
   /// True if db field is nullable (TODO: should be derived from the getter-type but that doesn't seem to work)
   bool nullable;
 
-  /// True if field is mutable
-  bool mutable;
+  @override
+  bool get mutable => _mutable;
+
+  bool _mutable;
 
   /// True if a field is assigned by the system and should not be prompted for during creation or update
   bool assignedBySystem;
@@ -506,7 +579,7 @@ class Field<T> {
   /// Optional prompt suffix to be shown when prompting for this field
   String? prompt;
 
-  final List<Field> _children;
+  final List<FieldBase> _children;
 
   static const deepEq = DeepCollectionEquality();
 }

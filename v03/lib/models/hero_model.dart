@@ -1,5 +1,6 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
+import 'package:v03/amendable/field_base.dart';
 import 'package:v03/models/appearance_model.dart';
 import 'package:v03/models/biography_model.dart';
 import 'package:v03/models/connections_model.dart';
@@ -53,7 +54,7 @@ class HeroModel extends Amendable<HeroModel> {
       id: original.id,
       version: original.version + 1,
       serverId: original.serverId,
-      name: _nameField.getStringFromJsonForAmendment(original, amendment),
+      name: _nameField.getStringForAmendment(original, amendment),
       powerStats: original.powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
       biography: original.biography.fromChildJsonAmendment(_biographyField, amendment),
       appearance: original.appearance.fromChildJsonAmendment(_appearanceField, amendment),
@@ -66,14 +67,14 @@ class HeroModel extends Amendable<HeroModel> {
   HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) : this(
       id : id,
       version: 1,
-      serverId: _serverIdField.getStringFromJson(json, "unknown-server-id"),
-      name: _nameField.getStringFromJson(json, "unknown-name"),
-      powerStats: PowerStatsModel.fromJson(_powerstatsField.getJsonFromJson(json)),
-      biography: BiographyModel.fromJson(_biographyField.getJsonFromJson(json)),
-      appearance: AppearanceModel.fromJson(_appearanceField.getJsonFromJson(json)),
-      work: WorkModel.fromJson(_workField.getJsonFromJson(json)),
-      connections: ConnectionsModel.fromJson(_connectionsField.getJsonFromJson(json)),
-      image: ImageModel.fromJson(_imageField.getJsonFromJson(json)),
+      serverId: _serverIdField.getString(json, "unknown-server-id"),
+      name: _nameField.getString(json, "unknown-name"),
+      powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
+      biography: BiographyModel.fromJson(_biographyField.getJson(json)),
+      appearance: AppearanceModel.fromJson(_appearanceField.getJson(json)),
+      work: WorkModel.fromJson(_workField.getJson(json)),
+      connections: ConnectionsModel.fromJson(_connectionsField.getJson(json)),
+      image: ImageModel.fromJson(_imageField.getJson(json)),
     );
 
   factory HeroModel.fromRow(Row row) {
@@ -214,7 +215,7 @@ class HeroModel extends Amendable<HeroModel> {
   }
 
   @override
-  List<Field<HeroModel>> get fields => staticFields;
+  List<FieldBase<HeroModel>> get fields => staticFields;
 
   final String id;
   // "ID" field in JSON is "serverId" here to avoid confusion with our own "id" field.
@@ -229,17 +230,15 @@ class HeroModel extends Amendable<HeroModel> {
   final ConnectionsModel connections;
   final ImageModel image;
 
-  static final Field<HeroModel> _idField = Field<HeroModel>(
-    (h) => h?.id ?? Uuid(),
-    String,
+  static final FieldBase<HeroModel> _idField = Field.infer(
+    (h) => h.id,
     "id",
     "UUID",
     primary: true,
   );
 
-  static final Field<HeroModel> _serverIdField = Field<HeroModel>(
-    (h) => h?.serverId,
-    String,
+  static final FieldBase<HeroModel> _serverIdField = Field.infer(
+    (h) => h.serverId,
     "server_id",
     "Server assigned string ID",
     jsonName: "id",
@@ -247,77 +246,69 @@ class HeroModel extends Amendable<HeroModel> {
     mutable: false
   );
 
-  static final Field<HeroModel> _versionField = Field<HeroModel>(
-    (v) => v?.version ?? 1,
-    int,
-    'version',
-    'Version number',
+  static final FieldBase<HeroModel> _versionField = Field.infer(
+    (h) => h .version,
+    "version",
+    "Version number",
     nullable: false,
     assignedBySystem: true,
   );
 
-  static final Field<HeroModel> _nameField = Field<HeroModel>(
-    (h) => h?.name ?? '',
-    String,
+  static final FieldBase<HeroModel> _nameField = Field.infer(
+    (h) => h.name,
     "name",
     "Most commonly used name",
     nullable: false,
   );
 
-  static final Field<HeroModel> _powerstatsField = Field<HeroModel>(
-    (h) => h?.powerStats,
-    PowerStatsModel,
+  static final FieldBase<HeroModel> _powerstatsField = Field.infer(
+    (h) => h.powerStats,
     "powerstats",
     "Power statistics which is mostly misused",
     children: PowerStatsModel.staticFields,
   );
 
-  static final Field<HeroModel> _biographyField = Field<HeroModel>(
-    (h) => h?.biography,
-    BiographyModel,
+  static final FieldBase<HeroModel> _biographyField = Field.infer(
+    (h) => h.biography,
     "biography",
     "Hero's quite biased biography",
     format: (h) => "Biography: ${h?.biography}",
     children: BiographyModel.staticFields,
   );
 
-  static final Field<HeroModel> _workField = Field<HeroModel>(
-    (h) => h?.work,
-    WorkModel,
+  static final FieldBase<HeroModel> _workField = Field.infer(
+    (h) => h.work,
     "work",
     "Hero's work",
     format: (h) => "Work: ${h?.work}",
     children: WorkModel.staticFields,
   );
 
-  static final Field<HeroModel> _appearanceField = Field<HeroModel>(
-    (h) => h?.appearance,
-    AppearanceModel,
+  static final FieldBase<HeroModel> _appearanceField = Field.infer(
+    (h) => h.appearance,
     "appearance",
     "Hero's appearance",
     format: (h) => "Appearance: ${h?.appearance}",
     children: AppearanceModel.staticFields,
   );
 
-  static final Field<HeroModel> _connectionsField = Field<HeroModel>(
-    (h) => h?.connections,
-    ConnectionsModel,
+  static final FieldBase<HeroModel> _connectionsField = Field.infer(
+    (h) => h.connections,
     "connections",
     "Hero's connections",
     format: (h) => "Connections: ${h?.connections}",
     children: ConnectionsModel.staticFields,
   );
 
-  static final Field<HeroModel> _imageField = Field<HeroModel>(
-    (h) => h?.image,
-    ImageModel,
+  static final FieldBase<HeroModel> _imageField = Field.infer(
+    (h) => h.image,
     "image",
     "Hero's image",
     format: (h) => "Image: ${h?.image}",
     children: ImageModel.staticFields,
   );
 
-  static final List<Field<HeroModel>> staticFields = [
+  static final List<FieldBase<HeroModel>> staticFields = [
     _idField,
     _versionField,
     _serverIdField,
