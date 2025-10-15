@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:v03/managers/hero_data_manager.dart';
@@ -7,6 +8,9 @@ import 'package:v03/persistence/hero_repository.dart';
 import 'package:v03/prompts/prompt.dart';
 
 Future<void> main() async {
+  stdout.encoding = utf8;
+  stderr.encoding = utf8;
+
   print("Welcome to the Hero Manager!");
   var heroDataManager = HeroDataManager(HeroRepository('v03.db'));
 
@@ -74,7 +78,7 @@ Future<void> mainMenu(
   HeroDataManaging heroDataManager,
   Map<String, (Function, String)> commands,
 ) async {
-  var input = (stdin.readLineSync() ?? "").toLowerCase().trim();
+  var input = (readUtf8Line() ?? "").toLowerCase().trim();
   if (input.isEmpty) {
     print("Please enter a command");
     return;
@@ -109,7 +113,7 @@ void listHeroes(HeroDataManaging heroDataManager) {
 
 void listTopNHeroes(HeroDataManaging heroDataManager) {
   print("Enter number of heroes to list:");
-  var input = (stdin.readLineSync() ?? "").trim();
+  var input = (readUtf8Line() ?? "").trim();
   var n = int.tryParse(input) ?? 0;
   if (n <= 0) {
     print("Invalid number");
@@ -190,7 +194,7 @@ $amededHero''');
 
 List<HeroModel>? search(HeroDataManaging heroDataManager) {
   print("Enter a search string:");
-  var query = (stdin.readLineSync() ?? "").trim();
+  var query = (readUtf8Line() ?? "").trim();
   var results = heroDataManager.query(query);
   if (results.isEmpty) {
     print("No heroes found");

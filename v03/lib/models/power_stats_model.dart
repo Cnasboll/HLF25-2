@@ -124,37 +124,37 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
 
   static FieldBase<PowerStatsModel> get _intelligenceField => Field.infer(
     (m) => m.intelligence,
-    'intelligence',
+    "Intelligence",
     'IQ SD 15 (WAIS)',
   );
 
   static FieldBase<PowerStatsModel> get _strengthField => Field.infer(
     (m) => m.strength,
-    'strength',
+    'Strength',
     'newton',
   );
 
   static FieldBase<PowerStatsModel> get _speedField => Field.infer(
     (m) => m.speed,
-    'speed',
+    'Speed',
     'km/h',
   );
 
   static FieldBase<PowerStatsModel> get _durabilityField => Field.infer(
     (m) => m.durability,
-    'durability',
+    'Durability',
     'longevity',
   );
 
   static FieldBase<PowerStatsModel> get _powerField => Field.infer(
     (m) => m.power,
-    'power',
+    'Power',
     'whatever',
   );
 
   static FieldBase<PowerStatsModel> get _combatField => Field.infer(
     (m) => m.combat,
-    'combat',
+    'Combat',
     'fighting skills',
   );
 

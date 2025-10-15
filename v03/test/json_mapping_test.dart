@@ -55,7 +55,7 @@ void main() {
     var decoded = json.decode(rawJson);
     final batman = HeroModel.fromJsonAndId(decoded, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
-    expect(batman.serverId, "70");
+    expect(batman.externalId, "70");
     expect(batman.version, 1);
     expect(batman.name, "Batman");
 

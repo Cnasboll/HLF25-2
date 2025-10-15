@@ -13,28 +13,67 @@ typedef FormatField<T> = String Function(T);
 typedef SQLGetter<T> = Object? Function(T);
 
 class Field<T, V> implements FieldBase<T> {
-  Field(
-    this._getter,
-    this.name,
-    this.description, {
-    this.primary = false,
-    this.nullable = true,
+
+  factory Field(
+    LookupField<T, V> getter,
+    String name,
+    String description, {
+    bool primary = false,
+    bool nullable = true,
     FormatField<T>? format,
-    this.comparable = true,
-    this.prompt,
+    bool comparable = true,
+    String? prompt,
     bool? assignedBySystem,
     bool? mutable,
     String? jsonName,
     String? sqlLiteName,
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
-  }) : _mutable = mutable ?? !primary,
-       assignedBySystem = assignedBySystem ?? primary,
-       format = format ?? ((t) => _getter(t).toString()),
-       jsonName = jsonName ?? name,
-       sqlLiteName = sqlLiteName ?? name.replaceAll('-', '_').replaceAll(' ', '_').toLowerCase(),
-       _children = children ?? [],
-       sqliteGetter = sqliteGetter ?? ((t) => _getter(t));
+  }) {
+    assignedBySystem = assignedBySystem ?? primary;
+    mutable = mutable ?? !primary;
+    // Derive jsonName and sqlLiteName from name if not provided, not from each other
+    // to avoid accidental collisions (i.e. in our db we use British spelling for some fields as we control it)
+    jsonName = jsonName ?? (name.replaceAll(' ', '-').toLowerCase());
+    sqlLiteName = sqlLiteName ?? (name.replaceAll(' ', '-').replaceAll('-', '_').toLowerCase());
+    format = format ?? ((t) => getter(t).toString());
+    children = children ?? <FieldBase>[];
+    sqliteGetter = sqliteGetter ?? ((t) => getter(t));
+
+    return Field._internal(
+      getter,
+      name,
+      jsonName,
+      sqlLiteName,
+      description,
+      format,
+      sqliteGetter,
+      primary,
+      nullable,
+      mutable,
+      assignedBySystem,
+      comparable,
+      prompt,
+      children,
+    );
+  }
+
+  Field._internal(
+    this._getter,
+    this.name,
+    this.jsonName,
+    this.sqlLiteName,
+    this.description,
+    this.format,
+    this.sqliteGetter,
+    this.primary,
+    this.nullable,
+    this._mutable,
+    this.assignedBySystem,
+    this.comparable,
+    this.prompt,
+    this._children,
+  );
 
   // DRY for type: infer T from the getter's return type
   factory Field.infer(
@@ -71,18 +110,22 @@ class Field<T, V> implements FieldBase<T> {
     );
   }
 
+  static String growCrumbTrail(String? crumbtrail, String name) {
+    var cr = crumbtrail != null ? "$crumbtrail: " : "";
+    return '$cr$name';
+  }
+
   @override
   bool promptForJson(Map<String, dynamic> json, {String? crumbtrail}) {
     if (assignedBySystem) {
       return true;
     }
-    String cr = crumbtrail != null ? "$crumbtrail." : "";
-    var fullPath = '$cr$name';
+    var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty) {
       String abortPrompt = crumbtrail != null ? "finish populating $crumbtrail" : "abort";
       var promptSuffix = prompt != null ? '$prompt' : '';
       print("Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:");
-      var input = (stdin.readLineSync() ?? "").trim();
+      var input = (readUtf8Line() ?? "").trim();
       if (input.isEmpty) {
         return false;
       }
@@ -90,7 +133,7 @@ class Field<T, V> implements FieldBase<T> {
       return true;
     }
 
-    if (promptForYesNo('Populate $fullPath?')) {
+    if (promptForYesNo('Populate $fullPath ($description)?')) {
       var childJson = json[jsonName] = <String, dynamic>{};
       for (var child in _children) {
         if (!child.promptForJson(childJson, crumbtrail: fullPath)) {
@@ -110,22 +153,21 @@ class Field<T, V> implements FieldBase<T> {
     if (!mutable || assignedBySystem) {
       return;
     }
-    String cr = crumbtrail != null ? "$crumbtrail." : "";
-    var fullPath = '$cr$name';
+    var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty) {
       var promptSuffix = prompt != null ? '$prompt' : '';
       var current = format(t);
       print(
         "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
       );
-      var input = (stdin.readLineSync() ?? "").trim();
+      var input = (readUtf8Line() ?? "").trim();
       if (input.isNotEmpty) {
         amendment[jsonName] = input;
       }
       return;
     }
 
-    if (promptForYes('Amend $fullPath?')) {
+    if (promptForYes('Amend $fullPath ($description)?')) {
       var childAmendment = amendment[jsonName] = <String, dynamic>{};
       for (var child in _children) {
         child.promptForAmendmentJson(
@@ -171,20 +213,20 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   void formatField(T t, StringBuffer sb, {String? crumbtrail}) {
-    var cr = crumbtrail != null ? "$crumbtrail.$name" : name;  
+    var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty) {
-      sb.writeln("$cr: ${format(t)}");
+      sb.writeln("$fullPath: ${format(t)}");
       return;
     }
 
     var childObject = getter(t);
     if (childObject == null) {
-      sb.writeln("$cr: null");
+      sb.writeln("$fullPath: null");
       return;
     }
     
     for (var child in _children) {
-      child.formatField(childObject, sb, crumbtrail: cr);
+      child.formatField(childObject, sb, crumbtrail: fullPath);
     }
   }
 
@@ -197,16 +239,15 @@ class Field<T, V> implements FieldBase<T> {
       return false;
     }
 
+    var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty) {
-      String cr = crumbtrail != null ? "$crumbtrail." : "";
-      sb.writeln("$cr$name: ${format(lhs)} -> ${format(rhs)}");
+      sb.writeln("$fullPath: ${format(lhs)} -> ${format(rhs)}");
       return true;
     }
 
     bool hasChildDifferences = false;
     for (var child in _children) {
-      var cr = crumbtrail != null ? "$crumbtrail.$name" : name;
-      hasChildDifferences |= child.diff(lhsValue, rhsValue, sb, crumbtrail: cr);
+      hasChildDifferences |= child.diff(lhsValue, rhsValue, sb, crumbtrail: fullPath);
     }
     return hasChildDifferences;
   }

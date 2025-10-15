@@ -79,13 +79,13 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
 
   static FieldBase<ConnectionsModel> get _groupAffiliationField => Field.infer(
     (m) => m.groupAffiliation,
-    'group-affiliation',
+    'Group Affiliation',
     'Groups the character is affiliated with wether currently or in the past and if addmittedly or not',
   );
 
   static final FieldBase<ConnectionsModel> _relativesField = Field.infer(
     (m) => m.relatives,
-    'relatives',
+    'Relatives',
     'A list of the character\'s relatives by blood, marriage, adoption, or pure association',
   );
 

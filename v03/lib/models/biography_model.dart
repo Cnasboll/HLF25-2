@@ -168,21 +168,18 @@ class BiographyModel extends Amendable<BiographyModel> {
   static FieldBase<BiographyModel> get _fullNameField => Field.infer(
     (m) => m.fullName,
     "Full Name",
-    jsonName: "full-name",
     "Full",
   );
 
   static final FieldBase<BiographyModel> _alterEgosField = Field.infer(
     (m) => m.alterEgos,
     "Alter Egos",
-    jsonName: "alter-egos",
     "Alter egos of the character",
   );
 
   static final FieldBase<BiographyModel> _aliasesField = Field.infer(
     (m) => m.aliases,
     "Aliases",
-    jsonName: "aliases",
     "Other names the character is known by",
     // This is a list of strings, so we need special handling as I cann't be arsed to make another table for it
     // but putting JSON in column is an anti-pattern. Will I be condemned to purgatory?
@@ -195,28 +192,24 @@ class BiographyModel extends Amendable<BiographyModel> {
   static final FieldBase<BiographyModel> _placeOfBirthField = Field.infer(
     (m) => m.placeOfBirth,
     "Place of Birth",
-    jsonName: "place-of-birth",
     "Where the character was born",
   );
 
   static final FieldBase<BiographyModel> _firstAppearanceField = Field.infer(
     (m) => m.firstAppearance,
     "First Appearance",
-    jsonName: "first-appearance",
     "When the character first appeared in print or in court",
   );
 
   static final FieldBase<BiographyModel> _publisherField = Field.infer(
     (m) => m.publisher,
     "Publisher",
-    jsonName: "publisher",
     "The publisher of the character's stories or documentary evidence",
   );
 
   static final FieldBase<BiographyModel> _alignmentField = Field.infer(
     (m) => m.alignment ?? Alignment.unknown,
     "Alignment",
-    jsonName: "alignment",
     // Use toString().split('.').last so it works on environments without a public `name`
     "The character's moral alignment (${Alignment.values.map((e) => e.toString().split('.').last).join(', ')})",
     format: (m) => (m.alignment ?? Alignment.unknown).toString().split('.').last,

@@ -169,7 +169,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   static final FieldBase<AppearanceModel> _genderField = Field.infer(
     (m) => m.gender ?? Gender.unknown,
-    "gender",
+    "Gender",
     Gender.values.map((e) => e.name).join(', '),
     format: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
     sqliteGetter: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
@@ -178,13 +178,13 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   static final FieldBase<AppearanceModel> _raceField = Field.infer(
     (m) => m.race,
-    "race",
+    "Race",
     "Species in Latin or English",
   );
 
   static FieldBase<AppearanceModel> get _heightField => Field.infer(
     (m) => m.height,
-    "height",
+    "Height",
     'Height in centimeters and / or feet and inches',
     sqliteGetter: ((m) => (m.height).toString()),
     prompt:
@@ -193,7 +193,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   static FieldBase<AppearanceModel> get _weightField => Field.infer(
     (m) => m.weight,
-    "weight",
+    "Weight",
     'Weight in kilograms and / or pounds',
     sqliteGetter: ((m) => (m.weight).toString()),
     prompt:
@@ -208,9 +208,9 @@ class AppearanceModel extends Amendable<AppearanceModel> {
   );
 
   static final FieldBase<AppearanceModel> _hairColorField = Field.infer(
-    (m) => m.hairColor,
+    (m) => m.hairColor, // British spelling as we're in Europe
     "Hair Colour",
-    jsonName: "hair-color", // British spelling as we're in Europe
+    jsonName: "hair-color",
     'The character\'s hair color of the most recent appearance',
   );
 

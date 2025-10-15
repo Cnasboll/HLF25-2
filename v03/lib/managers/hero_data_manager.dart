@@ -8,18 +8,18 @@ class HeroDataManager implements HeroDataManaging {
   HeroDataManager(HeroRepository repository)
     : _repository = repository,
       _heroesByServerId = repository.heroes.asMap().map(
-        (key, value) => MapEntry(value.serverId, value),
+        (key, value) => MapEntry(value.externalId, value),
       );
 
   @override
   void persist(HeroModel hero) {
-    _heroesByServerId[hero.serverId] = hero;
+    _heroesByServerId[hero.externalId] = hero;
     _repository.persist(hero);
   }
 
   @override
   void delete(HeroModel hero) {
-    _heroesByServerId.remove(hero.serverId);
+    _heroesByServerId.remove(hero.externalId);
     _repository.delete(hero);
   }
 

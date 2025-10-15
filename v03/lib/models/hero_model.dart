@@ -13,7 +13,7 @@ import 'package:v03/amendable/amendable.dart';
 class HeroModel extends Amendable<HeroModel> {
   HeroModel({
     required this.id,
-    required this.serverId,
+    required this.externalId,
     required this.version,
     required this.name,
     required this.powerStats,
@@ -36,7 +36,7 @@ class HeroModel extends Amendable<HeroModel> {
   ) : this(
         id: Uuid().v4(),
         version: 1,
-        serverId: serverId,
+        externalId: serverId,
         name: name,
         powerStats: powerStats,
         biography: biography,
@@ -53,7 +53,7 @@ class HeroModel extends Amendable<HeroModel> {
     return HeroModel(
       id: original.id,
       version: original.version + 1,
-      serverId: original.serverId,
+      externalId: original.externalId,
       name: _nameField.getStringForAmendment(original, amendment),
       powerStats: original.powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
       biography: original.biography.fromChildJsonAmendment(_biographyField, amendment),
@@ -67,7 +67,7 @@ class HeroModel extends Amendable<HeroModel> {
   HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) : this(
       id : id,
       version: 1,
-      serverId: _serverIdField.getString(json, "unknown-server-id"),
+      externalId: _externalIdField.getString(json, "unknown-external-id"),
       name: _nameField.getString(json, "unknown-name"),
       powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
       biography: BiographyModel.fromJson(_biographyField.getJson(json)),
@@ -81,7 +81,7 @@ class HeroModel extends Amendable<HeroModel> {
     return HeroModel(
       version: _versionField.getIntFromRow(row, -1),
       id: _idField.getStringFromRow(row, "unknown-id"),
-      serverId: _serverIdField.getStringFromRow(row, "unknown-server-id"),
+      externalId: _externalIdField.getStringFromRow(row, "unknown-external-id"),
       name: _nameField.getNullableStringFromRow(row) as String,
       powerStats: PowerStatsModel.fromRow(row),
       biography: BiographyModel.fromRow(row),
@@ -96,7 +96,7 @@ class HeroModel extends Amendable<HeroModel> {
     : this(
         id: other.id,
         version: other.version,
-        serverId: other.serverId,
+        externalId: other.externalId,
         name: other.name,
         powerStats: PowerStatsModel.from(other.powerStats),
         biography: BiographyModel.from(other.biography),
@@ -120,7 +120,7 @@ class HeroModel extends Amendable<HeroModel> {
   }) {
     return HeroModel(
       id: id ?? this.id,
-      serverId: serverId ?? this.serverId,
+      externalId: serverId ?? this.externalId,
       version: (version ?? 1) + 1,
       name: name ?? this.name,
       powerStats: powerStats ?? this.powerStats,
@@ -152,7 +152,7 @@ class HeroModel extends Amendable<HeroModel> {
     }
     for (var field in [     
       _idField,
-      _serverIdField,
+      _externalIdField,
       _versionField,
       _nameField,
     ]) {
@@ -220,7 +220,7 @@ class HeroModel extends Amendable<HeroModel> {
   final String id;
   // "ID" field in JSON is "serverId" here to avoid confusion with our own "id" field.
   // It appears to be an integer in the JSON, but is actually a string.
-  final String serverId;
+  final String externalId;
   final int version;
   final String name;
   final PowerStatsModel powerStats;
@@ -231,16 +231,18 @@ class HeroModel extends Amendable<HeroModel> {
   final ImageModel image;
 
   static final FieldBase<HeroModel> _idField = Field.infer(
+    // This is OUR unique ID, not the server ID. It is a UUID, not nullable or mutable per definition.
     (h) => h.id,
     "id",
     "UUID",
     primary: true,
   );
 
-  static final FieldBase<HeroModel> _serverIdField = Field.infer(
-    (h) => h.serverId,
-    "server_id",
+  static final FieldBase<HeroModel> _externalIdField = Field.infer(
+    (h) => h.externalId,
+    "External ID",
     "Server assigned string ID",
+    // This is mapped to the ID field of the superhero API so it is not nullable or mutable.
     jsonName: "id",
     nullable: false,
     mutable: false
@@ -248,7 +250,7 @@ class HeroModel extends Amendable<HeroModel> {
 
   static final FieldBase<HeroModel> _versionField = Field.infer(
     (h) => h .version,
-    "version",
+    "Version",
     "Version number",
     nullable: false,
     assignedBySystem: true,
@@ -256,21 +258,21 @@ class HeroModel extends Amendable<HeroModel> {
 
   static final FieldBase<HeroModel> _nameField = Field.infer(
     (h) => h.name,
-    "name",
+    "Name",
     "Most commonly used name",
     nullable: false,
   );
 
   static final FieldBase<HeroModel> _powerstatsField = Field.infer(
     (h) => h.powerStats,
-    "powerstats",
+    "Powerstats",
     "Power statistics which is mostly misused",
     children: PowerStatsModel.staticFields,
   );
 
   static final FieldBase<HeroModel> _biographyField = Field.infer(
     (h) => h.biography,
-    "biography",
+    "Biography",
     "Hero's quite biased biography",
     format: (h) => "Biography: ${h?.biography}",
     children: BiographyModel.staticFields,
@@ -278,7 +280,7 @@ class HeroModel extends Amendable<HeroModel> {
 
   static final FieldBase<HeroModel> _workField = Field.infer(
     (h) => h.work,
-    "work",
+    "Work",
     "Hero's work",
     format: (h) => "Work: ${h?.work}",
     children: WorkModel.staticFields,
@@ -286,7 +288,7 @@ class HeroModel extends Amendable<HeroModel> {
 
   static final FieldBase<HeroModel> _appearanceField = Field.infer(
     (h) => h.appearance,
-    "appearance",
+    "Appearance",
     "Hero's appearance",
     format: (h) => "Appearance: ${h?.appearance}",
     children: AppearanceModel.staticFields,
@@ -294,7 +296,7 @@ class HeroModel extends Amendable<HeroModel> {
 
   static final FieldBase<HeroModel> _connectionsField = Field.infer(
     (h) => h.connections,
-    "connections",
+    "Connections",
     "Hero's connections",
     format: (h) => "Connections: ${h?.connections}",
     children: ConnectionsModel.staticFields,
@@ -302,7 +304,7 @@ class HeroModel extends Amendable<HeroModel> {
 
   static final FieldBase<HeroModel> _imageField = Field.infer(
     (h) => h.image,
-    "image",
+    "Image",
     "Hero's image",
     format: (h) => "Image: ${h?.image}",
     children: ImageModel.staticFields,
@@ -311,7 +313,7 @@ class HeroModel extends Amendable<HeroModel> {
   static final List<FieldBase<HeroModel>> staticFields = [
     _idField,
     _versionField,
-    _serverIdField,
+    _externalIdField,
     _nameField,
     _powerstatsField,
     _biographyField,

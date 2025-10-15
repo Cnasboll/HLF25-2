@@ -58,7 +58,7 @@ class ImageModel extends Amendable<ImageModel> {
 
   static FieldBase<ImageModel> get _urlField => Field.infer(
     (p) => p.url,
-    'url',
+    'Url',
     'The URL of the image',
     sqlLiteName: 'image_url',
   );

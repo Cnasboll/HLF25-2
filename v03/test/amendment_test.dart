@@ -73,16 +73,16 @@ void main() {
 
     StringBuffer sb = StringBuffer();
     batman.diff(fatman, sb);
-    expect(sb.toString(), '''powerstats.intelligence: 100 -> 96
-powerstats.durability: 50 -> 45
-biography.Aliases: [Insider, Matches Malone] -> [Mystical]
-biography.Alignment: good -> reasonable
-appearance.height: 6'2" -> 6'1"
-appearance.weight: 210 lb -> 220 lb
+    expect(sb.toString(), '''Powerstats: Intelligence: 100 -> 96
+Powerstats: Durability: 50 -> 45
+Biography: Aliases: [Insider, Matches Malone] -> [Mystical]
+Biography: Alignment: good -> reasonable
+Appearance: Height: 6'2" -> 6'1"
+Appearance: Weight: 210 lb -> 220 lb
 ''');
 
     expect(fatman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
-    expect(fatman.serverId, "70");
+    expect(fatman.externalId, "70");
     // auto-incremented 1->2
     expect(fatman.version, 2);
     expect(fatman.name, "Batman");

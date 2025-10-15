@@ -7,7 +7,7 @@ void main() {
     expect(names, '''
       id,
       version,
-      server_id,
+      external_id,
       name,
       intelligence,
       strength,
@@ -41,7 +41,7 @@ void main() {
     expect(declarations, '''
   id TEXT PRIMARY KEY,
   version INTEGER NOT NULL,
-  server_id TEXT NOT NULL,
+  external_id TEXT NOT NULL,
   name TEXT NOT NULL,
   intelligence INTEGER NULL,
   strength INTEGER NULL,
