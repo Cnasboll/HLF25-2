@@ -202,14 +202,14 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   static final FieldBase<AppearanceModel> _eyeColourField = Field.infer(
     (m) => m.eyeColor,
-    "Eye Colour", // British spelling as we're in Europe
+    "Eye Colour", // British spelling in db and in UI as we're in Europe
     jsonName: "eye-color",
     'The character\'s eye color of the most recent appearance',
   );
 
   static final FieldBase<AppearanceModel> _hairColorField = Field.infer(
-    (m) => m.hairColor, // British spelling as we're in Europe
-    "Hair Colour",
+    (m) => m.hairColor,
+    "Hair Colour",  // British spelling in db and in UI as we're in Europe
     jsonName: "hair-color",
     'The character\'s hair color of the most recent appearance',
   );
