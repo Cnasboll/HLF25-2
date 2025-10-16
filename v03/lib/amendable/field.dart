@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -7,7 +6,6 @@ import 'package:v03/amendable/field_base.dart';
 import 'package:v03/prompts/prompt.dart';
 import 'package:v03/utils/enum_parsing.dart';
 import 'package:v03/utils/json_parsing.dart';
-import 'package:v03/value_types/value_type.dart';
 
 typedef LookupField<T, V> = V? Function(T);
 typedef FormatField<T> = String Function(T);
@@ -27,25 +25,18 @@ class Field<T, V> implements FieldBase<T> {
     bool? mutable,
     String? jsonName,
     String? sqliteName,
-    List<String>? sqliteNames,
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
+    bool childrenForDbOnly = false,
   }) {
     assignedBySystem = assignedBySystem ?? primary;
     mutable = mutable ?? !primary;
     // Derive jsonName and sqliteName from name if not provided, not from each other
     // to avoid accidental collisions (i.e. in our db we use British spelling for some fields as we control it)
     jsonName = jsonName ?? (name.replaceAll(' ', '-').toLowerCase());
-
-    if (sqliteName != null && sqliteNames != null) {
-      throw ArgumentError('Cannot provide both sqliteName and sqliteNames');
-    }
-
-    sqliteNames ??= [
-      sqliteName ??
-          (name.replaceAll(' ', '-').replaceAll('-', '_').toLowerCase()),
-    ];
-
+    sqliteName =
+        sqliteName ??
+        (name.replaceAll(' ', '-').replaceAll('-', '_').toLowerCase());
     format = format ?? ((t) => getter(t).toString());
     children = children ?? <FieldBase>[];
     sqliteGetter = sqliteGetter ?? ((t) => getter(t));
@@ -54,7 +45,7 @@ class Field<T, V> implements FieldBase<T> {
       getter,
       name,
       jsonName,
-      sqliteNames,
+      sqliteName,
       description,
       format,
       sqliteGetter,
@@ -65,6 +56,7 @@ class Field<T, V> implements FieldBase<T> {
       comparable,
       prompt,
       children,
+      childrenForDbOnly
     );
   }
 
@@ -72,7 +64,7 @@ class Field<T, V> implements FieldBase<T> {
     this._getter,
     this.name,
     this.jsonName,
-    this.sqliteNames,
+    this.sqliteName,
     this.description,
     this.format,
     this.sqliteGetter,
@@ -83,6 +75,7 @@ class Field<T, V> implements FieldBase<T> {
     this.comparable,
     this.prompt,
     this._children,
+    this.childrenForDbOnly,
   );
 
   // DRY for type: infer T from the getter's return type
@@ -99,9 +92,9 @@ class Field<T, V> implements FieldBase<T> {
     bool? mutable,
     String? jsonName,
     String? sqliteName,
-    List<String>? sqLiteNames,
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
+    bool childrenForDbOnly = false,
   }) {
     return Field<T, V>(
       getter,
@@ -116,9 +109,9 @@ class Field<T, V> implements FieldBase<T> {
       mutable: mutable,
       jsonName: jsonName,
       sqliteName: sqliteName,
-      sqliteNames: sqLiteNames,
       children: children,
       sqliteGetter: sqliteGetter,
+      childrenForDbOnly: childrenForDbOnly
     );
   }
 
@@ -133,7 +126,7 @@ class Field<T, V> implements FieldBase<T> {
       return true;
     }
     var fullPath = growCrumbTrail(crumbtrail, name);
-    if (_children.isEmpty) {
+    if (_children.isEmpty || childrenForDbOnly) {
       String abortPrompt = crumbtrail != null
           ? "finish populating $crumbtrail"
           : "abort";
@@ -170,7 +163,7 @@ class Field<T, V> implements FieldBase<T> {
       return;
     }
     var fullPath = growCrumbTrail(crumbtrail, name);
-    if (_children.isEmpty) {
+    if (_children.isEmpty || childrenForDbOnly) {
       var promptSuffix = prompt != null ? '$prompt' : '';
       var current = format(t);
       print(
@@ -215,7 +208,7 @@ class Field<T, V> implements FieldBase<T> {
       return false;
     }
 
-    if (_children.isEmpty) {
+    if (_children.isEmpty || childrenForDbOnly) {
       return format(t).toLowerCase().contains(query);
     }
 
@@ -230,7 +223,7 @@ class Field<T, V> implements FieldBase<T> {
   @override
   void formatField(T t, StringBuffer sb, {String? crumbtrail}) {
     var fullPath = growCrumbTrail(crumbtrail, name);
-    if (_children.isEmpty) {
+    if (_children.isEmpty || childrenForDbOnly) {
       sb.writeln("$fullPath: ${format(t)}");
       return;
     }
@@ -256,7 +249,7 @@ class Field<T, V> implements FieldBase<T> {
     }
 
     var fullPath = growCrumbTrail(crumbtrail, name);
-    if (_children.isEmpty) {
+    if (_children.isEmpty || childrenForDbOnly) {
       sb.writeln("$fullPath: ${format(lhs)} -> ${format(rhs)}");
       return true;
     }
@@ -367,23 +360,23 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  int getIntFromRow(Row row, int defaultValue, {int index = 0}) {
-    return row[sqliteNames[index]] as int? ?? defaultValue;
+  int getIntFromRow(Row row, int defaultValue) {
+    return row[sqliteName] as int? ?? defaultValue;
   }
 
   @override
-  int? getNullableIntFromRow(Row row, {int index = 0}) {
-    return row[sqliteNames[index]] as int?;
+  int? getNullableIntFromRow(Row row) {
+    return row[sqliteName] as int?;
   }
 
   @override
-  double getFloatFromRow(Row row, double defaultValue, {int index = 0}) {
-    return row[sqliteNames[index]] as double? ?? defaultValue;
+  double getFloatFromRow(Row row, double defaultValue) {
+    return row[sqliteName] as double? ?? defaultValue;
   }
 
   @override
-  double? getNullableFloatFromRow(Row row, {int index = 0}) {
-    return row[sqliteNames[index]] as double?;
+  double? getNullableFloatFromRow(Row row) {
+    return row[sqliteName] as double?;
   }
 
   @override
@@ -412,13 +405,13 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  String? getNullableStringFromRow(Row row, {int index = 0}) {
-    return row[sqliteNames[index]] as String?;
+  String? getNullableStringFromRow(Row row) {
+    return row[sqliteName] as String?;
   }
 
   @override
-  String getStringFromRow(Row row, String defaultValue, {int index = 0}) {
-    return row[sqliteNames[index]] as String? ?? defaultValue;
+  String getStringFromRow(Row row, String defaultValue) {
+    return row[sqliteName] as String? ?? defaultValue;
   }
 
   @override
@@ -467,17 +460,13 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  List<String> getStringListFromRow(
-    Row row,
-    List<String> defaultValue, {
-    int index = 0,
-  }) {
-    return getNullableStringListFromRow(row, index: index) ?? defaultValue;
+  List<String> getStringListFromRow(Row row, List<String> defaultValue) {
+    return getNullableStringListFromRow(row) ?? defaultValue;
   }
 
   @override
-  List<String>? getNullableStringListFromRow(Row row, {int index = 0}) {
-    var json = getNullableStringFromRow(row, index: index);
+  List<String>? getNullableStringListFromRow(Row row) {
+    var json = getNullableStringFromRow(row);
     if (json == null) {
       return null;
     }
@@ -507,34 +496,29 @@ class Field<T, V> implements FieldBase<T> {
   E getEnumFromRow<E extends Enum>(
     Iterable<E> enumValues,
     Row row,
-    E defaultValue, {
-    int index = 0,
-  }) {
+    E defaultValue,
+  ) {
     return enumValues.findMatch(
-          getNullableStringFromRow(row, index: index) ?? defaultValue.name,
+          getNullableStringFromRow(row) ?? defaultValue.name,
         ) ??
         defaultValue;
   }
 
   @override
-  List<String> sqliteQualifiers() {
+  String sqliteQualifier() {
     if (primary) {
-      return ['PRIMARY KEY'];
+      return 'PRIMARY KEY';
     }
 
     var qualifier = nullable ? '' : 'NOT ';
-    return ['${qualifier}NULL'];
+    return '${qualifier}NULL';
   }
 
   @override
-  List<String> generateSqliteColumnTypes() {
+  String generateSqliteColumnType() {
     String columnType;
 
     // My only nested if statement in this project and hopefully the entire course
-
-    if (<V>[] is List<ValueType>) {
-      return ValueType.generateSqliteColumnTypes();
-    }
 
     if (V == int) {
       columnType = "INTEGER";
@@ -551,17 +535,13 @@ class Field<T, V> implements FieldBase<T> {
       columnType = "TEXT";
     }
 
-    return ["$columnType ${sqliteQualifiers()[0]}"];
+    return "$columnType ${sqliteQualifier()}";
   }
 
   @override
   List<Object?> sqliteProps(T t) {
     if (_children.isEmpty) {
-      var v = sqliteGetter(t);
-      if (v is List<Object?>) {
-        return v;
-      }
-      return [v];
+      return [sqliteGetter(t)];
     }
     return _children.expand((c) => c.sqliteProps(getter(t))).toList();
   }
@@ -569,7 +549,7 @@ class Field<T, V> implements FieldBase<T> {
   @override
   String generateSQLiteInsertColumnPlaceholders() {
     if (_children.isEmpty) {
-      return List.filled(sqliteNames.length, '?').join(',');
+      return "?";
     }
     return _children
         .map((c) => c.generateSQLiteInsertColumnPlaceholders())
@@ -579,7 +559,7 @@ class Field<T, V> implements FieldBase<T> {
   @override
   String generateSqliteColumnNameList(String indent) {
     if (_children.isEmpty) {
-      return sqliteNames.join(',\n$indent');
+      return sqliteName;
     }
     return _children
         .map((c) => c.generateSqliteColumnNameList(indent))
@@ -589,12 +569,7 @@ class Field<T, V> implements FieldBase<T> {
   @override
   String generateSqliteColumnDeclarations(String indent) {
     if (_children.isEmpty) {
-      var columnTypes = generateSqliteColumnTypes();
-      var columnsAndTypes = List.generate(
-        sqliteNames.length,
-        (index) => (sqliteNames[index], columnTypes[index]),
-      );
-      return columnsAndTypes.map((e) => "${e.$1} ${e.$2}").join(',\n$indent');
+      return "$sqliteName ${generateSqliteColumnType()}";
     }
     return _children
         .map((c) => c.generateSqliteColumnDeclarations(indent))
@@ -604,12 +579,7 @@ class Field<T, V> implements FieldBase<T> {
   @override
   String generateSqliteColumnDefinition() {
     if (_children.isEmpty) {
-      var columnTypes = generateSqliteColumnTypes();
-      var columnsAndTypes = List.generate(
-        sqliteNames.length,
-        (index) => (sqliteNames[index], columnTypes[index]),
-      );
-      return columnsAndTypes.map((e) => "${e.$1} ${e.$2}").join(',\n');
+      return "$sqliteName ${generateSqliteColumnType()}";
     }
     return '${_children.map((c) => c.generateSqliteColumnDefinition()).join(',\n')}\n';
   }
@@ -617,9 +587,7 @@ class Field<T, V> implements FieldBase<T> {
   @override
   String generateSqliteUpdateClause(String indent) {
     if (_children.isEmpty) {
-      return sqliteNames
-          .map((sqliteName) => "$sqliteName=excluded.$sqliteName")
-          .join(',\n$indent');
+      return "$sqliteName=excluded.$sqliteName";
     }
     return _children
         .where((c) => c.mutable)
@@ -639,8 +607,8 @@ class Field<T, V> implements FieldBase<T> {
   /// Name of the field in JSON
   String jsonName;
 
-  /// Name of the corresponding column(s) in SQLite
-  List<String> sqliteNames;
+  /// Name of the corresponding column in SQLite
+  String sqliteName;
 
   /// Description of a field
   String description;
@@ -672,6 +640,9 @@ class Field<T, V> implements FieldBase<T> {
   String? prompt;
 
   final List<FieldBase> _children;
+
+  // Hack to signify that children are only for db purposes, not for prompting or diffing
+  bool childrenForDbOnly;
 
   static const deepEq = DeepCollectionEquality();
 }

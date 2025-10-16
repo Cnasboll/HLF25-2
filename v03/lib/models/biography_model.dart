@@ -64,37 +64,26 @@ class BiographyModel extends Amendable<BiographyModel> {
     );
   }
 
-  factory BiographyModel.amendWith(
-    BiographyModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+  @override
+  BiographyModel amendWith(Map<String, dynamic>? amendment) {
     return BiographyModel(
-      fullName: _fullNameField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
-      alterEgos: _alterEgosField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
+      fullName: _fullNameField.getNullableStringForAmendment(this, amendment),
+      alterEgos: _alterEgosField.getNullableStringForAmendment(this, amendment),
       aliases: _aliasesField.getNullableStringListFromJsonForAmendment(
-        original,
+        this,
         amendment,
       ),
       placeOfBirth: _placeOfBirthField.getNullableStringForAmendment(
-        original,
+        this,
         amendment,
       ),
       firstAppearance: _firstAppearanceField.getNullableStringForAmendment(
-        original,
+        this,
         amendment,
       ),
-      publisher: _publisherField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
+      publisher: _publisherField.getNullableStringForAmendment(this, amendment),
       alignment: _alignmentField.getEnumForAmendment<Alignment>(
-        original,
+        this,
         Alignment.values,
         amendment,
       ),
@@ -144,11 +133,6 @@ class BiographyModel extends Amendable<BiographyModel> {
   final String? publisher;
   final Alignment? alignment;
 
-  @override
-  BiographyModel amendWith(Map<String, dynamic>? amendment) {
-    return BiographyModel.amendWith(this, amendment);
-  }
-
   static BiographyModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
@@ -165,11 +149,8 @@ class BiographyModel extends Amendable<BiographyModel> {
   @override
   List<FieldBase<BiographyModel>> get fields => staticFields;
 
-  static FieldBase<BiographyModel> get _fullNameField => Field.infer(
-    (m) => m.fullName,
-    "Full Name",
-    "Full",
-  );
+  static FieldBase<BiographyModel> get _fullNameField =>
+      Field.infer((m) => m.fullName, "Full Name", "Full");
 
   static final FieldBase<BiographyModel> _alterEgosField = Field.infer(
     (m) => m.alterEgos,
@@ -212,8 +193,10 @@ class BiographyModel extends Amendable<BiographyModel> {
     "Alignment",
     // Use toString().split('.').last so it works on environments without a public `name`
     "The character's moral alignment (${Alignment.values.map((e) => e.toString().split('.').last).join(', ')})",
-    format: (m) => (m.alignment ?? Alignment.unknown).toString().split('.').last,
-    sqliteGetter: (m) => (m.alignment ?? Alignment.unknown).toString().split('.').last,
+    format: (m) =>
+        (m.alignment ?? Alignment.unknown).toString().split('.').last,
+    sqliteGetter: (m) =>
+        (m.alignment ?? Alignment.unknown).toString().split('.').last,
     nullable: false,
   );
 

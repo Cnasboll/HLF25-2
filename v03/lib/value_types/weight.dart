@@ -1,4 +1,5 @@
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/value_type.dart';
 
@@ -11,11 +12,11 @@ class Weight extends ValueType<Weight> {
   Weight.fromKilograms(int kilograms) : this(kilograms.toDouble(), SystemOfUnits.metric);
 
 static Weight? fromRow(FieldBase fieldBase, Row row) {
-    var (metres, systemOfUnits) = ValueType.fromRow(fieldBase, row);
-    if (metres == null) {
+    var (kilograms, systemOfUnits) = ValueType.fromRow(_valueField, _systemOfUnitsField, row);
+    if (kilograms == null) {
       return null;
     }
-    return Weight(metres, systemOfUnits);
+    return Weight(kilograms, systemOfUnits);
   }
 
   static Weight parse(String input) {
@@ -105,4 +106,30 @@ static Weight? fromRow(FieldBase fieldBase, Row row) {
   Weight cloneImperial() {
     return Weight.fromPounds(wholePounds);
   }
+
+  @override
+  List<FieldBase<ValueType<Weight>>> get fields => staticFields;
+
+  static final FieldBase<ValueType<Weight>> _valueField = Field.infer(
+    (h) => h.value,
+    "Weight (kg)",
+    jsonName: "weight-kilograms",
+    sqliteName: "weight_kg",
+    'The character\'s weight of in kilograms',
+  );
+
+  static final FieldBase<ValueType<Weight>> _systemOfUnitsField =
+      Field.infer(
+        (h) => h.systemOfUnits,
+        "Weight System of Units",
+        jsonName: "weight-system-of-units",
+        sqliteName: "weight_system_of_units",
+        'The source system of units for the weight value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
+        sqliteGetter: (h) => h.systemOfUnits.toString().split('.').last,
+      );
+
+  static final List<FieldBase<ValueType<Weight>>> staticFields = [
+    _valueField,
+    _systemOfUnitsField,
+  ];
 }

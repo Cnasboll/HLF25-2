@@ -14,12 +14,10 @@ class ImageModel extends Amendable<ImageModel> {
     return ImageModel(url: url ?? this.url);
   }
 
-  factory ImageModel.amendWith(
-    ImageModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+  @override
+  ImageModel amendWith(Map<String, dynamic>? amendment) {
     return ImageModel(
-      url: _urlField.getNullableStringForAmendment(original, amendment),
+      url: _urlField.getNullableStringForAmendment(this, amendment),
     );
   }
 
@@ -35,11 +33,6 @@ class ImageModel extends Amendable<ImageModel> {
   }
 
   final String? url;
-
-  @override
-  ImageModel amendWith(Map<String, dynamic>? amendment) {
-    return ImageModel.amendWith(this, amendment);
-  }
 
   static ImageModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);

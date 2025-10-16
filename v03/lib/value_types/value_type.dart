@@ -1,36 +1,27 @@
-import 'package:equatable/equatable.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v03/amendable/field_base.dart';
+import 'package:v03/amendable/field_provider.dart';
 
 enum SystemOfUnits { metric, imperial }
 
-abstract class ValueType<T> extends Equatable implements Comparable<ValueType<T>> {
+abstract class ValueType<T> extends FieldProvider<ValueType<T>> implements Comparable<ValueType<T>> {
   
   ValueType(this.value, this.systemOfUnits);
 
   @override
   List<Object?> get props => [value, systemOfUnits];
 
-  // TODO: This should really be part of Field<T> but that would require a major refactoring, i.e.
-  // Field should have subfields that are the actual fields, e.g. height_m and height_system_of_units
-  // and then the Field<T> would need to know how to handle that just like it does Amendable and it's children.
-  // This is a quick and dirty workaround. So TL/DR a ValueType should be like a mini-Amendable with its own fields.
-  static List<String> generateSqliteColumnTypes() {
-    return ['FLOAT NULL', 'TEXT NULL'];
-  }
-
-  static (double?, SystemOfUnits) fromRow(FieldBase fieldBase, Row row) {
-    var meters = fieldBase.getNullableFloatFromRow(row, index: 0);
-    if (meters == null) {
+  static (double?, SystemOfUnits) fromRow(FieldBase<ValueType> valueField, FieldBase<ValueType> systemOfUnitsField, Row row) {
+    var value = valueField.getNullableFloatFromRow(row);
+    if (value == null) {
       return (null, SystemOfUnits.metric);
     }
-    var unitOfMeasurement = fieldBase.getEnumFromRow(
+    var unitOfMeasurement = systemOfUnitsField.getEnumFromRow(
       SystemOfUnits.values,
       row,
       SystemOfUnits.metric,
-      index: 1,
     );
-    return (meters, unitOfMeasurement);
+    return (value, unitOfMeasurement);
   }
 
  static (T?, String?) tryParseList<T>(
@@ -152,11 +143,4 @@ abstract class ValueType<T> extends Equatable implements Comparable<ValueType<T>
 
   final double value;
   final SystemOfUnits systemOfUnits;
-
-  static List<Object?> toSQLColumns(ValueType? v) {
-    if (v == null) {
-      return [null, null];
-    }
-    return [v.value, v.systemOfUnits.toString().toString().split('.').last];
-  }
 }

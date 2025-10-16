@@ -5,7 +5,6 @@ import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/height.dart';
 import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/amendable.dart';
-import 'package:v03/value_types/value_type.dart';
 import 'package:v03/value_types/weight.dart';
 
 enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
@@ -48,37 +47,23 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     );
   }
 
-  factory AppearanceModel.amendWith(
-    AppearanceModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+  @override
+  AppearanceModel amendWith(Map<String, dynamic>? amendment) {
     return AppearanceModel(
       gender: _genderField.getEnumForAmendment<Gender>(
-        original,
+        this,
         Gender.values,
         amendment,
       ),
-      race: _raceField.getNullableStringForAmendment(original, amendment),
+      race: _raceField.getNullableStringForAmendment(this, amendment),
       height: Height.parseList(
-        _heightField.getNullableStringListFromJsonForAmendment(
-          original,
-          amendment,
-        ),
+        _heightField.getNullableStringListFromJsonForAmendment(this, amendment),
       ),
       weight: Weight.parseList(
-        _weightField.getNullableStringListFromJsonForAmendment(
-          original,
-          amendment,
-        ),
+        _weightField.getNullableStringListFromJsonForAmendment(this, amendment),
       ),
-      eyeColor: _eyeColourField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
-      hairColor: _hairColorField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
+      eyeColor: _eyeColourField.getNullableStringForAmendment(this, amendment),
+      hairColor: _hairColorField.getNullableStringForAmendment(this, amendment),
     );
   }
 
@@ -114,11 +99,6 @@ class AppearanceModel extends Amendable<AppearanceModel> {
   final String? eyeColor;
   final String? hairColor;
 
-  @override
-  AppearanceModel amendWith(Map<String, dynamic>? amendment) {
-    return AppearanceModel.amendWith(this, amendment);
-  }
-
   static AppearanceModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
@@ -146,7 +126,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
       return comparison;
     }
 
-    // Never sort appearances by race as that would be discriminatory, but by height ascending (as tall heroes always have
+    // Never sort appearances by race as that would be discriminatory, but by height descending (as tall heroes always have
     // an advantage in all areas of life and herohood),
     comparison = _heightField.compareField(other, this);
 
@@ -173,7 +153,8 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     "Gender",
     Gender.values.map((e) => e.name).join(', '),
     format: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
-    sqliteGetter: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
+    sqliteGetter: (m) =>
+        (m.gender ?? Gender.unknown).toString().split('.').last,
     nullable: false,
   );
 
@@ -190,10 +171,10 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     // Note that the database columns are height_m and height_system_of_units for presentation, so mapped to TWO columns
     // we don't STORE the string "6'2" but the numeric value 1.8796 and the systemOfUnits enum value "imperial" to document the source
     // for UI formatting
-    sqLiteNames: ["height_m", "height_system_of_units"],
-    sqliteGetter: (m) => ValueType.toSQLColumns(m.height),
     prompt:
         '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
+    children: Height.staticFields,
+    childrenForDbOnly: true,
   );
 
   static FieldBase<AppearanceModel> get _weightField => Field.infer(
@@ -203,10 +184,10 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     // Note that the database columns are weight_kg and weight_system_of_units for presentation, so mapped to TWO columns
     // we don't STORE "210 lb" but the numeric value 95.2543977 and the systemOfUnits enum value "imperial" to document the source
     // for UI formatting
-    sqLiteNames: ["weight_kg", "weight_system_of_units"],
-    sqliteGetter: (m) => ValueType.toSQLColumns(m.weight),
     prompt:
         '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
+    children: Weight.staticFields,
+    childrenForDbOnly: true,
   );
 
   static final FieldBase<AppearanceModel> _eyeColourField = Field.infer(
@@ -218,7 +199,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
 
   static final FieldBase<AppearanceModel> _hairColorField = Field.infer(
     (m) => m.hairColor,
-    "Hair Colour",  // British spelling in db and in UI as we're in Europe
+    "Hair Colour", // British spelling in db and in UI as we're in Europe
     jsonName: "hair-color",
     'The character\'s hair color of the most recent appearance',
   );

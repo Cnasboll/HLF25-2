@@ -25,9 +25,9 @@ This creates a little sqlite db (`v03.db`) that contains a simple table `heroes`
   alignment TEXT NOT NULL,
   gender TEXT NOT NULL,
   race TEXT NULL,
-  height_m FLOAT NULL,
+  height_m REAL NULL,
   height_system_of_units TEXT NULL,
-  weight_kg FLOAT NULL,
+  weight_kg REAL NULL,
   weight_system_of_units TEXT NULL,
   eye_colour TEXT NULL,
   hair_colour TEXT NULL,
@@ -39,6 +39,15 @@ This creates a little sqlite db (`v03.db`) that contains a simple table `heroes`
 ```
 
 The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). `external_id` is mapped from the field `id` in the `Hero` dto / api spec in `superheroapi.com` that will be integrated in the next release. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness.
+
+NB: I don't know how to parse
+```
+"connections": {
+    "group-affiliation": "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
+    "relatives": "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)"
+  }
+```
+as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so I gave up and store it as a raw `TEXT`.
 
 Usage (menu alternatives slightly rearranged since `v02`):
 

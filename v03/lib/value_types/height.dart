@@ -1,4 +1,5 @@
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v03/amendable/field.dart';
 import 'package:v03/amendable/field_base.dart';
 import 'package:v03/value_types/value_type.dart';
 
@@ -14,7 +15,7 @@ class Height extends ValueType<Height> {
 
   static Height? fromRow(FieldBase fieldBase, Row row)
   {
-    var (metres, systemOfUnits) = ValueType.fromRow(fieldBase, row);
+    var (metres, systemOfUnits) = ValueType.fromRow(_valueField, _systemOfUnitsField, row);
     if (metres == null)
     {
       return null;
@@ -184,4 +185,30 @@ class Height extends ValueType<Height> {
     var (feet, inches) = wholeFeetAndWholeInches;
     return Height.fromFeetAndInches(feet, inches.toDouble());
   }
+  
+  @override
+  List<FieldBase<ValueType<Height>>> get fields => staticFields;
+
+  static final FieldBase<ValueType<Height>> _valueField = Field.infer(
+    (h) => h.value,
+    "Height (m)",
+    jsonName: "height-metres",
+    sqliteName: "height_m",
+    'The character\'s height in metres',
+  );
+
+  static final FieldBase<ValueType<Height>> _systemOfUnitsField =
+      Field.infer(
+        (h) => h.systemOfUnits,
+        "Height System of Units",
+        jsonName: "height-system-of-units",
+        sqliteName: "height_system_of_units",
+        'The source system of units for height value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
+        sqliteGetter: (h) => h.systemOfUnits.toString().split('.').last,
+      );
+
+  static final List<FieldBase<ValueType<Height>>> staticFields = [
+    _valueField,
+    _systemOfUnitsField,
+  ];
 }

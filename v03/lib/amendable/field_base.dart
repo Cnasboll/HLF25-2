@@ -15,17 +15,17 @@ abstract class FieldBase<T> {
   int? getIntForAmendment(T t, Map<String, dynamic>? amendment);
   int getIntFromJson(Map<String, dynamic>? json, int defaultValue);
   int? getNullableInt(Map<String, dynamic>? json);
-  int getIntFromRow(Row row, int defaultValue, {int index = 0});
-  int? getNullableIntFromRow(Row row, {int index = 0});
-  double getFloatFromRow(Row row, double defaultValue, {int index = 0});
-  double? getNullableFloatFromRow(Row row, {int index = 0});
+  int getIntFromRow(Row row, int defaultValue);
+  int? getNullableIntFromRow(Row row);
+  double getFloatFromRow(Row row, double defaultValue);
+  double? getNullableFloatFromRow(Row row);
   String getStringForAmendment(T t, Map<String, dynamic>? amendment);
   String? getNullableStringForAmendment(T t, Map<String, dynamic>? amendment);
   String? getNullableString(Map<String, dynamic>? json);
   String getString(Map<String, dynamic>? json, String defaultValue);
   Map<String, dynamic>? getJson(Map<String, dynamic>? json);
-  String? getNullableStringFromRow(Row row, {int index = 0});
-  String getStringFromRow(Row row, String defaultValue, {int index = 0});
+  String? getNullableStringFromRow(Row row);
+  String getStringFromRow(Row row, String defaultValue);
   List<String> getStringListFromJsonForAmendment(
     T t,
     Map<String, dynamic>? amendment,
@@ -39,12 +39,8 @@ abstract class FieldBase<T> {
     List<String> defaultValue,
   );
   List<String>? getNullableStringList(Map<String, dynamic>? json);
-  List<String> getStringListFromRow(
-    Row row,
-    List<String> defaultValue, {
-    int index = 0,
-  });
-  List<String>? getNullableStringListFromRow(Row row, {int index = 0});
+  List<String> getStringListFromRow(Row row, List<String> defaultValue);
+  List<String>? getNullableStringListFromRow(Row row);
   E getEnumForAmendment<E extends Enum>(
     T t,
     Iterable<E> enumValues,
@@ -58,11 +54,10 @@ abstract class FieldBase<T> {
   E getEnumFromRow<E extends Enum>(
     Iterable<E> enumValues,
     Row row,
-    E defaultValue, {
-    int index = 0,
-  });
-  List<String> sqliteQualifiers();
-  List<String> generateSqliteColumnTypes();
+    E defaultValue,
+  );
+  String sqliteQualifier();
+  String generateSqliteColumnType();
   List<Object?> sqliteProps(T t);
   String generateSQLiteInsertColumnPlaceholders();
   String generateSqliteColumnNameList(String indent);

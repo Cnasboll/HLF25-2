@@ -55,17 +55,16 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
     
     return 0;
   }
-  factory PowerStatsModel.amendWith(
-    PowerStatsModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+
+  @override
+  PowerStatsModel amendWith(Map<String, dynamic>? amendment) {
     return PowerStatsModel(
-      intelligence: _intelligenceField.getIntForAmendment(original, amendment),
-      strength: _strengthField.getIntForAmendment(original, amendment),
-      speed: _speedField.getIntForAmendment(original, amendment),
-      durability: _durabilityField.getIntForAmendment(original, amendment),
-      power: _powerField.getIntForAmendment(original, amendment),
-      combat: _combatField.getIntForAmendment(original, amendment),
+      intelligence: _intelligenceField.getIntForAmendment(this, amendment),
+      strength: _strengthField.getIntForAmendment(this, amendment),
+      speed: _speedField.getIntForAmendment(this, amendment),
+      durability: _durabilityField.getIntForAmendment(this, amendment),
+      power: _powerField.getIntForAmendment(this, amendment),
+      combat: _combatField.getIntForAmendment(this, amendment),
     );
   }
 
@@ -100,11 +99,6 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   final int? durability;
   final int? power;
   final int? combat;
-
-  @override
-  PowerStatsModel amendWith(Map<String, dynamic>? amendment) {
-    return PowerStatsModel.amendWith(this, amendment);
-  }
 
   static PowerStatsModel? fromPrompt() {
     var json = Amendable.promptForJson(staticFields);

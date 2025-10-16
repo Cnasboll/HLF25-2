@@ -114,8 +114,9 @@ Appearance: Weight: 210 lb -> 220 lb
     expect(appearance.race, "Human");
     var height = appearance.height!;
     // This parsing and verification of integrity between representations of Height and Weight is really the biggest part of this assignment for me.
-    // Of couurse it is internally represented in metric but for purposes of formatting the system of units is tied to the value object
-    // so the database mapping does write it in the same format as it was original read from the json.
+    // Of course it is internally represented in metric but for purposes of formatting the system of units is tied to the value object
+    // so the database mapping does store the height and weight in SI units but encode the original system of units that was read from the json as an enum
+    // so that the UI can format it appropriately.
     expect(height.wholeFeetAndWholeInches, (6, 1));
     // 188->186 cm can happen with age and posture changes, but the final cm from 186 to 185 was lost to debilitating roundingitis from inches!
     expect(height.wholeCentimeters, 185);

@@ -21,19 +21,14 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
     );
   }
 
-  factory ConnectionsModel.amendWith(
-    ConnectionsModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+  @override
+  ConnectionsModel amendWith(Map<String, dynamic>? amendment) {
     return ConnectionsModel(
       groupAffiliation: _groupAffiliationField.getNullableStringForAmendment(
-        original,
+        this,
         amendment,
       ),
-      relatives: _relativesField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
+      relatives: _relativesField.getNullableStringForAmendment(this, amendment),
     );
   }
 
@@ -56,11 +51,6 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
 
   final String? groupAffiliation;
   final String? relatives;
-
-  @override
-  ConnectionsModel amendWith(Map<String, dynamic>? amendment) {
-    return ConnectionsModel.amendWith(this, amendment);
-  }
 
   static ConnectionsModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);

@@ -46,21 +46,19 @@ class HeroModel extends Amendable<HeroModel> {
         image: image,
       );
 
-  factory HeroModel.amendWith(
-    HeroModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+  @override
+  HeroModel amendWith(Map<String, dynamic>? amendment) {
     return HeroModel(
-      id: original.id,
-      version: original.version + 1,
-      externalId: original.externalId,
-      name: _nameField.getStringForAmendment(original, amendment),
-      powerStats: original.powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
-      biography: original.biography.fromChildJsonAmendment(_biographyField, amendment),
-      appearance: original.appearance.fromChildJsonAmendment(_appearanceField, amendment),
-      work: original.work.fromChildJsonAmendment(_workField, amendment),
-      connections: original.connections.fromChildJsonAmendment(_connectionsField, amendment),
-      image: original.image.fromChildJsonAmendment(_imageField, amendment),
+      id: id,
+      version: version + 1,
+      externalId: externalId,
+      name: _nameField.getStringForAmendment(this, amendment),
+      powerStats: powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
+      biography: biography.fromChildJsonAmendment(_biographyField, amendment),
+      appearance: appearance.fromChildJsonAmendment(_appearanceField, amendment),
+      work: work.fromChildJsonAmendment(_workField, amendment),
+      connections: connections.fromChildJsonAmendment(_connectionsField, amendment),
+      image: image.fromChildJsonAmendment(_imageField, amendment),
     );
   }
 
@@ -120,7 +118,7 @@ class HeroModel extends Amendable<HeroModel> {
   }) {
     return HeroModel(
       id: id ?? this.id,
-      externalId: serverId ?? this.externalId,
+      externalId: serverId ?? externalId,
       version: (version ?? 1) + 1,
       name: name ?? this.name,
       powerStats: powerStats ?? this.powerStats,
@@ -176,11 +174,6 @@ class HeroModel extends Amendable<HeroModel> {
     }
 
     return 0;
-  }
-
-  @override
-  HeroModel amendWith(Map<String, dynamic>? amendment) {
-    return HeroModel.amendWith(this, amendment);
   }
 
   static HeroModel? fromPrompt() {

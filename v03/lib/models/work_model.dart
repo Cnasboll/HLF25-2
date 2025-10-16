@@ -18,16 +18,11 @@ class WorkModel extends Amendable<WorkModel> {
     );
   }
 
-  factory WorkModel.amendWith(
-    WorkModel original,
-    Map<String, dynamic>? amendment,
-  ) {
+  @override
+  WorkModel amendWith(Map<String, dynamic>? amendment) {
     return WorkModel(
-      occupation: _occupationField.getNullableStringForAmendment(
-        original,
-        amendment,
-      ),
-      base: _baseField.getNullableStringForAmendment(original, amendment),
+      occupation: _occupationField.getNullableStringForAmendment(this, amendment),
+      base: _baseField.getNullableStringForAmendment(this, amendment),
     );
   }
 
@@ -51,11 +46,6 @@ class WorkModel extends Amendable<WorkModel> {
   final String? occupation;
   final String? base;
 
-  @override
-  WorkModel amendWith(Map<String, dynamic>? amendment) {
-    return WorkModel.amendWith(this, amendment);
-  }
-
   static WorkModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
     if (json == null) {
@@ -73,13 +63,13 @@ class WorkModel extends Amendable<WorkModel> {
 
   static FieldBase<WorkModel> get _occupationField => Field.infer(
     (m) => m.occupation,
-    'occupation',
+    'Occupation',
     'Occupation of the character',
   );
 
   static FieldBase<WorkModel> get _baseField => Field.infer(
     (m) => m.base,
-    'base',
+    'Base',
     'A place where the character works or lives or hides rather frequently',
   );
 
