@@ -49,6 +49,15 @@ NB: I don't know how to parse
 ```
 as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so I gave up and store it as a raw `TEXT`.
 
+Secondly, in the following example:
+```
+  "biography": {
+    "alter-egos": "No alter egos found.",
+  },
+```
+
+The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the api and expected to be treated as such by consumers, but due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
+
 Usage (menu alternatives slightly rearranged since `v02`):
 
 ```

@@ -41,7 +41,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>> implements Compa
     // However, if we used the metric value 95 kg as source of truth, that would be 209.44 pounds which,
     // rounded to 209 pounds, is not a correct rounded value from 210 pounds. Why does the example use imperial as source of truth?
 
-    // So we always use the first parsed value is the source of truth / master value, and check for conflicts with following value(s)!
+    // So we always use the first parsed value is the source of truth / master value, and check for conflicts with any subsequent value(s)!
     ValueType<T>? value;
     String? valueSource;
     StringBuffer errors = StringBuffer();

@@ -64,11 +64,20 @@ class BiographyModel extends Amendable<BiographyModel> {
     );
   }
 
+  /// Special string literal used in the API to indicate no alter egos exist -- treat as null.
+  /// Do not use as an actual alter ego, as villains may exploit this loophole to evade detection systems!
+  static const String alterEgosNoAlterEgosFound = "No alter egos found.";
+  
   @override
   BiographyModel amendWith(Map<String, dynamic>? amendment) {
+    var alterEgosAmendment =
+        _alterEgosField.getNullableStringForAmendment(this, amendment);
+    if (alterEgosAmendment == alterEgosNoAlterEgosFound) {
+      alterEgosAmendment = null;
+    }
     return BiographyModel(
       fullName: _fullNameField.getNullableStringForAmendment(this, amendment),
-      alterEgos: _alterEgosField.getNullableStringForAmendment(this, amendment),
+      alterEgos: alterEgosAmendment,
       aliases: _aliasesField.getNullableStringListFromJsonForAmendment(
         this,
         amendment,
@@ -94,9 +103,14 @@ class BiographyModel extends Amendable<BiographyModel> {
     if (json == null) {
       return BiographyModel();
     }
+    var alterEgos =
+         _alterEgosField.getNullableString(json);
+    if (alterEgos == alterEgosNoAlterEgosFound) {
+      alterEgos = null;
+    }
     return BiographyModel(
       fullName: _fullNameField.getNullableString(json),
-      alterEgos: _alterEgosField.getNullableString(json),
+      alterEgos: alterEgos,
       aliases: _aliasesField.getNullableStringList(json),
       placeOfBirth: _placeOfBirthField.getNullableString(json),
       firstAppearance: _firstAppearanceField.getNullableString(json),

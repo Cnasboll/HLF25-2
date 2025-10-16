@@ -69,7 +69,8 @@ void main() {
 
     var biography = batman.biography;
     expect(biography.fullName, "Bruce Wayne");
-    expect(biography.alterEgos, "No alter egos found.");
+    // Special string literal in the API to indicate no alter egos exist -- treat as null
+    expect(biography.alterEgos, null);
     expect(biography.aliases, ["Insider", "Matches Malone"]);
     expect(
       biography.placeOfBirth,

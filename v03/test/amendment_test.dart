@@ -64,9 +64,10 @@ void main() {
         "height": ["6'1", "186 cm"]
       },
       "biography": {
-        "aliases" :  ["Mystical"],
-        "alignment": "reasonable"
-      }
+        "alter-egos": "Owlman",
+        "aliases": ["Mystical"],
+        "alignment": "reasonable",
+      },
     };
 
     final fatman = batman.amendWith(amedment);
@@ -75,6 +76,7 @@ void main() {
     batman.diff(fatman, sb);
     expect(sb.toString(), '''Powerstats: Intelligence: 100 -> 96
 Powerstats: Durability: 50 -> 45
+Biography: Alter Egos: null -> Owlman
 Biography: Aliases: [Insider, Matches Malone] -> [Mystical]
 Biography: Alignment: good -> reasonable
 Appearance: Height: 6'2" -> 6'1"
@@ -98,7 +100,8 @@ Appearance: Weight: 210 lb -> 220 lb
 
     var biography = fatman.biography;
     expect(biography.fullName, "Bruce Wayne");
-    expect(biography.alterEgos, "No alter egos found.");
+    // Special string literal in the API to indicate no alter egos exist -- treat as null
+    expect(biography.alterEgos, "Owlman");
     expect(biography.aliases, ["Mystical"]);
     expect(
       biography.placeOfBirth,
