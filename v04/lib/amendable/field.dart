@@ -17,7 +17,7 @@ class Field<T, V> implements FieldBase<T> {
     String name,
     String description, {
     bool primary = false,
-    bool nullable = true,
+    bool? nullable,
     FormatField<T>? format,
     bool comparable = true,
     String? prompt,
@@ -28,8 +28,10 @@ class Field<T, V> implements FieldBase<T> {
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
     bool childrenForDbOnly = false,
+    List<String> extraNullLiterals = const [],
   }) {
     assignedBySystem = assignedBySystem ?? primary;
+    nullable = nullable ?? !assignedBySystem;
     mutable = mutable ?? !primary;
     // Derive jsonName and sqliteName from name if not provided, not from each other
     // to avoid accidental collisions (i.e. in our db we use British spelling for some fields as we control it)
@@ -56,7 +58,8 @@ class Field<T, V> implements FieldBase<T> {
       comparable,
       prompt,
       children,
-      childrenForDbOnly
+      childrenForDbOnly,
+      extraNullLiterals
     );
   }
 
@@ -76,6 +79,7 @@ class Field<T, V> implements FieldBase<T> {
     this.prompt,
     this._children,
     this.childrenForDbOnly,
+    this.extraNullLiterals
   );
 
   // DRY for type: infer T from the getter's return type
@@ -84,8 +88,8 @@ class Field<T, V> implements FieldBase<T> {
     String name,
     String description, {
     bool primary = false,
-    bool nullable = true,
-    FormatField? format,
+    bool? nullable,
+    FormatField<T>? format,
     bool comparable = true,
     String? prompt,
     bool? assignedBySystem,
@@ -95,6 +99,7 @@ class Field<T, V> implements FieldBase<T> {
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
     bool childrenForDbOnly = false,
+    List<String> extraNullLiterals = const [],
   }) {
     return Field<T, V>(
       getter,
@@ -111,7 +116,8 @@ class Field<T, V> implements FieldBase<T> {
       sqliteName: sqliteName,
       children: children,
       sqliteGetter: sqliteGetter,
-      childrenForDbOnly: childrenForDbOnly
+      childrenForDbOnly: childrenForDbOnly,
+      extraNullLiterals: extraNullLiterals
     );
   }
 
@@ -131,10 +137,9 @@ class Field<T, V> implements FieldBase<T> {
           ? "finish populating $crumbtrail"
           : "abort";
       var promptSuffix = prompt != null ? '$prompt' : '';
-      print(
-        "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:",
+      var input = promptFor(
+        "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:"
       );
-      var input = (readUtf8Line() ?? "").trim();
       if (input.isEmpty) {
         return false;
       }
@@ -166,10 +171,9 @@ class Field<T, V> implements FieldBase<T> {
     if (_children.isEmpty || childrenForDbOnly) {
       var promptSuffix = prompt != null ? '$prompt' : '';
       var current = format(t);
-      print(
+      var input  = promptFor(
         "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
       );
-      var input = (readUtf8Line() ?? "").trim();
       if (input.isNotEmpty) {
         amendment[jsonName] = input;
       }
@@ -355,7 +359,7 @@ class Field<T, V> implements FieldBase<T> {
     if (value is int) {
       return value;
     }
-    var s = specialNullCoalesce(value);
+    var s = specialNullCoalesce(value, extraNullLiterals : extraNullLiterals);
     if (s == null) {
       return null;
     }
@@ -364,7 +368,7 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   int getIntFromRow(Row row, int defaultValue) {
-    return row[sqliteName] as int? ?? defaultValue;
+    return getNullableIntFromRow(row) ?? defaultValue;
   }
 
   @override
@@ -374,12 +378,26 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   double getFloatFromRow(Row row, double defaultValue) {
-    return row[sqliteName] as double? ?? defaultValue;
+    return getNullableFloatFromRow(row) ?? defaultValue;
   }
 
   @override
   double? getNullableFloatFromRow(Row row) {
     return row[sqliteName] as double?;
+  }
+
+  @override
+  bool getBoolFromRow(Row row, bool defaultValue) {
+    return getNullableBoolFromRow(row) ?? defaultValue;
+  }
+
+  @override
+  bool? getNullableBoolFromRow(Row row) {
+    var v = getNullableIntFromRow(row);
+    if (v == null) {
+      return null;
+    }
+    return v != 0;
   }
 
   @override
@@ -394,7 +412,7 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   String? getNullableString(Map<String, dynamic>? json) {
-    return specialNullCoalesce(json?[jsonName]);
+    return specialNullCoalesce(json?[jsonName], extraNullLiterals : extraNullLiterals);
   }
 
   @override
@@ -414,7 +432,7 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   String getStringFromRow(Row row, String defaultValue) {
-    return row[sqliteName] as String? ?? defaultValue;
+    return getNullableStringFromRow(row)  ?? defaultValue;
   }
 
   @override
@@ -646,6 +664,9 @@ class Field<T, V> implements FieldBase<T> {
 
   // Hack to signify that children are only for db purposes, not for prompting or diffing
   bool childrenForDbOnly;
+
+  // Extra strings that are mapped to null, little Bobby Null we call him.
+  List<String> extraNullLiterals;
 
   static const deepEq = DeepCollectionEquality();
 }

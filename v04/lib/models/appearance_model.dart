@@ -11,13 +11,14 @@ enum Gender { unknown, ambiguous, male, female, nonBinary, wontSay }
 
 class AppearanceModel extends Amendable<AppearanceModel> {
   AppearanceModel({
-    this.gender,
+    this.gender = Gender.unknown,
     this.race,
-    this.height,
-    this.weight,
+    Height? height,
+    Weight? weight,
     this.eyeColor,
     this.hairColor,
-  });
+  }) : height = height ?? Height.zero,
+       weight = weight ?? Weight.zero;
 
   AppearanceModel.from(AppearanceModel other)
     : this(
@@ -92,10 +93,10 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     );
   }
 
-  final Gender? gender;
+  final Gender gender;
   final String? race;
-  final Height? height;
-  final Weight? weight;
+  final Height height;
+  final Weight weight;
   final String? eyeColor;
   final String? hairColor;
 
@@ -149,12 +150,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
   List<FieldBase<AppearanceModel>> get fields => staticFields;
 
   static final FieldBase<AppearanceModel> _genderField = Field.infer(
-    (m) => m.gender ?? Gender.unknown,
+    (m) => m.gender,
     "Gender",
     Gender.values.map((e) => e.name).join(', '),
-    format: (m) => (m.gender ?? Gender.unknown).toString().split('.').last,
-    sqliteGetter: (m) =>
-        (m.gender ?? Gender.unknown).toString().split('.').last,
+    format: (m) => (m.gender.name).toString(),
+    sqliteGetter: (m) => (m.gender.name),
     nullable: false,
   );
 
@@ -175,6 +175,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
         '. For multiple representations, enter a list in json format e.g. ["6\'2\\"", "188 cm"] or a single value like \'188 cm\', \'188\' or \'1.88\' (meters) without surrounding \'',
     children: Height.staticFields,
     childrenForDbOnly: true,
+    nullable: false,
   );
 
   static FieldBase<AppearanceModel> get _weightField => Field.infer(
@@ -188,6 +189,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
         '. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like \'95 kg\' or \'95\' (kilograms) without surrounding \'',
     children: Weight.staticFields,
     childrenForDbOnly: true,
+    nullable: false,
   );
 
   static final FieldBase<AppearanceModel> _eyeColourField = Field.infer(

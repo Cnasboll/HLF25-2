@@ -7,6 +7,7 @@ void main() {
     expect(names, '''
       id,
       version,
+      locked,
       external_id,
       name,
       intelligence,
@@ -43,6 +44,7 @@ void main() {
     expect(declarations, '''
   id TEXT PRIMARY KEY,
   version INTEGER NOT NULL,
+  locked BOOLEAN NOT NULL,
   external_id TEXT NOT NULL,
   name TEXT NOT NULL,
   intelligence INTEGER NULL,
@@ -60,10 +62,10 @@ void main() {
   alignment TEXT NOT NULL,
   gender TEXT NOT NULL,
   race TEXT NULL,
-  height_m REAL NULL,
-  height_system_of_units TEXT NULL,
-  weight_kg REAL NULL,
-  weight_system_of_units TEXT NULL,
+  height_m REAL NOT NULL,
+  height_system_of_units TEXT NOT NULL,
+  weight_kg REAL NOT NULL,
+  weight_system_of_units TEXT NOT NULL,
   eye_colour TEXT NULL,
   hair_colour TEXT NULL,
   occupation TEXT NULL,
@@ -77,6 +79,7 @@ void main() {
   test('generate SQLite update clause', () {
     final update = HeroModel.generateSqliteUpdateClause('    ');
     expect(update, '''version=excluded.version,
+    locked=excluded.locked,
     name=excluded.name,
     intelligence=excluded.intelligence,
     strength=excluded.strength,
@@ -109,6 +112,6 @@ void main() {
 
     test('generate SQLite insert column placeholders', () {
     final placeholders = HeroModel.generateSQLiteInsertColumnPlaceholders();
-    expect(placeholders, '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?');
+    expect(placeholders, '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?');
   });
 }

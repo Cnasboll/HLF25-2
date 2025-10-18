@@ -29,6 +29,7 @@ Future<void> main() async {
       HeroModel(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
+        locked: false,
         externalId: "70",
         name: "Batman",
         powerStats: PowerStatsModel(
@@ -71,6 +72,7 @@ Future<void> main() async {
       HeroModel(
         id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
         version: 1,
+        locked: false,
         externalId: "69",
         name: "Robin",
         powerStats: PowerStatsModel(

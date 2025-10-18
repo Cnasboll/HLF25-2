@@ -4,20 +4,22 @@ import 'package:v04/amendable/field_base.dart';
 import 'package:v04/value_types/value_type.dart';
 
 class Height extends ValueType<Height> {
-
   Height(super.value, super.systemOfUnits);
 
-  Height.fromFeetAndInches(int feet, int inches) : this(feetAndInchesToMeters(feet, inches), SystemOfUnits.imperial);
-  Height.fromCentimeters(int centimeters) : this(centimeters.toDouble() / 100.0, SystemOfUnits.metric);
+  Height.fromFeetAndInches(int feet, int inches)
+    : this(feetAndInchesToMeters(feet, inches), SystemOfUnits.imperial);
+  Height.fromCentimeters(int centimeters)
+    : this(centimeters.toDouble() / 100.0, SystemOfUnits.metric);
   Height.fromMeters(int meters) : this(meters.toDouble(), SystemOfUnits.metric);
 
-  static Height? fromRow(FieldBase fieldBase, Row row)
-  {
-    var (metres, systemOfUnits) = ValueType.fromRow(_valueField, _systemOfUnitsField, row);
-    if (metres == null)
-    {
-      return null;
-    }
+  static final Height zero = Height(0, SystemOfUnits.imperial);
+
+  static Height fromRow(FieldBase fieldBase, Row row) {
+    var (metres, systemOfUnits) = ValueType.fromRow(
+      _valueField,
+      _systemOfUnitsField,
+      row,
+    );
     return Height(metres, systemOfUnits);
   }
 
@@ -90,7 +92,7 @@ class Height extends ValueType<Height> {
       r'''^\s*(\d+)\s*(cm|m)?\s*$''',
       caseSensitive: false,
     );
-    
+
     match = integralMetricRegex.firstMatch(s);
     if (match != null) {
       final value = int.tryParse(match.group(1) ?? '');
@@ -129,12 +131,12 @@ class Height extends ValueType<Height> {
     return (null, 'Could not parse height: $input');
   }
 
-  static Height? parseList(List<String>? valueInVariousUnits) {
+  static Height parseList(List<String>? valueInVariousUnits) {
     var (value, error) = tryParseList(valueInVariousUnits);
     if (error != null) {
       throw FormatException(error);
     }
-    return value;
+    return value ?? zero;
   }
 
   static (Height?, String?) tryParseList(List<String>? valueVariousUnits) {
@@ -151,14 +153,13 @@ class Height extends ValueType<Height> {
       return "$feet'${inches.round()}\"";
     }
     if (isMetric) {
-      return "${(value*100).round()} cm";
+      return "${(value * 100).round()} cm";
     }
     return '<unknown>';
   }
 
   static const double metersPerInch = 0.0254;
   static const double inchesPerFeet = 12.0;
-  
 
   static double feetAndInchesToMeters(int feet, int inches) {
     double totalInches = (feet * inchesPerFeet) + inches;
@@ -178,7 +179,7 @@ class Height extends ValueType<Height> {
     final double inches = totalInches % inchesPerFeet;
     return (totalFeet.floor(), inches);
   }
-  
+
   @override
   Height cloneMetric() {
     // Convert meters to a round number of centimeters (this destroys precision if value is imperial)
@@ -191,7 +192,7 @@ class Height extends ValueType<Height> {
     var (feet, inches) = wholeFeetAndWholeInches;
     return Height.fromFeetAndInches(feet, inches);
   }
-  
+
   @override
   List<FieldBase<ValueType<Height>>> get fields => staticFields;
 
@@ -201,17 +202,18 @@ class Height extends ValueType<Height> {
     jsonName: "height-metres",
     sqliteName: "height_m",
     'The character\'s height in metres',
+    nullable: false,
   );
 
-  static final FieldBase<ValueType<Height>> _systemOfUnitsField =
-      Field.infer(
-        (h) => h.systemOfUnits,
-        "Height System of Units",
-        jsonName: "height-system-of-units",
-        sqliteName: "height_system_of_units",
-        'The source system of units for height value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
-        sqliteGetter: (h) => h.systemOfUnits.toString().split('.').last,
-      );
+  static final FieldBase<ValueType<Height>> _systemOfUnitsField = Field.infer(
+    (h) => h.systemOfUnits,
+    "Height System of Units",
+    jsonName: "height-system-of-units",
+    sqliteName: "height_system_of_units",
+    'The source system of units for height value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
+    sqliteGetter: (h) => h.systemOfUnits.name,
+    nullable: false
+  );
 
   static final List<FieldBase<ValueType<Height>>> staticFields = [
     _valueField,

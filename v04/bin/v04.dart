@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:v04/env/env.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/managers/hero_data_managing.dart';
 import 'package:v04/models/hero_model.dart';
@@ -12,11 +13,16 @@ Future<void> main() async {
   stderr.encoding = utf8;
 
   print("Welcome to the Hero Manager!");
+  var env = Env();
+  print("Using API endpoint: ${env.apiEndpoint}");
   var heroDataManager = HeroDataManager(HeroRepository('v04.db'));
 
   var doWOrk = true;
   Map<String, (Function, String)> commands = {
-    "c": (() => createHero(heroDataManager), "[C]reate a new hero (will prompt for details)"),
+    "c": (
+      () => createHero(heroDataManager),
+      "[C]reate a new hero (will prompt for details)",
+    ),
     "l": (() => listHeroes(heroDataManager), "[L]ist all heroes"),
     "t": (
       () => listTopNHeroes(heroDataManager),
@@ -28,7 +34,10 @@ Future<void> main() async {
     ),
     "a": (() => amendHero(heroDataManager), "[A]mend a hero"),
     "d": (() => deleteHero(heroDataManager), "[D]elete a hero"),
-    "e": (() => deleteAllHeroes(heroDataManager), "[E]rase database (delete all heroes)"),
+    "e": (
+      () => deleteAllHeroes(heroDataManager),
+      "[E]rase database (delete all heroes)",
+    ),
     "q": (
       () => {
         if (promptQuit()) {doWOrk = false},
@@ -78,7 +87,7 @@ Future<void> mainMenu(
   HeroDataManaging heroDataManager,
   Map<String, (Function, String)> commands,
 ) async {
-  var input = (readUtf8Line() ?? "").toLowerCase().trim();
+  var input = promptFor("").toLowerCase();
   if (input.isEmpty) {
     print("Please enter a command");
     return;
@@ -112,9 +121,7 @@ void listHeroes(HeroDataManaging heroDataManager) {
 }
 
 void listTopNHeroes(HeroDataManaging heroDataManager) {
-  print("Enter number of heroes to list:");
-  var input = (readUtf8Line() ?? "").trim();
-  var n = int.tryParse(input) ?? 0;
+  var n = int.tryParse(promptFor("Enter number of heroes to list:")) ?? 0;
   if (n <= 0) {
     print("Invalid number");
     return;
@@ -193,8 +200,7 @@ $amededHero''');
 }
 
 List<HeroModel>? search(HeroDataManaging heroDataManager) {
-  print("Enter a search string:");
-  var query = (readUtf8Line() ?? "").trim();
+  var query = promptFor("Enter a search string:");
   var results = heroDataManager.query(query);
   if (results.isEmpty) {
     print("No heroes found");
@@ -213,11 +219,11 @@ HeroModel? query(HeroDataManaging heroDataManager, String what) {
     switch (promptForYesNextCancel('''
 
 $what the following hero?$hero''')) {
-      case YesNoCancel.yes:
+      case YesNextCancel.yes:
         return hero;
-      case YesNoCancel.next:
+      case YesNextCancel.next:
         continue;
-      case YesNoCancel.cancel:
+      case YesNextCancel.cancel:
         return null;
     }
   }

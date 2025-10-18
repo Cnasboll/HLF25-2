@@ -7,32 +7,32 @@ class HeroDataManager implements HeroDataManaging {
 
   HeroDataManager(HeroRepository repository)
     : _repository = repository,
-      _heroesByServerId = repository.heroes.asMap().map(
+      _heroesByExternalId = repository.heroes.asMap().map(
         (key, value) => MapEntry(value.externalId, value),
       );
 
   @override
   void persist(HeroModel hero) {
-    _heroesByServerId[hero.externalId] = hero;
+    _heroesByExternalId[hero.externalId] = hero;
     _repository.persist(hero);
   }
 
   @override
   void delete(HeroModel hero) {
-    _heroesByServerId.remove(hero.externalId);
+    _heroesByExternalId.remove(hero.externalId);
     _repository.delete(hero);
   }
 
 
   @override
   void clear() {
-    _heroesByServerId.clear();
+    _heroesByExternalId.clear();
     _repository.clear();
   }
 
   @override
   List<HeroModel> query(String query) {
-    var result = _heroesByServerId.values
+    var result = _heroesByExternalId.values
         .where(
           (hero) => hero.matches(query.toLowerCase()),
         )
@@ -43,9 +43,9 @@ class HeroDataManager implements HeroDataManaging {
   }
 
   @override
-  HeroModel? getByServerId(String serverId)
+  HeroModel? getByExternalId(String externalId)
   {
-    return _heroesByServerId[serverId];
+    return _heroesByExternalId[externalId];
   }
 
   @override
@@ -67,7 +67,7 @@ class HeroDataManager implements HeroDataManaging {
     return snapshot;
   }
 
-  final Map<String, HeroModel> _heroesByServerId;
+  final Map<String, HeroModel> _heroesByExternalId;
 
   final HeroRepository _repository;
 }

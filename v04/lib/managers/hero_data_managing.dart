@@ -7,6 +7,6 @@ abstract interface class HeroDataManaging {
   List<HeroModel> query(String query);
   Future<Null> dispose(); 
   List<HeroModel> get heroes;
-  HeroModel? getByServerId(String serverId);
+  HeroModel? getByExternalId(String externalId);
   HeroModel? getById(String id);
 }

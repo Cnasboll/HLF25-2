@@ -11,15 +11,12 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>> implements Compa
   @override
   List<Object?> get props => [value, systemOfUnits];
 
-  static (double?, SystemOfUnits) fromRow(FieldBase<ValueType> valueField, FieldBase<ValueType> systemOfUnitsField, Row row) {
-    var value = valueField.getNullableFloatFromRow(row);
-    if (value == null) {
-      return (null, SystemOfUnits.metric);
-    }
+  static (double, SystemOfUnits) fromRow(FieldBase<ValueType> valueField, FieldBase<ValueType> systemOfUnitsField, Row row) {
+    var value = valueField.getFloatFromRow(row, 0);
     var unitOfMeasurement = systemOfUnitsField.getEnumFromRow(
       SystemOfUnits.values,
       row,
-      SystemOfUnits.metric,
+      SystemOfUnits.imperial,
     );
     return (value, unitOfMeasurement);
   }

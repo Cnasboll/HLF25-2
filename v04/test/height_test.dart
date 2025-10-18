@@ -1,11 +1,10 @@
-import 'dart:math';
 
 import 'package:test/test.dart';
 import 'package:v04/value_types/height.dart';
 
 void main() {
 
-  test('zero feet zero inches is a ash', () {
+  test('a dash means zero feet and zero inches', () {
     final h = Height.parse("-");
     var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 0);

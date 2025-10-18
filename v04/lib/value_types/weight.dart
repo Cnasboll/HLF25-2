@@ -5,16 +5,20 @@ import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/value_type.dart';
 
 class Weight extends ValueType<Weight> {
-
   Weight(super.value, super.systemOfUnits);
-  Weight.fromPounds(int pounds) : this(poundsToKilograms(pounds.toDouble()), SystemOfUnits.imperial);
-  Weight.fromKilograms(int kilograms) : this(kilograms.toDouble(), SystemOfUnits.metric);
+  Weight.fromPounds(int pounds)
+    : this(poundsToKilograms(pounds.toDouble()), SystemOfUnits.imperial);
+  Weight.fromKilograms(int kilograms)
+    : this(kilograms.toDouble(), SystemOfUnits.metric);
 
-static Weight? fromRow(FieldBase fieldBase, Row row) {
-    var (kilograms, systemOfUnits) = ValueType.fromRow(_valueField, _systemOfUnitsField, row);
-    if (kilograms == null) {
-      return null;
-    }
+  static final Weight zero = Weight(0, SystemOfUnits.imperial);
+
+  static Weight fromRow(FieldBase fieldBase, Row row) {
+    var (kilograms, systemOfUnits) = ValueType.fromRow(
+      _valueField,
+      _systemOfUnitsField,
+      row,
+    );
     return Weight(kilograms, systemOfUnits);
   }
 
@@ -63,18 +67,17 @@ static Weight? fromRow(FieldBase fieldBase, Row row) {
     return (null, 'Could not parse weight: $input');
   }
 
-  static Weight? parseList(List<String>? valueInVariousUnits) {
+  static Weight parseList(List<String>? valueInVariousUnits) {
     var (value, error) = tryParseList(valueInVariousUnits);
     if (error != null) {
       throw FormatException(error);
     }
-    return value;
+    return value ?? Weight(0, SystemOfUnits.imperial);
   }
 
   static (Weight?, String?) tryParseList(List<String>? valueVariousUnits) {
     return ValueType.tryParseList(valueVariousUnits, "weight", tryParse);
   }
-
 
   @override
   String toString() {
@@ -95,6 +98,7 @@ static Weight? fromRow(FieldBase fieldBase, Row row) {
   static double poundsToKilograms(double pounds) {
     return pounds * kilosgramsPerPound;
   }
+
   static double kilogramsToPounds(double kilograms) {
     return kilograms / kilosgramsPerPound;
   }
@@ -121,17 +125,18 @@ static Weight? fromRow(FieldBase fieldBase, Row row) {
     jsonName: "weight-kilograms",
     sqliteName: "weight_kg",
     'The character\'s weight of in kilograms',
+    nullable: false,
   );
 
-  static final FieldBase<ValueType<Weight>> _systemOfUnitsField =
-      Field.infer(
-        (h) => h.systemOfUnits,
-        "Weight System of Units",
-        jsonName: "weight-system-of-units",
-        sqliteName: "weight_system_of_units",
-        'The source system of units for the weight value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
-        sqliteGetter: (h) => h.systemOfUnits.toString().split('.').last,
-      );
+  static final FieldBase<ValueType<Weight>> _systemOfUnitsField = Field.infer(
+    (h) => h.systemOfUnits,
+    "Weight System of Units",
+    jsonName: "weight-system-of-units",
+    sqliteName: "weight_system_of_units",
+    'The source system of units for the weight value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
+    sqliteGetter: (h) => h.systemOfUnits.name,
+    nullable: false,
+  );
 
   static final List<FieldBase<ValueType<Weight>>> staticFields = [
     _valueField,

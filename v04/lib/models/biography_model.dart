@@ -28,7 +28,7 @@ class BiographyModel extends Amendable<BiographyModel> {
     this.placeOfBirth,
     this.firstAppearance,
     this.publisher,
-    this.alignment,
+    this.alignment = Alignment.unknown,
   });
 
   BiographyModel.from(BiographyModel other)
@@ -64,20 +64,11 @@ class BiographyModel extends Amendable<BiographyModel> {
     );
   }
 
-  /// Special string literal used in the API to indicate no alter egos exist -- treat as null.
-  /// Do not use as an actual alter ego, as villains may exploit this loophole to evade detection systems!
-  static const String alterEgosNoAlterEgosFound = "No alter egos found.";
-  
   @override
   BiographyModel amendWith(Map<String, dynamic>? amendment) {
-    var alterEgosAmendment =
-        _alterEgosField.getNullableStringForAmendment(this, amendment);
-    if (alterEgosAmendment == alterEgosNoAlterEgosFound) {
-      alterEgosAmendment = null;
-    }
     return BiographyModel(
       fullName: _fullNameField.getNullableStringForAmendment(this, amendment),
-      alterEgos: alterEgosAmendment,
+      alterEgos: _alterEgosField.getNullableStringForAmendment(this, amendment),
       aliases: _aliasesField.getNullableStringListFromJsonForAmendment(
         this,
         amendment,
@@ -103,14 +94,9 @@ class BiographyModel extends Amendable<BiographyModel> {
     if (json == null) {
       return BiographyModel();
     }
-    var alterEgos =
-         _alterEgosField.getNullableString(json);
-    if (alterEgos == alterEgosNoAlterEgosFound) {
-      alterEgos = null;
-    }
     return BiographyModel(
       fullName: _fullNameField.getNullableString(json),
-      alterEgos: alterEgos,
+      alterEgos: _alterEgosField.getNullableString(json),
       aliases: _aliasesField.getNullableStringList(json),
       placeOfBirth: _placeOfBirthField.getNullableString(json),
       firstAppearance: _firstAppearanceField.getNullableString(json),
@@ -145,7 +131,7 @@ class BiographyModel extends Amendable<BiographyModel> {
   final String? placeOfBirth;
   final String? firstAppearance;
   final String? publisher;
-  final Alignment? alignment;
+  final Alignment alignment;
 
   static BiographyModel fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
@@ -164,12 +150,18 @@ class BiographyModel extends Amendable<BiographyModel> {
   List<FieldBase<BiographyModel>> get fields => staticFields;
 
   static FieldBase<BiographyModel> get _fullNameField =>
-      Field.infer((m) => m.fullName, "Full Name", "Full");
+      Field.infer((m) => m.fullName, "Full Name", "Also applies when hungry");
 
+
+  /// Special string literal used in the API to indicate no alter egos exist -- treat as null.
+  /// Do not use as an actual alter ego, as villains may exploit this loophole to evade detection systems!
+  static const String alterEgosNoAlterEgosFound = "No alter egos found.";
+  
   static final FieldBase<BiographyModel> _alterEgosField = Field.infer(
     (m) => m.alterEgos,
     "Alter Egos",
     "Alter egos of the character",
+    extraNullLiterals: [alterEgosNoAlterEgosFound],
   );
 
   static final FieldBase<BiographyModel> _aliasesField = Field.infer(
@@ -203,14 +195,11 @@ class BiographyModel extends Amendable<BiographyModel> {
   );
 
   static final FieldBase<BiographyModel> _alignmentField = Field.infer(
-    (m) => m.alignment ?? Alignment.unknown,
+    (m) => m.alignment,
     "Alignment",
-    // Use toString().split('.').last so it works on environments without a public `name`
-    "The character's moral alignment (${Alignment.values.map((e) => e.toString().split('.').last).join(', ')})",
-    format: (m) =>
-        (m.alignment ?? Alignment.unknown).toString().split('.').last,
-    sqliteGetter: (m) =>
-        (m.alignment ?? Alignment.unknown).toString().split('.').last,
+    "The character's moral alignment (${Alignment.values.map((e) => e.name).join(', ')})",
+    format: (m) => m.alignment.name,
+    sqliteGetter: (m) => m.alignment.name,
     nullable: false,
   );
 

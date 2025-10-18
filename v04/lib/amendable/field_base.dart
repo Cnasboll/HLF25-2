@@ -19,6 +19,8 @@ abstract class FieldBase<T> {
   int? getNullableIntFromRow(Row row);
   double getFloatFromRow(Row row, double defaultValue);
   double? getNullableFloatFromRow(Row row);
+  bool getBoolFromRow(Row row, bool defaultValue);
+  bool? getNullableBoolFromRow(Row row);
   String getStringForAmendment(T t, Map<String, dynamic>? amendment);
   String? getNullableStringForAmendment(T t, Map<String, dynamic>? amendment);
   String? getNullableString(Map<String, dynamic>? json);

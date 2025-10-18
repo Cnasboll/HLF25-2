@@ -15,6 +15,7 @@ Future<void> main() async {
     var batman = HeroModel(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
+        locked: false,
         externalId: "70",
         name: "Batman",
         powerStats: PowerStatsModel(
@@ -51,6 +52,7 @@ Future<void> main() async {
     var robin = HeroModel(
         id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
         version: 1,
+        locked: false,
         externalId: "69",
         name: "Robin",
         powerStats: PowerStatsModel(
@@ -89,6 +91,7 @@ Future<void> main() async {
     var alfred = HeroModel(
       id: "5a743508-8c18-4736-b966-d3a059019416",
       version: 1,
+      locked: false,
       externalId: "68",
       name: "Alfred",
       powerStats: PowerStatsModel(strength: 10),

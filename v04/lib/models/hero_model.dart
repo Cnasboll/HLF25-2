@@ -15,6 +15,7 @@ class HeroModel extends Amendable<HeroModel> {
     required this.id,
     required this.externalId,
     required this.version,
+    required this.locked,
     required this.name,
     required this.powerStats,
     required this.biography,
@@ -25,7 +26,7 @@ class HeroModel extends Amendable<HeroModel> {
   });
 
   HeroModel.newId(
-    String serverId,
+    String externalId,
     String name,
     PowerStatsModel powerStats,
     BiographyModel biography,
@@ -36,7 +37,8 @@ class HeroModel extends Amendable<HeroModel> {
   ) : this(
         id: Uuid().v4(),
         version: 1,
-        externalId: serverId,
+        locked: false,
+        externalId: externalId,
         name: name,
         powerStats: powerStats,
         biography: biography,
@@ -51,6 +53,7 @@ class HeroModel extends Amendable<HeroModel> {
     return HeroModel(
       id: id,
       version: version + 1,
+      locked: true, // Any manual amendment locks the hero from synchronization with the server
       externalId: externalId,
       name: _nameField.getStringForAmendment(this, amendment),
       powerStats: powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
@@ -65,6 +68,7 @@ class HeroModel extends Amendable<HeroModel> {
   HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) : this(
       id : id,
       version: 1,
+      locked: false,
       externalId: _externalIdField.getString(json, "unknown-external-id"),
       name: _nameField.getString(json, "unknown-name"),
       powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
@@ -78,6 +82,7 @@ class HeroModel extends Amendable<HeroModel> {
   factory HeroModel.fromRow(Row row) {
     return HeroModel(
       version: _versionField.getIntFromRow(row, -1),
+      locked: _lockedField.getBoolFromRow(row, false),
       id: _idField.getStringFromRow(row, "unknown-id"),
       externalId: _externalIdField.getStringFromRow(row, "unknown-external-id"),
       name: _nameField.getNullableStringFromRow(row) as String,
@@ -94,6 +99,7 @@ class HeroModel extends Amendable<HeroModel> {
     : this(
         id: other.id,
         version: other.version,
+        locked: other.locked,
         externalId: other.externalId,
         name: other.name,
         powerStats: PowerStatsModel.from(other.powerStats),
@@ -107,7 +113,8 @@ class HeroModel extends Amendable<HeroModel> {
   HeroModel copyWith({
     String? id,
     int? version,
-    String? serverId,
+    bool? locked,
+    String? externalId,
     String? name,
     PowerStatsModel? powerStats,
     BiographyModel? biography,
@@ -118,8 +125,9 @@ class HeroModel extends Amendable<HeroModel> {
   }) {
     return HeroModel(
       id: id ?? this.id,
-      externalId: serverId ?? externalId,
+      externalId: externalId ?? this.externalId,
       version: (version ?? 1) + 1,
+      locked: locked ?? this.locked, // Any manual amendment locks the hero from synchronization with the server
       name: name ?? this.name,
       powerStats: powerStats ?? this.powerStats,
       biography: biography ?? this.biography,
@@ -138,8 +146,8 @@ class HeroModel extends Amendable<HeroModel> {
     }
 
     // if powerStats are the same, sort other, fields ascending in order of significance which is
-    // appearance, biography, id, serverId, version, name, work, connections, image
-    // (id is before serverId as it is more unique, version is after serverId
+    // appearance, biography, id, externalId, version, name, work, connections, image
+    // (id is before externalId as it is more unique, version is after externalId
     comparison = appearance.compareTo(other.appearance);
     if (comparison != 0) {
       return comparison;
@@ -152,6 +160,7 @@ class HeroModel extends Amendable<HeroModel> {
       _idField,
       _externalIdField,
       _versionField,
+      _lockedField,
       _nameField,
     ]) {
       comparison = field.compareField(this, other);
@@ -211,10 +220,11 @@ class HeroModel extends Amendable<HeroModel> {
   List<FieldBase<HeroModel>> get fields => staticFields;
 
   final String id;
-  // "ID" field in JSON is "serverId" here to avoid confusion with our own "id" field.
+  // "ID" field in JSON is "externalId" here to avoid confusion with our own "id" field.
   // It appears to be an integer in the JSON, but is actually a string.
   final String externalId;
   final int version;
+  final bool locked; // Whether the hero is locked and not synchronized with the server
   final String name;
   final PowerStatsModel powerStats;
   final BiographyModel biography;
@@ -245,7 +255,13 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h .version,
     "Version",
     "Version number",
-    nullable: false,
+    assignedBySystem: true,
+  );
+
+  static final FieldBase<HeroModel> _lockedField = Field.infer(
+    (h) => h.locked,
+    "Locked",
+    "Whether the hero is locked and not synchronized with the server",
     assignedBySystem: true,
   );
 
@@ -306,6 +322,7 @@ class HeroModel extends Amendable<HeroModel> {
   static final List<FieldBase<HeroModel>> staticFields = [
     _idField,
     _versionField,
+    _lockedField,
     _externalIdField,
     _nameField,
     _powerstatsField,
