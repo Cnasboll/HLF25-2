@@ -15,34 +15,34 @@ class Env {
       saveNeeded = true;
     }
 
-    var apiEndpoint = env[apiEndpointName] ?? '';
+    var apiEndpoint = env[apiHostName] ?? '';
     if (apiEndpoint.isEmpty) {
       apiEndpoint = promptFor(
-        'Enter API endpoint or press enter to accept default ($defaultApiEndpoint): ',
-        defaultApiEndpoint,
+        'Enter API host or press enter to accept default ($defaultApiHost): ',
+        defaultApiHost,
       );
       saveNeeded = true;
     }
 
     if (saveNeeded) {
       dotEnv.set(apiKeyName, apiKey);
-      dotEnv.set(apiEndpointName, apiEndpoint);
+      dotEnv.set(apiHostName, apiEndpoint);
       if (!dotEnv.exists()) {
         dotEnv.createNew();
       }
       dotEnv.saveDotEnv();
     }
 
-    return Env.create(apiKey: apiKey, apiEndpoint: apiEndpoint);
+    return Env.create(apiKey: apiKey, apiHost: apiEndpoint);
   }
 
-  Env.create({required this.apiKey, required this.apiEndpoint});
+  Env.create({required this.apiKey, required this.apiHost});
 
   static const String filePath = '.env';
   static const apiKeyName = 'API_KEY';
-  static const apiEndpointName = 'API_ENDPOINT';
-  static const defaultApiEndpoint = 'https://www.superheroapi.com';
+  static const apiHostName = 'API_HOST';
+  static const defaultApiHost = 'www.superheroapi.com';
 
   final String apiKey;
-  final String apiEndpoint;
+  final String apiHost;
 }

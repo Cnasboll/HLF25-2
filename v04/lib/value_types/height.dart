@@ -62,8 +62,10 @@ class Height extends ValueType<Height> {
       return (Height.fromFeetAndInches(0, 0), null);
     }
 
-    // Try imperial shorthand: 6'2" or 6'2 or 6' 2"
-    final imperialRegex = RegExp(r'''^\s*(\d+)\s*'\s*(\d+)?\s*(?:"|in)?\s*$''');
+    // Try imperial shorthand: 6'2" or 6'2 or 6' 2" or even 5'10' which is the height of  White Queen in api!
+    final imperialRegex = RegExp(
+      r'''^\s*(\d+)\s*'\s*(\d+)?\s*(?:"|'|in)?\s*$''',
+    );
     var match = imperialRegex.firstMatch(s);
     if (match != null) {
       final feet = int.tryParse(match.group(1) ?? '');
@@ -87,9 +89,9 @@ class Height extends ValueType<Height> {
       }
     }
 
-    // Try integral metric: 188 cm, 2m or 188 e.g. with or without unit or spaces (assumed cm for values > 2 if no unit)
+    // Try integral metric or imperial: 6 feet, 188 cm, 2m or 188 e.g. with or without unit or spaces (assumed cm for values > 2 if no unit and feet for values > 200)
     final integralMetricRegex = RegExp(
-      r'''^\s*(\d+)\s*(cm|m)?\s*$''',
+      r'''^\s*(\d+)\s*(ft|feet|cm|m|meters)?\s*$''',
       caseSensitive: false,
     );
 
@@ -101,10 +103,17 @@ class Height extends ValueType<Height> {
         if (unit == null) {
           // No unit given, assume m if value less than 3, otherwise cm
           if (value > 2) {
-            unit = 'cm';
+            if (value > 200) {
+              unit = 'ft';
+            } else {
+              unit = 'cm';
+            }
           } else {
             unit = 'm';
           }
+        }
+        if (unit == 'ft' || unit == 'feet') {
+          return (Height.fromFeetAndInches(value, 0), null);
         }
 
         if (unit == 'm') {
@@ -116,7 +125,7 @@ class Height extends ValueType<Height> {
 
     // Try metric meters: 1.88 m with our without unit or spaces
     final mRegex = RegExp(
-      r'''^\s*(\d+(?:\.\d+)?)\s*m?\s*$''',
+      r'''^\s*(\d+(?:\.\d+)?)\s*(m|meters)?\s*$''',
       caseSensitive: false,
     );
     match = mRegex.firstMatch(s);

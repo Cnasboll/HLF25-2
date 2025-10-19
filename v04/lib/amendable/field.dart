@@ -495,6 +495,23 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
+  DateTime getDateTimeFromRow(Row row, DateTime defaultValue)
+  {
+    return getNullableDateTimeFromRow(row) ?? defaultValue;
+  }
+  
+  @override
+  DateTime? getNullableDateTimeFromRow(Row row)
+  {
+    var s = getNullableStringFromRow(row);
+    if (s == null) {
+      return null;
+    }
+    return DateTime.tryParse(s);
+  }
+
+
+  @override
   E getEnumForAmendment<E extends Enum>(
     T t,
     Iterable<E> enumValues,

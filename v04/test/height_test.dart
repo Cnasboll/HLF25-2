@@ -37,6 +37,14 @@ void main() {
     expect(inches, 2);
   });
 
+  /// The White Queen has a height of 5'10' instead of the more usual 5'10", treat it the same
+  test('Parse White Queen Height', () {
+    final h = Height.parse("5'10'");
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 5);
+    expect(inches, 10);
+  });
+
   test('parse cm', () {
     final h = Height.parse('188 cm');
     expect(h.wholeCentimeters, 188);
@@ -113,6 +121,30 @@ void main() {
 
     final redundantMetric = Height.parseList(['188 cm', '6\'2"', "1.88"])!;
     expect(redundantMetric.wholeCentimeters, 188);
+  });
+
+  test('parse Ymir meters', () {
+    final h = Height.parse("304.8 meters");
+    expect(h.wholeCentimeters, 30480);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 1000);
+    expect(inches, 0);
+  });
+
+  test('parse Ymir feet', () {
+    final h = Height.parse("1000");
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 1000);
+    expect(inches, 0);
+    expect(h.wholeCentimeters, 30480);
+  });
+
+  test('parse Ymir height', () {
+    final h = Height.parseList(["1000","304.8 meters"])!;
+  var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 1000);
+    expect(inches, 0);    
+    expect(h.wholeCentimeters, 30480);  
   });
 
   test('parse with in conflicting values in different systems', () {

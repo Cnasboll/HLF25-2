@@ -9,4 +9,7 @@ abstract interface class HeroDataManaging {
   List<HeroModel> get heroes;
   HeroModel? getByExternalId(String externalId);
   HeroModel? getById(String id);
+  /// Parses a HeroModel from JSON, using existing data if available,
+  /// does not persists
+  HeroModel heroFromJson(Map<String, dynamic> json);
 }

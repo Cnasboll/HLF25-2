@@ -9,12 +9,15 @@ import 'package:test/test.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
 
+final DateTime deadline = DateTime.parse("2025-10-28T18:00:00.000000Z");
+
 Future<void> main() async {
   test('Sorting test', () {
     
     var batman = HeroModel(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
+        timestamp:  deadline,
         locked: false,
         externalId: "70",
         name: "Batman",
@@ -52,6 +55,7 @@ Future<void> main() async {
     var robin = HeroModel(
         id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
         version: 1,
+        timestamp: deadline,
         locked: false,
         externalId: "69",
         name: "Robin",
@@ -90,6 +94,7 @@ Future<void> main() async {
     // Add Alfred, assign a id
     var alfred = HeroModel(
       id: "5a743508-8c18-4736-b966-d3a059019416",
+      timestamp: deadline,
       version: 1,
       locked: false,
       externalId: "68",

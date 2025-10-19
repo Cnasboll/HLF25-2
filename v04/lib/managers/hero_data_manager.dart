@@ -1,11 +1,11 @@
 
 import 'package:v04/managers/hero_data_managing.dart';
 import 'package:v04/models/hero_model.dart';
-import 'package:v04/persistence/hero_repository.dart';
+import 'package:v04/persistence/hero_repositing.dart';
 
 class HeroDataManager implements HeroDataManaging {
 
-  HeroDataManager(HeroRepository repository)
+  HeroDataManager(HeroRepositing repository)
     : _repository = repository,
       _heroesByExternalId = repository.heroes.asMap().map(
         (key, value) => MapEntry(value.externalId, value),
@@ -67,7 +67,17 @@ class HeroDataManager implements HeroDataManaging {
     return snapshot;
   }
 
+  @override
+  HeroModel heroFromJson(Map<String, dynamic> json) {
+    var externalId = json['id'] as String;
+    var currentVersion = getByExternalId(externalId);
+    if (currentVersion != null) {
+      return currentVersion.apply(json, false);
+    }
+    return HeroModel.fromJson(json);
+  }
+
   final Map<String, HeroModel> _heroesByExternalId;
 
-  final HeroRepository _repository;
+  final HeroRepositing _repository;
 }

@@ -13,6 +13,8 @@ import 'package:test/test.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
 
+final DateTime deadline = DateTime.parse("2025-10-28T18:00:00.000000Z");
+
 Future<void> main() async {
   test('DB test', () async {
     var path = "v04_test.db";
@@ -29,6 +31,7 @@ Future<void> main() async {
       HeroModel(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
+        timestamp:  deadline,
         locked: false,
         externalId: "70",
         name: "Batman",
@@ -72,6 +75,7 @@ Future<void> main() async {
       HeroModel(
         id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
         version: 1,
+        timestamp: deadline,
         locked: false,
         externalId: "69",
         name: "Robin",
@@ -120,6 +124,7 @@ Future<void> main() async {
     var batman = heroDataManager.query("batman")[0];
     expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(batman.version, 1);
+    expect(batman.timestamp, deadline);
     expect(batman.externalId, "70");
     expect(batman.name, "Batman");
     expect(batman.powerStats.strength, 26);
@@ -130,6 +135,7 @@ Future<void> main() async {
     var robin = heroDataManager.query("robin")[0];
     expect(robin.id, "008b98a5-3ce6-4448-99f4-d4ce296fcdfc");
     expect(robin.version, 1);
+    expect(robin.timestamp, deadline);
     expect(robin.externalId, "69");
     expect(robin.name, "Robin");
     expect(robin.powerStats.strength, 23);

@@ -50,5 +50,21 @@ List<String>? getNullableStringListFromMap(
     return [list.toString()];
   }
 
-  return List<String>.from(list);
+  // Handle [-] as null!
+  if (list.length == 1) {
+    var s = specialNullCoalesce(
+      list.first,
+      extraNullLiterals: extraNullLiterals,
+    );
+    if (s == null) {
+      return null;
+    }
+  }
+  
+  if (list is! List<String>) {
+    // Convert all items to strings
+    return List<String>.from(list);
+  }
+
+  return list;
 }

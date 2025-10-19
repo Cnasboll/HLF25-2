@@ -1,10 +1,9 @@
-
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/jobs/job_queue.dart';
 import 'package:v04/models/hero_model.dart';
+import 'package:v04/persistence/hero_repositing.dart';
 
-class HeroRepository {
-
+class HeroRepository implements HeroRepositing {
   HeroRepository.cache(this._db, this._cache);
 
   factory HeroRepository(String path) {
@@ -35,8 +34,9 @@ ${HeroModel.generateSqliteColumnDeclarations('    ')}
     return snapshot;
   }
 
+  @override
   void persist(HeroModel hero) {
-    _cache[hero.id] = hero;    
+    _cache[hero.id] = hero;
     // Persist a copy to avoid race conditions (technically not needed for inserts but I want to keep the code nice and clean)
     _jobQueue.enqueue(() => dbPersist(HeroModel.from(hero)));
   }
@@ -52,6 +52,7 @@ SET ${HeroModel.generateSqliteUpdateClause('    ')}
       ''', parameters);
   }
 
+  @override
   void delete(HeroModel hero) {
     _cache.remove(hero.id);
     _jobQueue.enqueue(() => dbDelete(hero));
@@ -61,6 +62,7 @@ SET ${HeroModel.generateSqliteUpdateClause('    ')}
     _db.execute('DELETE FROM heroes WHERE id = ?', [hero.id]);
   }
 
+  @override
   void clear() {
     _cache.clear();
     _jobQueue.enqueue(() => dbClean());
@@ -71,6 +73,7 @@ SET ${HeroModel.generateSqliteUpdateClause('    ')}
   }
 
   // TODO: can I make a proper dispose pattern here?
+  @override
   Future<Null> dispose() async {
     await _jobQueue.close();
     await _jobQueue.join();
@@ -83,11 +86,12 @@ SET ${HeroModel.generateSqliteUpdateClause('    ')}
 
   Database _db;
 
-  List<HeroModel> get heroes 
-  {
+  @override
+  List<HeroModel> get heroes {
     var snapshot = _cache.values.toList();
     return snapshot;
   }
 
+  @override
   Map<String, HeroModel> get heroesById => Map.unmodifiable(_cache);
 }

@@ -127,7 +127,8 @@ Appearance: Weight: 210 lb -> 220 lb
     var weight = appearance.weight!;
     // 95->100 kgs, can happen, been there, done that
     expect(weight.wholePounds, 220);
-    expect(weight.wholeKilograms, 100);
+    // The api rounds the weight in kilos down so it handles 99.7903 kg as 99 kg instead of 100
+    expect(weight.wholeKilograms, 99);
     expect(weight.systemOfUnits, SystemOfUnits.imperial);
     expect(appearance.eyeColor, "blue");
     expect(appearance.hairColor, "black");

@@ -104,7 +104,7 @@ class Weight extends ValueType<Weight> {
   }
 
   int get wholePounds => (kilogramsToPounds(value)).round();
-  int get wholeKilograms => value.round();
+  int get wholeKilograms => value.floor();
 
   @override
   Weight cloneMetric() {

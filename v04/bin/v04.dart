@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:v04/env/env.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/managers/hero_data_managing.dart';
 import 'package:v04/models/hero_model.dart';
@@ -13,8 +12,6 @@ Future<void> main() async {
   stderr.encoding = utf8;
 
   print("Welcome to the Hero Manager!");
-  var env = Env();
-  print("Using API endpoint: ${env.apiEndpoint}");
   var heroDataManager = HeroDataManager(HeroRepository('v04.db'));
 
   var doWOrk = true;

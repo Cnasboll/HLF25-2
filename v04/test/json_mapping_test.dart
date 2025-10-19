@@ -83,14 +83,14 @@ void main() {
     var appearance = batman.appearance;
     expect(appearance.gender, Gender.male);
     expect(appearance.race, "Human");
-    var height = appearance.height!;
+    var height = appearance.height;
     // This parsing and verification of integrity between representations of Height and Weight is really the biggest part of this assignment for me.
     // Of couurse it is internally represented in metric but for purposes of formatting the system of units is tied to the value object
     // so the database mapping does write it in the same format as it was original read from the json.
     expect(height.wholeFeetAndWholeInches, (6, 2));
     expect(height.wholeCentimeters, 188);
     expect(height.systemOfUnits, SystemOfUnits.imperial);
-    var weight = appearance.weight!;
+    var weight = appearance.weight;
     expect(weight.wholePounds, 210);
     expect(weight.wholeKilograms, 95);
     expect(weight.systemOfUnits, SystemOfUnits.imperial);
@@ -166,5 +166,24 @@ void main() {
     var decoded = <String, Object?>{'weight': ['10 kg', '22 lb']};
     final result = getNullableStringListFromMap(decoded, 'weight');
     expect(result, ['10 kg', '22 lb']);
+  });
+
+  test('Can parse["-"] as a null list', () {
+    final rawJson = '''{
+    "full-name": "Xenomorph",
+    "alter-egos": "No alter egos found.",
+    "aliases": [
+      "-"
+    ],
+    "place-of-birth": "Your chest :)",
+    "first-appearance": "Alien (1979)",
+    "publisher": "Dark Horse Comics",
+    "alignment": "bad"
+  }
+''';
+
+    var decoded = json.decode(rawJson);
+    var biography = BiographyModel.fromJson(decoded);
+    expect(biography.aliases, null);
   });
 }

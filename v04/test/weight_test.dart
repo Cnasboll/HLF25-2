@@ -3,7 +3,7 @@ import 'package:v04/value_types/weight.dart';
 
 void main() {
 
-  test('zero pounds is a dash', () {
+  test('a dash means zero', () {
     final w = Weight.parse("- lb");
     expect(w.wholePounds, 0);
     expect(w.wholeKilograms, 0);
@@ -24,10 +24,9 @@ void main() {
   test('parse 210 and 209 lb are both  95 kg verifying source data is ambiguous af', () {
     final lb210 = Weight.fromPounds(210);
     final lb209 = Weight.fromPounds(209);
-    // wrong in example: 95 kg is 209.44 pounds, which rounds to 209 pounds, not 210 pounds!
-    // Seems like pounds are used as source of truth in the example, even if metric is more common worldwide
+    // It seesms like the api converts pounds to kilograms and rounds DOWN instead of to nearest
     expect(lb210.wholeKilograms, 95);
-    expect(lb209.wholeKilograms, 95);
+    expect(lb209.wholeKilograms, 94);
   });
 
   test('parse imperial compact', () {
@@ -53,17 +52,17 @@ void main() {
 
   
   test('parse list with corresponding values in different systems', () {
-    final imp = Weight.parseList(['209 lb', '95 kg'])!;
+    final imp = Weight.parseList(['209 lb', '95 kg']);
     expect(imp.wholePounds, 209);
 
-    final imp2 = Weight.parseList(['210 lb', '95 kg'])!;
+    final imp2 = Weight.parseList(['210 lb', '95 kg']);
     expect(imp2.wholePounds, 210);
 
     // Note that 95 kgs can correspond to both 209 or 210 pounds
-    final metric = Weight.parseList(['95 kg', '209 lb'])!;
+    final metric = Weight.parseList(['95 kg', '209 lb']);
     expect(metric.wholeKilograms, 95);
 
-    final metric2 = Weight.parseList(['95 kg', '210 lb'])!;
+    final metric2 = Weight.parseList(['95 kg', '210 lb']);
     expect(metric2.wholeKilograms, 95);
 
     final metric3 = Weight.parseList(['95 kg', '210 lb', '209 lb'])!;

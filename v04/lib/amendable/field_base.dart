@@ -43,6 +43,8 @@ abstract class FieldBase<T> {
   List<String>? getNullableStringList(Map<String, dynamic>? json);
   List<String> getStringListFromRow(Row row, List<String> defaultValue);
   List<String>? getNullableStringListFromRow(Row row);
+  DateTime getDateTimeFromRow(Row row, DateTime defaultValue);
+  DateTime? getNullableDateTimeFromRow(Row row);
   E getEnumForAmendment<E extends Enum>(
     T t,
     Iterable<E> enumValues,

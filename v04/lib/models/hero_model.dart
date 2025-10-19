@@ -15,6 +15,7 @@ class HeroModel extends Amendable<HeroModel> {
     required this.id,
     required this.externalId,
     required this.version,
+    required this.timestamp,
     required this.locked,
     required this.name,
     required this.powerStats,
@@ -37,6 +38,7 @@ class HeroModel extends Amendable<HeroModel> {
   ) : this(
         id: Uuid().v4(),
         version: 1,
+        timestamp: DateTime.timestamp(),
         locked: false,
         externalId: externalId,
         name: name,
@@ -50,38 +52,74 @@ class HeroModel extends Amendable<HeroModel> {
 
   @override
   HeroModel amendWith(Map<String, dynamic>? amendment) {
+    return apply(amendment, true);
+  }
+
+  HeroModel apply(Map<String, dynamic>? amendment, bool manualAmendment) {
     return HeroModel(
       id: id,
       version: version + 1,
-      locked: true, // Any manual amendment locks the hero from synchronization with the server
+      timestamp: DateTime.timestamp(),
+      locked:
+          locked ||
+          manualAmendment, // Any manual amendment locks the hero from synchronization with the server
       externalId: externalId,
       name: _nameField.getStringForAmendment(this, amendment),
-      powerStats: powerStats.fromChildJsonAmendment(_powerstatsField, amendment),
+      powerStats: powerStats.fromChildJsonAmendment(
+        _powerstatsField,
+        amendment,
+      ),
       biography: biography.fromChildJsonAmendment(_biographyField, amendment),
-      appearance: appearance.fromChildJsonAmendment(_appearanceField, amendment),
+      appearance: appearance.fromChildJsonAmendment(
+        _appearanceField,
+        amendment,
+      ),
       work: work.fromChildJsonAmendment(_workField, amendment),
-      connections: connections.fromChildJsonAmendment(_connectionsField, amendment),
+      connections: connections.fromChildJsonAmendment(
+        _connectionsField,
+        amendment,
+      ),
       image: image.fromChildJsonAmendment(_imageField, amendment),
     );
   }
 
-  HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) : this(
-      id : id,
-      version: 1,
-      locked: false,
-      externalId: _externalIdField.getString(json, "unknown-external-id"),
-      name: _nameField.getString(json, "unknown-name"),
-      powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
-      biography: BiographyModel.fromJson(_biographyField.getJson(json)),
-      appearance: AppearanceModel.fromJson(_appearanceField.getJson(json)),
-      work: WorkModel.fromJson(_workField.getJson(json)),
-      connections: ConnectionsModel.fromJson(_connectionsField.getJson(json)),
-      image: ImageModel.fromJson(_imageField.getJson(json)),
-    );
+  /// Call this to allow the hero to be synced with server again
+  HeroModel unlock() {
+    return copyWith(locked: false);
+  }
+
+  HeroModel.fromJson(Map<String, dynamic> json)
+    : this.newId(
+        _externalIdField.getString(json, "unknown-external-id"),
+        _nameField.getString(json, "unknown-name"),
+        PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
+        BiographyModel.fromJson(_biographyField.getJson(json)),
+        AppearanceModel.fromJson(_appearanceField.getJson(json)),
+        WorkModel.fromJson(_workField.getJson(json)),
+        ConnectionsModel.fromJson(_connectionsField.getJson(json)),
+        ImageModel.fromJson(_imageField.getJson(json)),
+      );
+
+  HeroModel.fromJsonAndId(Map<String, dynamic> json, String id)
+    : this(
+        id: id,
+        version: 1,
+        timestamp: DateTime.timestamp(),
+        locked: false,
+        externalId: _externalIdField.getString(json, "unknown-external-id"),
+        name: _nameField.getString(json, "unknown-name"),
+        powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
+        biography: BiographyModel.fromJson(_biographyField.getJson(json)),
+        appearance: AppearanceModel.fromJson(_appearanceField.getJson(json)),
+        work: WorkModel.fromJson(_workField.getJson(json)),
+        connections: ConnectionsModel.fromJson(_connectionsField.getJson(json)),
+        image: ImageModel.fromJson(_imageField.getJson(json)),
+      );
 
   factory HeroModel.fromRow(Row row) {
     return HeroModel(
       version: _versionField.getIntFromRow(row, -1),
+      timestamp: _timestampField.getDateTimeFromRow(row, DateTime.timestamp()),
       locked: _lockedField.getBoolFromRow(row, false),
       id: _idField.getStringFromRow(row, "unknown-id"),
       externalId: _externalIdField.getStringFromRow(row, "unknown-external-id"),
@@ -99,6 +137,7 @@ class HeroModel extends Amendable<HeroModel> {
     : this(
         id: other.id,
         version: other.version,
+        timestamp: other.timestamp,
         locked: other.locked,
         externalId: other.externalId,
         name: other.name,
@@ -113,6 +152,7 @@ class HeroModel extends Amendable<HeroModel> {
   HeroModel copyWith({
     String? id,
     int? version,
+    DateTime? timestamp,
     bool? locked,
     String? externalId,
     String? name,
@@ -127,7 +167,10 @@ class HeroModel extends Amendable<HeroModel> {
       id: id ?? this.id,
       externalId: externalId ?? this.externalId,
       version: (version ?? 1) + 1,
-      locked: locked ?? this.locked, // Any manual amendment locks the hero from synchronization with the server
+      timestamp: timestamp ?? DateTime.timestamp(),
+      locked:
+          locked ??
+          this.locked, // Any manual amendment locks the hero from synchronization with the server
       name: name ?? this.name,
       powerStats: powerStats ?? this.powerStats,
       biography: biography ?? this.biography,
@@ -156,7 +199,7 @@ class HeroModel extends Amendable<HeroModel> {
     if (comparison != 0) {
       return comparison;
     }
-    for (var field in [     
+    for (var field in [
       _idField,
       _externalIdField,
       _versionField,
@@ -224,7 +267,9 @@ class HeroModel extends Amendable<HeroModel> {
   // It appears to be an integer in the JSON, but is actually a string.
   final String externalId;
   final int version;
-  final bool locked; // Whether the hero is locked and not synchronized with the server
+  final DateTime timestamp;
+  final bool
+  locked; // Whether the hero is locked and not synchronized with the server
   final String name;
   final PowerStatsModel powerStats;
   final BiographyModel biography;
@@ -248,13 +293,22 @@ class HeroModel extends Amendable<HeroModel> {
     // This is mapped to the ID field of the superhero API so it is not nullable or mutable.
     jsonName: "id",
     nullable: false,
-    mutable: false
+    mutable: false,
   );
 
   static final FieldBase<HeroModel> _versionField = Field.infer(
-    (h) => h .version,
+    (h) => h.version,
     "Version",
     "Version number",
+    assignedBySystem: true,
+  );
+
+  static final FieldBase<HeroModel> _timestampField = Field.infer(
+    (h) => h.timestamp,
+    "Timestamp",
+    "UTC of last change to this hero",
+    format: (h) => h.timestamp.toIso8601String(),
+    sqliteGetter: (h) => h.timestamp.toIso8601String(),
     assignedBySystem: true,
   );
 
@@ -283,7 +337,7 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h.biography,
     "Biography",
     "Hero's quite biased biography",
-    format: (h) => "Biography: ${h?.biography}",
+    format: (h) => "Biography: ${h.biography}",
     children: BiographyModel.staticFields,
   );
 
@@ -291,7 +345,7 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h.work,
     "Work",
     "Hero's work",
-    format: (h) => "Work: ${h?.work}",
+    format: (h) => "Work: ${h.work}",
     children: WorkModel.staticFields,
   );
 
@@ -299,7 +353,7 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h.appearance,
     "Appearance",
     "Hero's appearance",
-    format: (h) => "Appearance: ${h?.appearance}",
+    format: (h) => "Appearance: ${h.appearance}",
     children: AppearanceModel.staticFields,
   );
 
@@ -307,7 +361,7 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h.connections,
     "Connections",
     "Hero's connections",
-    format: (h) => "Connections: ${h?.connections}",
+    format: (h) => "Connections: ${h.connections}",
     children: ConnectionsModel.staticFields,
   );
 
@@ -315,13 +369,14 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h.image,
     "Image",
     "Hero's image",
-    format: (h) => "Image: ${h?.image}",
+    format: (h) => "Image: ${h.image}",
     children: ImageModel.staticFields,
   );
 
   static final List<FieldBase<HeroModel>> staticFields = [
     _idField,
     _versionField,
+    _timestampField,
     _lockedField,
     _externalIdField,
     _nameField,
