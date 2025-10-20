@@ -101,25 +101,25 @@ void main() {
   });
 
   test('parse list with corresponding values in different systems', () {
-    final imp = Height.parseList(['6\'2"', '188 cm'])!;
+    final imp = Height.parseList(['6\'2"', '188 cm']);
     var (feet, inches) = imp.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
 
-    final impWithOtherMetric = Height.parseList(['6\'2"', '189 cm'])!;
+    final impWithOtherMetric = Height.parseList(['6\'2"', '189 cm']);
     (feet, inches) = impWithOtherMetric.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
 
-    final redundantImp = Height.parseList(['6\'2"', '188 cm', '6 ft 2 in'])!;
+    final redundantImp = Height.parseList(['6\'2"', '188 cm', '6 ft 2 in']);
     (feet, inches) = redundantImp.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
 
-    final metric = Height.parseList(['188 cm', '6\'2"'])!;
+    final metric = Height.parseList(['188 cm', '6\'2"']);
     expect(metric.wholeCentimeters, 188);
 
-    final redundantMetric = Height.parseList(['188 cm', '6\'2"', "1.88"])!;
+    final redundantMetric = Height.parseList(['188 cm', '6\'2"', "1.88"]);
     expect(redundantMetric.wholeCentimeters, 188);
   });
 
@@ -140,11 +140,19 @@ void main() {
   });
 
   test('parse Ymir height', () {
-    final h = Height.parseList(["1000","304.8 meters"])!;
-  var (feet, inches) = h.wholeFeetAndWholeInches;
+    final h = Height.parseList(["1000", "304.8 meters"]);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 1000);
-    expect(inches, 0);    
-    expect(h.wholeCentimeters, 30480);  
+    expect(inches, 0);
+    expect(h.wholeCentimeters, 30480);
+  });
+
+  test('parse Anti-Montitor height', () {
+    final h = Height.parseList(["200", "61.0 meters"]);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 200);
+    expect(inches, 0);
+    expect(h.wholeMeters, 61);
   });
 
   test('parse with in conflicting values in different systems', () {
@@ -169,7 +177,7 @@ void main() {
           (e) =>
               e is FormatException &&
               e.message ==
-                  "Conflicting height information: '6 feet 3' doesn't match first value '6'2\"'",
+                  "Conflicting height information: '6'3\"' doesn't match first value '6'2\"'",
         ),
       ),
     );

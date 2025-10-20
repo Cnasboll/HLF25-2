@@ -32,6 +32,12 @@ bool promptForYes(String prompt) {
 $prompt (y/N)''', 'N').toLowerCase().startsWith('y');
 }
 
+bool promptForNo(String prompt) {
+  return !(promptFor('''
+
+$prompt (Y/n)''', 'Y').toLowerCase()).startsWith('n');
+}
+
 enum YesNextCancel { yes, next, cancel }
 
 YesNextCancel promptForYesNextCancel(String prompt) {

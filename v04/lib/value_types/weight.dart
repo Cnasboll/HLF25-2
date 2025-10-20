@@ -2,6 +2,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/field_base.dart';
 import 'package:v04/utils/json_parsing.dart';
+import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/value_type.dart';
 
 class Weight extends ValueType<Weight> {
@@ -33,7 +34,7 @@ class Weight extends ValueType<Weight> {
     return value;
   }
 
-  /// Parse a weight string such as "210 lb", "95 kg", or just "95"
+  /// Parse a weight string such as "210 lb", "95 kg", "18 tons", "90,0000 tons" or just "95"
   /// "- lb" also represents zero, apparently
   static (Weight?, String?) tryParse(String? input) {
     if (input == null) {
@@ -47,7 +48,7 @@ class Weight extends ValueType<Weight> {
     }
 
     final weightRegex = RegExp(
-      r'''^\s*(\d+|-)?\s*(lb|kg)?\s*$''',
+      r'''^\s*(\d+(\,\d+)?|-)?\s*(lb|kg|tons)?\s*$''',
       caseSensitive: false,
     );
 
@@ -55,10 +56,15 @@ class Weight extends ValueType<Weight> {
     if (match != null) {
       // A dash means zero, apparently, handled by specialNullCoalesce()
       var s1 = specialNullCoalesce(match.group(1));
-      final value = s1 == null ? 0 : int.tryParse(s1);
+      // Filter out commas from numbers like "90,000" for Godzilla's weight
+      final value = s1 == null ? 0 : int.tryParse(s1.replaceAll(",", ""));
       if (value != null) {
-        if (match.group(2) == 'lb') {
+        var unit = match.group(3);
+        if (unit == 'lb') {
           return (Weight.fromPounds(value), null);
+        }
+        if (unit == 'tons') {
+          return (Weight.fromKilograms(value * 1000), null);
         }
         return (Weight.fromKilograms(value), null);
       }
@@ -75,8 +81,14 @@ class Weight extends ValueType<Weight> {
     return value ?? Weight(0, SystemOfUnits.imperial);
   }
 
+  static ConflictResolver<Weight>? conflictResolver;
   static (Weight?, String?) tryParseList(List<String>? valueVariousUnits) {
-    return ValueType.tryParseList(valueVariousUnits, "weight", tryParse);
+    return ValueType.tryParseList(
+      valueVariousUnits,
+      "weight",
+      tryParse,
+      conflictResolver: conflictResolver,
+    );
   }
 
   @override
@@ -114,6 +126,16 @@ class Weight extends ValueType<Weight> {
   @override
   Weight cloneImperial() {
     return Weight.fromPounds(wholePounds);
+  }
+
+  @override
+  Weight integralFromOtherSystem(int integralValue) {
+    if (isMetric) {
+      // Interpret integralValue as whole pounds
+      return Weight.fromPounds(integralValue);
+    }
+    // Interpret integralValue as whole kilograms
+    return Weight.fromKilograms(integralValue);
   }
 
   @override

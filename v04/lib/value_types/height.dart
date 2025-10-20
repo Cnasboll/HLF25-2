@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/value_type.dart';
 
 class Height extends ValueType<Height> {
@@ -148,8 +149,14 @@ class Height extends ValueType<Height> {
     return value ?? zero;
   }
 
+  static ConflictResolver<Height>? conflictResolver;
   static (Height?, String?) tryParseList(List<String>? valueVariousUnits) {
-    return ValueType.tryParseList(valueVariousUnits, "height", tryParse);
+    return ValueType.tryParseList(
+      valueVariousUnits,
+      "height",
+      tryParse,
+      conflictResolver: conflictResolver,
+    );
   }
 
   @override
@@ -176,6 +183,7 @@ class Height extends ValueType<Height> {
   }
 
   int get wholeCentimeters => (value * 100.0).round();
+  int get wholeMeters => value.round();
 
   (int, int) get wholeFeetAndWholeInches {
     var (feet, inches) = metersToFeetAndInches(value);
@@ -191,15 +199,41 @@ class Height extends ValueType<Height> {
 
   @override
   Height cloneMetric() {
-    // Convert meters to a round number of centimeters (this destroys precision if value is imperial)
-    return Height.fromCentimeters(wholeCentimeters);
+    // Convert meters to 3 significant digits (this destroys precision if value is imperial)
+    return Height(withThreeSignificantDigits(value), SystemOfUnits.metric);
+  }
+
+  static double withThreeSignificantDigits(double d) {
+    return d;
+    /*String s = d.toStringAsPrecision(3);
+    return double.parse(s);*/
   }
 
   @override
   Height cloneImperial() {
     // Converts feet and inches to a round number of inches (this destroys precision if value is metric)
     var (feet, inches) = wholeFeetAndWholeInches;
-    return Height.fromFeetAndInches(feet, inches);
+    return Height(
+      // Round to meters with three significant digits
+      withThreeSignificantDigits(feetAndInchesToMeters(feet, inches)),
+      SystemOfUnits.imperial,
+    );
+  }
+
+  @override
+  Height integralFromOtherSystem(int integralValue) {
+    if (isMetric) {
+      // Interpret integralValue as whole feet
+      return Height.fromFeetAndInches(integralValue, 0);
+    }
+
+    if (value > 2) {
+      // Interpret integralValue >= 3 as whole centimeters
+      return Height.fromCentimeters(integralValue);
+    }
+
+    // Interpret integralValue <= 2 as whole meters
+    return Height.fromMeters(integralValue);
   }
 
   @override
@@ -221,7 +255,7 @@ class Height extends ValueType<Height> {
     sqliteName: "height_system_of_units",
     'The source system of units for height value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
     sqliteGetter: (h) => h.systemOfUnits.name,
-    nullable: false
+    nullable: false,
   );
 
   static final List<FieldBase<ValueType<Height>>> staticFields = [

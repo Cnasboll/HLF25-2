@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:v04/value_types/weight.dart';
 
 void main() {
-
   test('a dash means zero', () {
     final w = Weight.parse("- lb");
     expect(w.wholePounds, 0);
@@ -21,13 +20,16 @@ void main() {
     expect(w.wholePounds, 210);
   });
 
-  test('parse 210 and 209 lb are both  95 kg verifying source data is ambiguous af', () {
-    final lb210 = Weight.fromPounds(210);
-    final lb209 = Weight.fromPounds(209);
-    // It seesms like the api converts pounds to kilograms and rounds DOWN instead of to nearest
-    expect(lb210.wholeKilograms, 95);
-    expect(lb209.wholeKilograms, 94);
-  });
+  test(
+    'parse 210 and 209 lb are both  95 kg verifying source data is ambiguous af',
+    () {
+      final lb210 = Weight.fromPounds(210);
+      final lb209 = Weight.fromPounds(209);
+      // It seesms like the api converts pounds to kilograms and rounds DOWN instead of to nearest
+      expect(lb210.wholeKilograms, 95);
+      expect(lb209.wholeKilograms, 94);
+    },
+  );
 
   test('parse imperial compact', () {
     final w = Weight.parse("210lb");
@@ -42,15 +44,31 @@ void main() {
 
   test('parse kg compact', () {
     final w = Weight.parse('95kg');
-    expect(w.wholeKilograms, 95); 
+    expect(w.wholeKilograms, 95);
   });
-  
+
   test('parse integer assumed kg', () {
     final w = Weight.parse('95');
     expect(w.wholeKilograms, 95);
   });
 
-  
+  /*Failed to parse hero id 256: Fin Fang Foom: FormatException: Could not parse weight: 18 tons
+Failed to parse hero id 273: Galactus: FormatException: Could not parse weight: 16 tons
+Failed to parse hero id 287: Godzilla: FormatException: Could not parse weight: 90,000 tons
+Failed to parse hero id 303: Groot: FormatException: Could not parse weight: 4 tons
+Failed to parse hero id 347: Iron Monger: FormatException: Could not parse weight: 2 tons
+Failed to parse hero id 389: King Kong: FormatException: Could not parse weight: 9,000 tons
+Failed to parse hero id 681: Utgard-Loki: FormatException: Could not parse weight: 58 tons*/
+  test('parse Fin Fang Foom weight in tonnes', () {
+    final w = Weight.parse('18 tons');
+    expect(w.wholeKilograms, 18000);
+  });
+
+  test('parse Godzilla weight in tonnes', () {
+    final w = Weight.parse('90,000 tons');
+    expect(w.wholeKilograms, 90000000);
+  });
+
   test('parse list with corresponding values in different systems', () {
     final imp = Weight.parseList(['209 lb', '95 kg']);
     expect(imp.wholePounds, 209);
@@ -82,7 +100,8 @@ void main() {
         predicate(
           (e) =>
               e is FormatException &&
-              e.message == "Conflicting weight information: metric '94 kg' corresponds to '207 lb' after converting back to imperial -- expecting '95 kg' in order to match first value of '210 lb'",
+              e.message ==
+                  "Conflicting weight information: metric '94 kg' corresponds to '207 lb' after converting back to imperial -- expecting '95 kg' in order to match first value of '210 lb'",
         ),
       ),
     );
