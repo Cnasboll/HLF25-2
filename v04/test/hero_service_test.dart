@@ -39,6 +39,7 @@ void main() async {
     for (var failure in failures) {
       print(failure);
     }
+    expect(failures.length, 0);
   });
 
   test('Can search Q', () async {

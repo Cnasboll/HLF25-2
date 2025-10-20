@@ -14,6 +14,16 @@ void main() {
     expect(h.toString(), "-");
   });
 
+  test( "For the suphero Dagger, 'Shaker Heights, Ohio' means zero feet and zero inches", () {
+    final h = Height.parse("Shaker Heights, Ohio");
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 0);
+    expect(inches, 0);
+    expect(h.wholeCentimeters, 0);
+    expect(h.isImperial, true);
+    expect(h.toString(), "-");
+  });
+
   test('parse imperial shorthand', () {
     final h = Height.parse("6'2\"");
     var (feet, inches) = h.wholeFeetAndWholeInches;

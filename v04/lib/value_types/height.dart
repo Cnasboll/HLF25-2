@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/value_type.dart';
 
@@ -35,6 +36,8 @@ class Height extends ValueType<Height> {
     return value;
   }
 
+  static final String daggerHeight = "Shaker Heights, Ohio";
+  
   /// Parse a height string
   ///
   /// Recognises common imperial forms like:
@@ -48,6 +51,7 @@ class Height extends ValueType<Height> {
   /// - 1.88 m
   /// - 1.88
   /// A dash means zero, apparently
+  /// "Dagger" has height "Shaker Heights, Ohio" which we also interpret as zero for consistency
   static (Height?, String?) tryParse(String? input) {
     if (input == null) {
       // Null is not an error, it just means no information provided
@@ -58,8 +62,9 @@ class Height extends ValueType<Height> {
       return (null, 'Empty height string');
     }
 
-    if (s == '-') {
-      // In the superheroapi, Dash means zero, apparently
+    if (specialNullCoalesce(s, extraNullLiterals:  [daggerHeight]) == null) {
+      // In the superheroapi, Dash "-" means zero, apparently
+      // Also "Dagger" has height "Shaker Heights, Ohio" which we interpret as zero for consistency
       return (Height.fromFeetAndInches(0, 0), null);
     }
 
