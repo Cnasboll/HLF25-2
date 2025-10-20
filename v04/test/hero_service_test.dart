@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:v04/managers/hero_data_manager.dart';
-import 'package:v04/models/search_response_model.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
 import 'auto_conflict_resolver.dart';
