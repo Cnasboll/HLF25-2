@@ -170,6 +170,17 @@ class Height extends ValueType<Height> {
       return "$feet'${inches.round()}\"";
     }
     if (isMetric) {
+      if (value > 2 && value.round() == value) {
+        // Whole number of metres (spelled "meters" in US English)
+        return "${(value).round()} meters";
+      }
+
+      // Metres with one decimal place
+      if (value > 100 && (value * 10).round() == (value * 10)) {
+        return "${(value * 10).round() / 10} meters";
+      }
+      
+      // Whole number of centimeters
       return "${(value * 100).round()} cm";
     }
     return '<unknown>';
