@@ -179,6 +179,15 @@ void main() {
     expect(h.toString(), "304.8 meters");
   });
 
+  test('can display Anti-Monitor\'s 200 ft in cm to 61.0 m', () {
+    final h = Height.parse('6096 cm');
+    expect(h.wholeCentimeters, 6096);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 200);
+    expect(inches, 0);
+    expect(h.toString(), "61.0 meters");
+  });
+
   test('parse Anti-Montitor height', () {
     final h = Height.parseList(["200", "61.0 meters"]);
     var (feet, inches) = h.wholeFeetAndWholeInches;

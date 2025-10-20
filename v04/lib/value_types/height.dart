@@ -37,7 +37,7 @@ class Height extends ValueType<Height> {
   }
 
   static final String daggerHeight = "Shaker Heights, Ohio";
-  
+
   /// Parse a height string
   ///
   /// Recognises common imperial forms like:
@@ -62,7 +62,7 @@ class Height extends ValueType<Height> {
       return (null, 'Empty height string');
     }
 
-    if (specialNullCoalesce(s, extraNullLiterals:  [daggerHeight]) == null) {
+    if (specialNullCoalesce(s, extraNullLiterals: [daggerHeight]) == null) {
       // In the superheroapi, Dash "-" means zero, apparently
       // Also "Dagger" has height "Shaker Heights, Ohio" which we interpret as zero for consistency
       return (Height.fromFeetAndInches(0, 0), null);
@@ -170,16 +170,18 @@ class Height extends ValueType<Height> {
       return "$feet'${inches.round()}\"";
     }
     if (isMetric) {
+      // 2 digit+ meters with one decimal place e.g. 60.96 meters are formatted as "60.1 meters"
+      // for 200 feet for "Anti-Monitor". Why oh why are we doing all this?
+      if (value > 10) {
+        var rounded = (value * 10).round();
+        return "${(rounded / 10).toStringAsFixed(1)} meters";
+      }
+
       if (value > 2 && value.round() == value) {
         // Whole number of metres (spelled "meters" in US English)
         return "${(value).round()} meters";
       }
 
-      // Metres with one decimal place
-      if (value > 100 && (value * 10).round() == (value * 10)) {
-        return "${(value * 10).round() / 10} meters";
-      }
-      
       // Whole number of centimeters
       return "${(value * 100).round()} cm";
     }

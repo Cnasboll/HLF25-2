@@ -50,15 +50,28 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
       bool parsedValueCorrespondsMasterButInDifferentUnit =
           parsedValue == masterInParsedUnit;
 
-      // CASE 2: Try the other way around -- ['95 kg', '210 lb']. As 95 kgs converted to pounds is 209.44 then we would expect a second
+
+      // CASE 2: Anti Monitor has height listed as ["200", "61.0 meters"]. Here "200" means 200 feet, 
+      // which is 6096 cm or 61.96 meters, it's the api that has rounded to 61.0 meters.
+      // We handle that case in Height.toString(). Check that tehe string representations of the metric values match:
+      bool parsedValueCorrespondsMasterButInDifferentUnitAsStrings =
+          parsedValue.toString() == masterInParsedUnit.toString();
+
+      // CASE 3: Try the other way around -- ['95 kg', '210 lb']. As 95 kgs converted to pounds is 209.44 then we would expect a second
       // rounded value of '209 lb' but we got something else, '210 lb', so this is a conflict.
       // We do a second test to verify that a rounded version of '210 lb' is indeed '95 kg' as per CASE 1 above so both tests need to fail to detect
       // a real conflict!
       bool parsedValueInMasterUnitsCorrespondsToMaster =
           parsedValueInMasterUnit == value;
 
+      // CASE 4: Same as CASE 3 but comparing string representations of the values to handle further rounding differences
+      bool parsedValueInMasterUnitsCorrespondsToMasterAsStrings =
+          parsedValueInMasterUnit.toString() == value.toString();
+
       if (!parsedValueCorrespondsMasterButInDifferentUnit &&
-          !parsedValueInMasterUnitsCorrespondsToMaster) {
+          !parsedValueCorrespondsMasterButInDifferentUnitAsStrings &&
+          !parsedValueInMasterUnitsCorrespondsToMaster &&
+          !parsedValueInMasterUnitsCorrespondsToMasterAsStrings) {
         var error =
             "Conflicting $valueTypeName information:"
             " ${parsedSystemOfUnits.name} '$parsedValue' corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInParsedUnit' in order to match first value of '$value'";
