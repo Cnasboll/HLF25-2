@@ -131,8 +131,18 @@ void main() {
     expect(inches, 0);
   });
 
-  test('parse Ymir height', () {
+  test('parse Ymir height infer 1000 feet', () {
+    // We infer that 1000 means feet here
     final h = Height.parseList(["1000", "304.8 meters"]);
+    var (feet, inches) = h.wholeFeetAndWholeInches;
+    expect(feet, 1000);
+    expect(inches, 0);
+    expect(h.wholeCentimeters, 30480);
+  });
+
+  test('parse Ymir height in different order still infer 1000 feet', () {
+    // We infer that 1000 means feet here
+    final h = Height.parseList(["304.8 meters", "1000"]);
     var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 1000);
     expect(inches, 0);

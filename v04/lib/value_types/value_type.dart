@@ -31,6 +31,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     ValueType<T> value,
     String valueSource,
     ValueType<T> parsedValue,
+    String input,
     ConflictResolver<T>? conflictResolver,
   ) {
     var valueSystemOfUnits = value.systemOfUnits;
@@ -82,15 +83,38 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     // Test if the first value only contains digits and therefore can be interpreted as the same value but in a different unit
     // This handles the case of Height: ["1000", "304.8 meters"] for Ymir where "1000" means 1000 feet and not 1000 cm
     var integralFirst = int.tryParse(valueSource);
-    if (integralFirst != null) {
+    var integralSecond = int.tryParse(input);
+    if (integralFirst != null && integralSecond == null) {
       // First value is integral only, so recurse but change value to the integer interpreted in other unit
-      return checkConsistency<T>(
+      var (newValue, error) = checkConsistency<T>(
         valueTypeName,
         value.integralFromOtherSystem(integralFirst),
         valueSource,
         parsedValue,
+        input,
         conflictResolver,
       );
+      if (newValue != null) {
+        return (newValue, error);
+      }
+    }
+
+    if (integralSecond != null && integralFirst == null) {
+      // Second value is integral only, so recurse but change value to the integer interpreted in other unit,
+      // this handles the case of Height: ["304.8 meters", "1000"] for Ymir where "1000" means 1000 feet and not 1000 cm
+      // as our code doesn't care about the order of values in the list even though the api always seems to put imperial first
+      // but that is not a specified contract!
+      var (newValue, error) = checkConsistency<T>(
+        valueTypeName,
+        value,
+        valueSource,
+        parsedValue.integralFromOtherSystem(integralSecond),
+        input,
+        conflictResolver,
+      );
+      if (newValue != null) {
+        return (newValue, error);
+      }
     }
     return (
       null,
@@ -144,6 +168,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
         value,
         valueSource!,
         parsedValue,
+        input,
         conflictResolver,
       );
 
