@@ -91,6 +91,15 @@ class Weight extends ValueType<Weight> {
     );
   }
 
+  static final RegExp largeIntegerFormatRegexp = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+  String largeIntegerToString(int value) {
+    return value.toString().replaceAllMapped(
+      largeIntegerFormatRegexp,
+      (Match match) => '${match[1]},',
+    );
+  }
+  
+
   @override
   String toString() {
     if (isImperial) {
@@ -100,6 +109,12 @@ class Weight extends ValueType<Weight> {
       return "$wholePounds lb";
     }
     if (isMetric) {
+      if (value > 1000 && value % 1000 == 0) {
+        var tons = value / 1000;
+
+        return "${largeIntegerToString(tons.round())} tons";
+      }
+
       return "$wholeKilograms kg";
     }
     return '<unknown>';

@@ -115,7 +115,7 @@ Appearance: Weight: 210 lb -> 220 lb
     var appearance = fatman.appearance;
     expect(appearance.gender, Gender.male);
     expect(appearance.race, "Human");
-    var height = appearance.height!;
+    var height = appearance.height;
     // This parsing and verification of integrity between representations of Height and Weight is really the biggest part of this assignment for me.
     // Of course it is internally represented in metric but for purposes of formatting the system of units is tied to the value object
     // so the database mapping does store the height and weight in SI units but encode the original system of units that was read from the json as an enum
@@ -124,7 +124,7 @@ Appearance: Weight: 210 lb -> 220 lb
     // 188->186 cm can happen with age and posture changes, but the final cm from 186 to 185 was lost to debilitating roundingitis from inches!
     expect(height.wholeCentimeters, 185);
     expect(height.systemOfUnits, SystemOfUnits.imperial);
-    var weight = appearance.weight!;
+    var weight = appearance.weight;
     // 95->100 kgs, can happen, been there, done that
     expect(weight.wholePounds, 220);
     // The api rounds the weight in kilos down so it handles 99.7903 kg as 99 kg instead of 100

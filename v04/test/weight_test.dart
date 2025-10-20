@@ -13,11 +13,13 @@ void main() {
   test('parse imperial', () {
     final w = Weight.parse("210 lb");
     expect(w.wholePounds, 210);
+    expect(w.toString(), "210 lb");
   });
 
   test('parse imperial', () {
     final w = Weight.parse("210 lb");
     expect(w.wholePounds, 210);
+    expect(w.toString(), "210 lb");
   });
 
   test(
@@ -34,63 +36,69 @@ void main() {
   test('parse imperial compact', () {
     final w = Weight.parse("210lb");
     expect(w.wholePounds, 210);
+    expect(w.toString(), "210 lb");
   });
 
   test('parse kg', () {
     final w = Weight.parse('95 kg');
     expect(w.wholeKilograms, 95);
     expect(w.asImperial().wholePounds, 209);
+    expect(w.toString(), "95 kg");
   });
 
   test('parse kg compact', () {
     final w = Weight.parse('95kg');
     expect(w.wholeKilograms, 95);
+    expect(w.toString(), "95 kg");
   });
 
   test('parse integer assumed kg', () {
     final w = Weight.parse('95');
     expect(w.wholeKilograms, 95);
+    expect(w.toString(), "95 kg");
   });
 
-  /*Failed to parse hero id 256: Fin Fang Foom: FormatException: Could not parse weight: 18 tons
-Failed to parse hero id 273: Galactus: FormatException: Could not parse weight: 16 tons
-Failed to parse hero id 287: Godzilla: FormatException: Could not parse weight: 90,000 tons
-Failed to parse hero id 303: Groot: FormatException: Could not parse weight: 4 tons
-Failed to parse hero id 347: Iron Monger: FormatException: Could not parse weight: 2 tons
-Failed to parse hero id 389: King Kong: FormatException: Could not parse weight: 9,000 tons
-Failed to parse hero id 681: Utgard-Loki: FormatException: Could not parse weight: 58 tons*/
   test('parse Fin Fang Foom weight in tonnes', () {
     final w = Weight.parse('18 tons');
     expect(w.wholeKilograms, 18000);
+    expect(w.toString(), "18 tons");
   });
 
   test('parse Godzilla weight in tonnes', () {
     final w = Weight.parse('90,000 tons');
     expect(w.wholeKilograms, 90000000);
+    expect(w.toString(), "90,000 tons");
   });
 
   test('parse list with corresponding values in different systems', () {
     final imp = Weight.parseList(['209 lb', '95 kg']);
     expect(imp.wholePounds, 209);
+    expect(imp.toString(), "209 lb");
 
     final imp2 = Weight.parseList(['210 lb', '95 kg']);
     expect(imp2.wholePounds, 210);
+    expect(imp2.toString(), "210 lb");
 
     // Note that 95 kgs can correspond to both 209 or 210 pounds
     final metric = Weight.parseList(['95 kg', '209 lb']);
     expect(metric.wholeKilograms, 95);
+    expect(metric.toString(), "95 kg");
 
     final metric2 = Weight.parseList(['95 kg', '210 lb']);
     expect(metric2.wholeKilograms, 95);
+    expect(metric2.toString(), "95 kg");
 
-    final metric3 = Weight.parseList(['95 kg', '210 lb', '209 lb'])!;
+    final metric3 = Weight.parseList(['95 kg', '210 lb', '209 lb']);
     expect(metric3.wholeKilograms, 95);
+    expect(metric3.toString(), "95 kg");
 
-    final redundantMetric = Weight.parseList(['95 kg', '209 lb', "95"])!;
+    final redundantMetric = Weight.parseList(['95 kg', '209 lb', "95"]);
     expect(redundantMetric.wholeKilograms, 95);
+    expect(redundantMetric.toString(), "95 kg");
 
-    final moreImperial = Weight.parseList(["155 lb", "70 kg"])!;
+    final moreImperial = Weight.parseList(["155 lb", "70 kg"]);
     expect(moreImperial.wholePounds, 155);
+    expect(moreImperial.toString(), "155 lb");
   });
 
   test('parse with in conflicting values in different systems', () {
