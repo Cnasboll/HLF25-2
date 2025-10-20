@@ -150,7 +150,7 @@ void listMatchingHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-Future<void> downloadHeroes(HeroDataManaging heroDataManager) async {
+Future<void> saveHeroes(HeroDataManaging heroDataManager) async {
   var query = promptFor("Enter a search string:");
   var heroService = HeroService(Env());
     var timestamp = DateTime.timestamp();
@@ -181,11 +181,13 @@ Online search started at $timestamp
       timestamp
     );
 
-    print("Found ${searchResponseModel.results.length} heroes online:");
+    print('''
+
+Found ${searchResponseModel.results.length} heroes online:''');
     for (var hero in searchResponseModel.results) {
       if (heroDataManager.getByExternalId(hero.externalId) != null) {
         print(
-          "Hero ${hero.name} already exists locally - skipping (run reconciliation to update existing heroes with online data)",
+          'Hero  ${hero.externalId} ("${hero.name}") already exists locally - skipping (run reconciliation to update existing heroes with online data)',
         );
         continue;
       }
@@ -194,7 +196,7 @@ Online search started at $timestamp
         var yesNoAll = promptForYesNoAllQuit('''Save the following hero locally?
 $hero''');
         if (yesNoAll == YesNoAllQuit.quit) {
-          print("Aborting download of further heroes");
+          print("Aborting saving of further heroes");
           break;
         }
         if (yesNoAll == YesNoAllQuit.no) {
@@ -205,7 +207,7 @@ $hero''');
         }
       }
       heroDataManager.persist(hero);
-      print('''Saved hero:
+      print('''Saved hero ${hero.externalId} ("${hero.name}") so it can save you:
 $hero''');
       ++saveCount;
     }
@@ -218,7 +220,7 @@ $hero''');
 
     print (''' 
 
-Download complete at ${DateTime.timestamp()}: $saveCount heroes saved.
+Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they can in turn save ${saveCount*saveCount * 10} people, or more, depending on their abilities).
 
 ''');
 }
@@ -286,7 +288,7 @@ $amededHero''');
   }
 }
 
-void unlockHeroe(HeroDataManaging heroDataManager) {
+void unlockHero(HeroDataManaging heroDataManager) {
   HeroModel? hero = query(
     heroDataManager,
     "Unlock to enable reconciliation",
@@ -358,11 +360,11 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
       "[R]econcile local heroes with online updates",
     ),
     "s": (
-      () async => await downloadHeroes(heroDataManager),
-      "[S]earch online for new heroes to download",
+      () async => await saveHeroes(heroDataManager),
+      "[S]earch online for new heroes to save",
     ),
     "u": (
-      () => unlockHeroe(heroDataManager),
+      () => unlockHero(heroDataManager),
       "[U]nlock manually amended heroes to enable reconciliation",
     ),
     "x": (() => {exit = true}, "E[X]it and return to main menu"),
