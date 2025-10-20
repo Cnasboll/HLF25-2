@@ -1,4 +1,5 @@
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v04/value_types/percentage.dart';
 
 abstract class FieldBase<T> {
   bool promptForJson(Map<String, dynamic> json, {String? crumbtrail});
@@ -17,6 +18,11 @@ abstract class FieldBase<T> {
   int? getNullableInt(Map<String, dynamic>? json);
   int getIntFromRow(Row row, int defaultValue);
   int? getNullableIntFromRow(Row row);
+  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment);
+  Percentage getPercentageFromJson(Map<String, dynamic>? json, int defaultValue);
+  Percentage? getNullablePercentage(Map<String, dynamic>? json);
+  Percentage getPercentageFromRow(Row row, int defaultValue);
+  Percentage? getNullablePercentageFromRow(Row row);
   double getFloatFromRow(Row row, double defaultValue);
   double? getNullableFloatFromRow(Row row);
   bool getBoolFromRow(Row row, bool defaultValue);

@@ -3,6 +3,7 @@ import 'package:v04/models/appearance_model.dart';
 import 'package:v04/models/biography_model.dart';
 import 'package:v04/models/hero_model.dart';
 import 'package:test/test.dart';
+import 'package:v04/value_types/percentage.dart';
 import 'package:v04/value_types/value_type.dart';
 
 void main() {
@@ -90,13 +91,13 @@ Appearance: Weight: 210 lb -> 220 lb
     expect(fatman.name, "Batman");
 
     var powerStats = fatman.powerStats;
-    expect(powerStats.strength, 26);
-    expect(powerStats.speed, 27);
+    expect(powerStats.strength,  Percentage(26));
+    expect(powerStats.speed,  Percentage(27));
     // 100->96, can happen after working too long with handling unit inconsistencies between metric and imperial
-    expect(powerStats.intelligence, 96);
-    expect(powerStats.durability, 45);
-    expect(powerStats.power, 47);
-    expect(powerStats.combat, 100);
+    expect(powerStats.intelligence, Percentage(96));
+    expect(powerStats.durability, Percentage(45));
+    expect(powerStats.power, Percentage(47));
+    expect(powerStats.combat, Percentage(100));
 
     var biography = fatman.biography;
     expect(biography.fullName, "Bruce Wayne");

@@ -6,6 +6,7 @@ import 'package:v04/amendable/field_base.dart';
 import 'package:v04/prompts/prompt.dart';
 import 'package:v04/utils/enum_parsing.dart';
 import 'package:v04/utils/json_parsing.dart';
+import 'package:v04/value_types/percentage.dart';
 
 typedef LookupField<T, V> = V? Function(T);
 typedef FormatField<T> = String Function(T);
@@ -59,7 +60,7 @@ class Field<T, V> implements FieldBase<T> {
       prompt,
       children,
       childrenForDbOnly,
-      extraNullLiterals
+      extraNullLiterals,
     );
   }
 
@@ -79,7 +80,7 @@ class Field<T, V> implements FieldBase<T> {
     this.prompt,
     this._children,
     this.childrenForDbOnly,
-    this.extraNullLiterals
+    this.extraNullLiterals,
   );
 
   // DRY for type: infer T from the getter's return type
@@ -117,7 +118,7 @@ class Field<T, V> implements FieldBase<T> {
       children: children,
       sqliteGetter: sqliteGetter,
       childrenForDbOnly: childrenForDbOnly,
-      extraNullLiterals: extraNullLiterals
+      extraNullLiterals: extraNullLiterals,
     );
   }
 
@@ -138,7 +139,7 @@ class Field<T, V> implements FieldBase<T> {
           : "abort";
       var promptSuffix = prompt != null ? '$prompt' : '';
       var input = promptFor(
-        "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:"
+        "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:",
       );
       if (input.isEmpty) {
         return false;
@@ -171,7 +172,7 @@ class Field<T, V> implements FieldBase<T> {
     if (_children.isEmpty || childrenForDbOnly) {
       var promptSuffix = prompt != null ? '$prompt' : '';
       var current = format(t);
-      var input  = promptFor(
+      var input = promptFor(
         "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
       );
       if (input.isNotEmpty) {
@@ -359,7 +360,7 @@ class Field<T, V> implements FieldBase<T> {
     if (value is int) {
       return value;
     }
-    var s = specialNullCoalesce(value, extraNullLiterals : extraNullLiterals);
+    var s = specialNullCoalesce(value, extraNullLiterals: extraNullLiterals);
     if (s == null) {
       return null;
     }
@@ -374,6 +375,46 @@ class Field<T, V> implements FieldBase<T> {
   @override
   int? getNullableIntFromRow(Row row) {
     return row[sqliteName] as int?;
+  }
+
+  @override
+  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment) {
+    var value = getIntForAmendment(t, amendment);
+    if (value == null) {
+      return null;
+    }
+    return Percentage(value);
+  }
+
+  @override
+  Percentage getPercentageFromJson(
+    Map<String, dynamic>? json,
+    int defaultValue,
+  ) {
+    return Percentage(getIntFromJson(json, defaultValue));
+  }
+
+  @override
+  Percentage? getNullablePercentage(Map<String, dynamic>? json) {
+    var value = getNullableInt(json);
+    if (value == null) {
+      return null;
+    }
+    return Percentage(value);
+  }
+
+  @override
+  Percentage getPercentageFromRow(Row row, int defaultValue) {
+    return Percentage(getIntFromRow(row, defaultValue));
+  }
+
+  @override
+  Percentage? getNullablePercentageFromRow(Row row) {
+    var value = getNullableIntFromRow(row);
+    if (value == null) {
+      return null;
+    }
+    return Percentage(value);
   }
 
   @override
@@ -412,7 +453,10 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   String? getNullableString(Map<String, dynamic>? json) {
-    return specialNullCoalesce(json?[jsonName], extraNullLiterals : extraNullLiterals);
+    return specialNullCoalesce(
+      json?[jsonName],
+      extraNullLiterals: extraNullLiterals,
+    );
   }
 
   @override
@@ -432,7 +476,7 @@ class Field<T, V> implements FieldBase<T> {
 
   @override
   String getStringFromRow(Row row, String defaultValue) {
-    return getNullableStringFromRow(row)  ?? defaultValue;
+    return getNullableStringFromRow(row) ?? defaultValue;
   }
 
   @override
@@ -495,21 +539,18 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  DateTime getDateTimeFromRow(Row row, DateTime defaultValue)
-  {
+  DateTime getDateTimeFromRow(Row row, DateTime defaultValue) {
     return getNullableDateTimeFromRow(row) ?? defaultValue;
   }
-  
+
   @override
-  DateTime? getNullableDateTimeFromRow(Row row)
-  {
+  DateTime? getNullableDateTimeFromRow(Row row) {
     var s = getNullableStringFromRow(row);
     if (s == null) {
       return null;
     }
     return DateTime.tryParse(s);
   }
-
 
   @override
   E getEnumForAmendment<E extends Enum>(

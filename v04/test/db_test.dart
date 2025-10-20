@@ -11,6 +11,7 @@ import 'package:v04/models/work_model.dart';
 import 'package:v04/persistence/hero_repository.dart';
 import 'package:test/test.dart';
 import 'package:v04/value_types/height.dart';
+import 'package:v04/value_types/percentage.dart';
 import 'package:v04/value_types/weight.dart';
 
 final DateTime deadline = DateTime.parse("2025-10-28T18:00:00.000000Z");
@@ -31,17 +32,17 @@ Future<void> main() async {
       HeroModel(
         id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
         version: 1,
-        timestamp:  deadline,
+        timestamp: deadline,
         locked: false,
         externalId: "70",
         name: "Batman",
         powerStats: PowerStatsModel(
-          intelligence: 100,
-          strength: 26,
-          speed: 27,
-          durability: 50,
-          power: 47,
-          combat: 100,
+          intelligence: Percentage(50),
+          strength: Percentage(26),
+          speed: Percentage(27),
+          durability: Percentage(50),
+          power: Percentage(47),
+          combat: Percentage(100),
         ),
         biography: BiographyModel(
           fullName: "Bruce Wayne",
@@ -65,10 +66,14 @@ Future<void> main() async {
           base: "Gotham City",
         ),
         connections: ConnectionsModel(
-          groupAffiliation: "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
-          relatives: "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
+          groupAffiliation:
+              "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
+          relatives:
+              "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
         ),
-        image: ImageModel(url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg")
+        image: ImageModel(
+          url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
+        ),
       ),
     );
     heroDataManager.persist(
@@ -80,12 +85,12 @@ Future<void> main() async {
         externalId: "69",
         name: "Robin",
         powerStats: PowerStatsModel(
-          intelligence: 110,
-          strength: 23,
-          speed: 28,
-          durability: 57,
-          power: 30,
-          combat: 99,
+          intelligence: Percentage(51),
+          strength: Percentage(23),
+          speed: Percentage(28),
+          durability: Percentage(57),
+          power: Percentage(30),
+          combat: Percentage(99),
         ),
         biography: BiographyModel(
           fullName: "Dick Grayson",
@@ -104,15 +109,14 @@ Future<void> main() async {
           eyeColor: 'blue',
           hairColor: 'black',
         ),
-        work: WorkModel(
-          occupation: "Hero",
-          base: "Gotham City",
-        ),
+        work: WorkModel(occupation: "Hero", base: "Gotham City"),
         connections: ConnectionsModel(
           groupAffiliation: "Teen Titans, Batman Family",
           relatives: "Bruce Wayne (guardian), Alfred Pennyworth (butler)",
         ),
-        image: ImageModel(url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg")
+        image: ImageModel(
+          url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
+        ),
       ),
     );
     await heroDataManager.dispose();
@@ -127,7 +131,7 @@ Future<void> main() async {
     expect(batman.timestamp, deadline);
     expect(batman.externalId, "70");
     expect(batman.name, "Batman");
-    expect(batman.powerStats.strength, 26);
+    expect(batman.powerStats.strength, Percentage(26));
     expect(batman.appearance.gender, Gender.male);
     expect(batman.biography.alignment, Alignment.mostlyGood);
     expect(batman.appearance.race, "Human");
@@ -138,14 +142,14 @@ Future<void> main() async {
     expect(robin.timestamp, deadline);
     expect(robin.externalId, "69");
     expect(robin.name, "Robin");
-    expect(robin.powerStats.strength, 23);
+    expect(robin.powerStats.strength, Percentage(23));
     expect(robin.appearance.gender, Gender.unknown);
     expect(robin.biography.alignment, Alignment.reasonable);
     expect(robin.appearance.race, "Human");
 
     // Modify Batman's strength and aligment
     batman = batman.copyWith(
-      powerStats: batman.powerStats.copyWith(strength: 13),
+      powerStats: batman.powerStats.copyWith(strength: Percentage(13)),
       biography: batman.biography.copyWith(alignment: Alignment.good),
     );
     heroDataManager.persist(batman);
@@ -154,7 +158,7 @@ Future<void> main() async {
     var alfred = HeroModel.newId(
       "3",
       "Alfred",
-      PowerStatsModel(strength: 9),
+      PowerStatsModel(strength: Percentage(9)),
       BiographyModel(alignment: Alignment.good, fullName: "Alfred Pennyworth"),
       AppearanceModel(
         gender: Gender.wontSay,
@@ -185,12 +189,12 @@ Future<void> main() async {
     batman = heroDataManager.getById(batman.id)!;
     expect(batman.version, 2);
     expect(batman.name, "Batman");
-    expect(batman.powerStats.strength, 13);
+    expect(batman.powerStats.strength, Percentage(13));
 
     alfred = heroDataManager.getById(alfred.id)!;
     expect(alfred.version, 1);
     expect(alfred.name, "Alfred");
-    expect(alfred.powerStats.strength, 9);
+    expect(alfred.powerStats.strength, Percentage(9));
     await heroDataManager.dispose();
 
     file = File(path);

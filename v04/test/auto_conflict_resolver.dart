@@ -10,7 +10,11 @@ class AutoConflictResolver<T extends ValueType<T>>
     T conflictingInDifferentUnit,
     String error,
   ) {
-    print("$error. Resolving by using first provided (${value.systemOfUnits.name}) value for $valueTypeName: '$value'.");
+    resolutionLog.add(
+      "$error. Resolving by using first provided (${value.systemOfUnits.name}) value for $valueTypeName: '$value'.",
+    );
     return (value, null); // Always pick the first value
   }
+
+  List<String> resolutionLog = [];
 }

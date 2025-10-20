@@ -4,6 +4,7 @@ import 'package:v04/models/biography_model.dart';
 import 'package:v04/models/hero_model.dart';
 import 'package:test/test.dart';
 import 'package:v04/utils/json_parsing.dart';
+import 'package:v04/value_types/percentage.dart';
 import 'package:v04/value_types/value_type.dart';
 
 void main() {
@@ -60,12 +61,12 @@ void main() {
     expect(batman.name, "Batman");
 
     var powerStats = batman.powerStats;
-    expect(powerStats.strength, 26);
-    expect(powerStats.speed, 27);
-    expect(powerStats.intelligence, 100);
-    expect(powerStats.durability, 50);
-    expect(powerStats.power, 47);
-    expect(powerStats.combat, 100);
+    expect(powerStats.strength, Percentage(26));
+    expect(powerStats.speed, Percentage(27));
+    expect(powerStats.intelligence, Percentage(100));
+    expect(powerStats.durability, Percentage(50));
+    expect(powerStats.power, Percentage(47));
+    expect(powerStats.combat, Percentage(100));
 
     var biography = batman.biography;
     expect(biography.fullName, "Bruce Wayne");

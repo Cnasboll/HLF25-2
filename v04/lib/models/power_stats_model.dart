@@ -2,6 +2,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/value_types/percentage.dart';
 
 class PowerStatsModel extends Amendable<PowerStatsModel> {
   PowerStatsModel({
@@ -24,12 +25,12 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
       );
 
   PowerStatsModel copyWith({
-    int? intelligence,
-    int? strength,
-    int? speed,
-    int? durability,
-    int? power,
-    int? combat,
+    Percentage? intelligence,
+    Percentage? strength,
+    Percentage? speed,
+    Percentage? durability,
+    Percentage? power,
+    Percentage? combat,
   }) {
     return PowerStatsModel(
       intelligence: intelligence ?? this.intelligence,
@@ -41,30 +42,39 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
     );
   }
 
-@override
+  @override
   int compareTo(PowerStatsModel other) {
-  
     // Sort by strength, descending first followed by intelligence, speed, durability, power, combat by reversing the comparison
     // to get descending order.
-    for (var field in [_strengthField, _intelligenceField, _speedField, _durabilityField, _powerField, _combatField]) {
+    for (var field in [
+      _strengthField,
+      _intelligenceField,
+      _speedField,
+      _durabilityField,
+      _powerField,
+      _combatField,
+    ]) {
       int comparison = field.compareField(other, this);
       if (comparison != 0) {
         return comparison;
       }
     }
-    
+
     return 0;
   }
 
   @override
   PowerStatsModel amendWith(Map<String, dynamic>? amendment) {
     return PowerStatsModel(
-      intelligence: _intelligenceField.getIntForAmendment(this, amendment),
-      strength: _strengthField.getIntForAmendment(this, amendment),
-      speed: _speedField.getIntForAmendment(this, amendment),
-      durability: _durabilityField.getIntForAmendment(this, amendment),
-      power: _powerField.getIntForAmendment(this, amendment),
-      combat: _combatField.getIntForAmendment(this, amendment),
+      intelligence: _intelligenceField.getPercentageForAmendment(
+        this,
+        amendment,
+      ),
+      strength: _strengthField.getPercentageForAmendment(this, amendment),
+      speed: _speedField.getPercentageForAmendment(this, amendment),
+      durability: _durabilityField.getPercentageForAmendment(this, amendment),
+      power: _powerField.getPercentageForAmendment(this, amendment),
+      combat: _combatField.getPercentageForAmendment(this, amendment),
     );
   }
 
@@ -73,32 +83,32 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
       return PowerStatsModel();
     }
     return PowerStatsModel(
-      intelligence: _intelligenceField.getNullableInt(json),
-      strength: _strengthField.getNullableInt(json),
-      speed: _speedField.getNullableInt(json),
-      durability: _durabilityField.getNullableInt(json),
-      power: _powerField.getNullableInt(json),
-      combat: _combatField.getNullableInt(json),
+      intelligence: _intelligenceField.getNullablePercentage(json),
+      strength: _strengthField.getNullablePercentage(json),
+      speed: _speedField.getNullablePercentage(json),
+      durability: _durabilityField.getNullablePercentage(json),
+      power: _powerField.getNullablePercentage(json),
+      combat: _combatField.getNullablePercentage(json),
     );
   }
 
   factory PowerStatsModel.fromRow(Row row) {
     return PowerStatsModel(
-      intelligence: _intelligenceField.getNullableIntFromRow(row),
-      strength: _strengthField.getNullableIntFromRow(row),
-      speed: _speedField.getNullableIntFromRow(row),
-      durability: _durabilityField.getNullableIntFromRow(row),
-      power: _powerField.getNullableIntFromRow(row),
-      combat: _combatField.getNullableIntFromRow(row),
+      intelligence: _intelligenceField.getNullablePercentageFromRow(row),
+      strength: _strengthField.getNullablePercentageFromRow(row),
+      speed: _speedField.getNullablePercentageFromRow(row),
+      durability: _durabilityField.getNullablePercentageFromRow(row),
+      power: _powerField.getNullablePercentageFromRow(row),
+      combat: _combatField.getNullablePercentageFromRow(row),
     );
   }
 
-  final int? intelligence;
-  final int? strength;
-  final int? speed;
-  final int? durability;
-  final int? power;
-  final int? combat;
+  final Percentage? intelligence;
+  final Percentage? strength;
+  final Percentage? speed;
+  final Percentage? durability;
+  final Percentage? power;
+  final Percentage? combat;
 
   static PowerStatsModel? fromPrompt() {
     var json = Amendable.promptForJson(staticFields);
@@ -116,41 +126,23 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   @override
   List<FieldBase<PowerStatsModel>> get fields => staticFields;
 
-  static FieldBase<PowerStatsModel> get _intelligenceField => Field.infer(
-    (m) => m.intelligence,
-    "Intelligence",
-    'IQ SD 15 (WAIS)',
-  );
+  static FieldBase<PowerStatsModel> get _intelligenceField =>
+      Field.infer((m) => m.intelligence?.value, "Intelligence", '%');
 
-  static FieldBase<PowerStatsModel> get _strengthField => Field.infer(
-    (m) => m.strength,
-    'Strength',
-    'newton',
-  );
+  static FieldBase<PowerStatsModel> get _strengthField =>
+      Field.infer((m) => m.strength?.value, 'Strength', '%');
 
-  static FieldBase<PowerStatsModel> get _speedField => Field.infer(
-    (m) => m.speed,
-    'Speed',
-    'km/h',
-  );
+  static FieldBase<PowerStatsModel> get _speedField =>
+      Field.infer((m) => m.speed?.value, 'Speed', '%');
 
-  static FieldBase<PowerStatsModel> get _durabilityField => Field.infer(
-    (m) => m.durability,
-    'Durability',
-    'longevity',
-  );
+  static FieldBase<PowerStatsModel> get _durabilityField =>
+      Field.infer((m) => m.durability?.value, 'Durability', '%');
 
-  static FieldBase<PowerStatsModel> get _powerField => Field.infer(
-    (m) => m.power,
-    'Power',
-    'whatever',
-  );
+  static FieldBase<PowerStatsModel> get _powerField =>
+      Field.infer((m) => m.power?.value, 'Power', '%');
 
-  static FieldBase<PowerStatsModel> get _combatField => Field.infer(
-    (m) => m.combat,
-    'Combat',
-    'fighting skills',
-  );
+  static FieldBase<PowerStatsModel> get _combatField =>
+      Field.infer((m) => m.combat?.value, 'Combat', '%');
 
   static final List<FieldBase<PowerStatsModel>> staticFields = [
     _intelligenceField,
