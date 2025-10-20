@@ -156,6 +156,7 @@ Future<void> main() async {
 
     // Add Alfred, assign a id
     var alfred = HeroModel.newId(
+      deadline,
       "3",
       "Alfred",
       PowerStatsModel(strength: Percentage(9)),

@@ -11,6 +11,7 @@ class SearchResponseModel {
   factory SearchResponseModel.fromJson(
     HeroDataManaging heroDataManaging,
     Map<String, dynamic> json,
+    DateTime timestamp,
   ) {
     var response = json['response'] as String;
 
@@ -19,12 +20,7 @@ class SearchResponseModel {
     if (response == "success") {
       for (var h in (json['results'] as List<dynamic>)) {
         var heroJson = h as Map<String, dynamic>;
-        try {
-          results.add(heroDataManaging.heroFromJson(heroJson));
-        } catch (e) {
-          // ignore errors parsing individual heroes
-          print("Error parsing hero in search results: $e");
-        }
+        results.add(heroDataManaging.heroFromJson(heroJson, timestamp));        
       }
     }
 

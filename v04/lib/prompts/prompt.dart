@@ -26,6 +26,28 @@ $prompt (y/n)''');
   }
 }
 
+enum YesNoAllQuit { yes, no, all, quit }
+YesNoAllQuit promptForYesNoAllQuit(String prompt) {
+  for (;;) {
+    var input = promptFor('''
+
+$prompt (y[yes]/n[no]/a[ll]/q[uit])''').toLowerCase();
+    if (input.startsWith("y")) {
+      return YesNoAllQuit.yes;
+    }
+    if (input.startsWith("n")) {
+      return YesNoAllQuit.no;
+    }
+    if (input.startsWith("a")) {
+      return YesNoAllQuit.all;
+    }
+    if (input.startsWith("q")) {
+      return YesNoAllQuit.quit;
+    }
+    print("Invalid answer, please enter y or n");
+  }
+}
+
 bool promptForYes(String prompt) {
   return promptFor('''
 

@@ -27,6 +27,7 @@ class HeroModel extends Amendable<HeroModel> {
   });
 
   HeroModel.newId(
+    DateTime timestamp,
     String externalId,
     String name,
     PowerStatsModel powerStats,
@@ -38,7 +39,7 @@ class HeroModel extends Amendable<HeroModel> {
   ) : this(
         id: Uuid().v4(),
         version: 1,
-        timestamp: DateTime.timestamp(),
+        timestamp: timestamp,
         locked: false,
         externalId: externalId,
         name: name,
@@ -52,14 +53,14 @@ class HeroModel extends Amendable<HeroModel> {
 
   @override
   HeroModel amendWith(Map<String, dynamic>? amendment) {
-    return apply(amendment, true);
+    return apply(amendment, DateTime.timestamp(), true);
   }
 
-  HeroModel apply(Map<String, dynamic>? amendment, bool manualAmendment) {
+  HeroModel apply(Map<String, dynamic>? amendment, DateTime timestamp, bool manualAmendment) {
     return HeroModel(
       id: id,
       version: version + 1,
-      timestamp: DateTime.timestamp(),
+      timestamp: timestamp,
       locked:
           locked ||
           manualAmendment, // Any manual amendment locks the hero from synchronization with the server
@@ -88,8 +89,9 @@ class HeroModel extends Amendable<HeroModel> {
     return copyWith(locked: false);
   }
 
-  HeroModel.fromJson(Map<String, dynamic> json)
+  HeroModel.fromJson(Map<String, dynamic> json, DateTime timestamp)
     : this.newId(
+        timestamp,
         _externalIdField.getNullableString(json)!,
         _nameField.getNullableString(json)!,
         PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
@@ -166,7 +168,7 @@ class HeroModel extends Amendable<HeroModel> {
     return HeroModel(
       id: id ?? this.id,
       externalId: externalId ?? this.externalId,
-      version: (version ?? 1) + 1,
+      version: version ?? (this.version + 1),
       timestamp: timestamp ?? DateTime.timestamp(),
       locked:
           locked ??
@@ -301,6 +303,7 @@ class HeroModel extends Amendable<HeroModel> {
     "Version",
     "Version number",
     assignedBySystem: true,
+    comparable: false
   );
 
   static final FieldBase<HeroModel> _timestampField = Field.infer(
@@ -310,6 +313,7 @@ class HeroModel extends Amendable<HeroModel> {
     format: (h) => h.timestamp.toIso8601String(),
     sqliteGetter: (h) => h.timestamp.toIso8601String(),
     assignedBySystem: true,
+    comparable: false,
   );
 
   static final FieldBase<HeroModel> _lockedField = Field.infer(
@@ -317,6 +321,7 @@ class HeroModel extends Amendable<HeroModel> {
     "Locked",
     "Whether the hero is locked and not synchronized with the server",
     assignedBySystem: true,
+    comparable: false,
   );
 
   static final FieldBase<HeroModel> _nameField = Field.infer(
