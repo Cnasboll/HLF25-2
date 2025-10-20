@@ -90,8 +90,8 @@ class HeroModel extends Amendable<HeroModel> {
 
   HeroModel.fromJson(Map<String, dynamic> json)
     : this.newId(
-        _externalIdField.getString(json, "unknown-external-id"),
-        _nameField.getString(json, "unknown-name"),
+        _externalIdField.getNullableString(json)!,
+        _nameField.getNullableString(json)!,
         PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
         BiographyModel.fromJson(_biographyField.getJson(json)),
         AppearanceModel.fromJson(_appearanceField.getJson(json)),
@@ -106,8 +106,8 @@ class HeroModel extends Amendable<HeroModel> {
         version: 1,
         timestamp: DateTime.timestamp(),
         locked: false,
-        externalId: _externalIdField.getString(json, "unknown-external-id"),
-        name: _nameField.getString(json, "unknown-name"),
+        externalId: _externalIdField.getNullableString(json)!,
+        name: _nameField.getNullableString(json)!,
         powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
         biography: BiographyModel.fromJson(_biographyField.getJson(json)),
         appearance: AppearanceModel.fromJson(_appearanceField.getJson(json)),
