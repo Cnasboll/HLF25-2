@@ -90,7 +90,7 @@ class Height extends ValueType<Height> {
       }
     }
 
-    // Try integral metric or imperial: 6 feet, 188 cm, 2m or 188 e.g. with or without unit or spaces (assumed cm for values > 2 if no unit and feet for values > 200)
+    // Try integral metric or imperial: 6 feet, 188 cm, 2m or 188 e.g. with or without unit or spaces (assumed cm for values > 2 if no unit
     final integralMetricRegex = RegExp(
       r'''^\s*(\d+)\s*(ft|feet|cm|m|meters)?\s*$''',
       caseSensitive: false,
@@ -104,11 +104,7 @@ class Height extends ValueType<Height> {
         if (unit == null) {
           // No unit given, assume m if value less than 3, otherwise cm
           if (value > 2) {
-            if (value > 200) {
-              unit = 'ft';
-            } else {
-              unit = 'cm';
-            }
+            unit = 'cm';
           } else {
             unit = 'm';
           }

@@ -80,7 +80,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
 
     // Same unit, different values.
     // Test if the first value only contains digits and therefore can be interpreted as the same value but in a different unit
-    // This handles the case of Height: ["200", "61.0 meters"] for Ymir where "200"  means 200 feet and not 200 cm
+    // This handles the case of Height: ["1000", "304.8 meters"] for Ymir where "1000" means 1000 feet and not 1000 cm
     var integralFirst = int.tryParse(valueSource);
     if (integralFirst != null) {
       // First value is integral only, so recurse but change value to the integer interpreted in other unit
