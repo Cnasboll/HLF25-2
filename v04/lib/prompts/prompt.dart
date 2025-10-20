@@ -31,7 +31,7 @@ YesNoAllQuit promptForYesNoAllQuit(String prompt) {
   for (;;) {
     var input = promptFor('''
 
-$prompt (y[yes]/n[no]/a[ll]/q[uit])''').toLowerCase();
+$prompt (y = yes, n = no, a = all, q = quit)''').toLowerCase();
     if (input.startsWith("y")) {
       return YesNoAllQuit.yes;
     }
