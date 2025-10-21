@@ -88,7 +88,7 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
-To go _Online_ and _Search_ for heroes to download, type `O` and `S` and enter the search string as prompted:
+To go _Online_ and _Search_ for heroes to download, type `O` and `S` and enter the _Search_ string as prompted:
 
 ```
 O
@@ -269,7 +269,7 @@ Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in
 To amend an existing hero, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one, or `c` to cancel.
 Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
 Upon completion, the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-Any manual amendment sets the `lock` flag on the hero to `true` to exclude it from any automated reconciliaton with it's online version that would otherwise undo the user's creative efforts.
+Any manual amendment sets the `lock` flag on the hero to `true` to exclude it from any automated reconciliaton with it's _Online_ version that would otherwise undo the user's creative efforts.
 
 ```
 A
@@ -390,7 +390,7 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 ```
 
-To reconcile heroes with the online source, select `O` to enter the _Online_ menu and type `R`:
+To reconcile heroes with the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
 
 
 ```
@@ -989,7 +989,7 @@ Go [O]nline to download heroes
 The menu option `E` (for "erase") will prompt the user for deleting all the heroes and despite the popular notion, they don't live forever so be careful with this.
 `L` (for "list") displays all heroes unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
 
-There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI is in fact using json as an intermediate format so that the app is ready to be connected to the API without further modifications. `v04\tests\sql_generation_test.dart` shows expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
+There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations. `v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
 
 Also note that the parser will try to handle conflicting height or weight information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart` respecively, and `test('Can parse most heros')` in `v04\tests\hero_service_test.dart`, and in particular the consistency checking logic in `v04\value_types\value_type.dart`:
 
@@ -1006,7 +1006,7 @@ Also note that the parser will try to handle conflicting height or weight inform
 ``` 
 which really was the main focus of this assigment for me, roughly 95% of the time spent.
 
-Whenever the search encounters heroes with conflicting `Height` or `Weight` information, the user is given the choice of which system of units to use:
+Whenever the _Online_ _Search_ encounters heroes with conflicting `Height` or `Weight` information, the user is given the choice of which system of units to use:
 
 ```
 Enter a menu option (R, S, U or X) and press enter:
