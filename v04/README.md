@@ -40,7 +40,7 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   image_url TEXT NULL
 ```
 
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). `external_id` is mapped from the field `id` in the `Hero` dto / api spec in `superheroapi.com` that will be integrated in the next release. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually amended or created and should not be reconciled with the API until it's first explicitly unlocked.
+The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). `external_id` is mapped from the field `id` in the `Hero` dto / api spec in `superheroapi.com` that will be integrated in the next release. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually entered or amended and should not be reconciled with the API until it's first explicitly _unlocked_.
 
 NB: I don't know how to parse
 ```
@@ -266,32 +266,12 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-To amend an existing, hero exit the online menu by pressing `X` to go back to the main menu and enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one or `c` to cancel.
+To amend an existing hero, exit the _Online_ menu by pressing `X` to go back to the _Main_ menu and enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one or `c` to cancel.
 Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
 Afterwards the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
 Any manual amendment sets the `lock` flag on the hero to `true` so that it cannot be automatically reconciled with it's online version.
 
 ```
-Enter a menu option (R, S, U or X) and press enter:
-[R]econcile local heroes with online updates
-[S]earch online for new heroes to save
-[U]nlock manually amended heroes to enable reconciliation
-E[X]it and return to main menu
-
-
-X
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
-[C]reate a new hero (will prompt for details)
-[L]ist all heroes
-List [T]op n heroes (will prompt for n)
-[S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
-[E]rase database (delete all heroes)
-Go [O]nline to download heroes
-[Q]uit (exit the program)
-
-
 A
 Enter a search string:
 Batman
@@ -410,7 +390,7 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 ```
 
-To reconcile heroes with the online source, select `O` to go to the online menu and type `R`:
+To reconcile heroes with the online source, select `O` to enter the _Online_ menu and type `R`:
 
 
 ```
@@ -555,7 +535,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-To add a new hero press `C` and enter values as prompted. An empty string is treated as abort.
+To manally entera a new hero, press `C` and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new hero will be saved or not.
 
 ```
@@ -737,7 +717,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 10:58:32.802370Z: 0 heroes reconciled, 0 heroes deleted.
 ```
 
-To auto-delete it, unlock the hero and run the reconciliation job again:
+To auto-delete it, _Unlock_ the hero and run the reconciliation job again:
 ```
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
@@ -876,17 +856,9 @@ Hero: 70 ("Batman") is already up to date
 Hero: 71 ("Batman II") is already up to date
 
 Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 heroes deleted.
-
-
-Enter a menu option (R, S, U or X) and press enter:
-[R]econcile local heroes with online updates
-[S]earch online for new heroes to save
-[U]nlock manually amended heroes to enable reconciliation
-E[X]it and return to main menu
 ```
 
-To (manually) delete an existing hero, return to the main menu and press `D` and enter a search string. Candiates will be presented by descending order
-of strenght. Press `y` to delete the hero or `n` to review the next one or `c` to cancel.
+To (manually) delete an existing hero, return to the _Main_ menu and press `D` and enter a search string. Candiates will be presented by descending order of strenght. Press `y` to delete the hero or `n` to review the next one or `c` to cancel.
 Pressing `y` will give the user the chance of of revewing the hero to be deleted and confirm deletion with `y` or
 abort the operation with `n`.
 
