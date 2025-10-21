@@ -266,7 +266,10 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-To amend a, hero exit the online menu by pressing `X` to go back to the main meny and enter `A` to search for a hero to amend. Any manual amendment sets the `lock` flag on the hero to `true` so that it cannot be automatically reconciled with it's online version.
+To amend an existing, hero exit the online menu by pressing `X` to go back to the main menu and enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one or `c` to cancel.
+Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
+Afterwards the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
+Any manual amendment sets the `lock` flag on the hero to `true` so that it cannot be automatically reconciled with it's online version.
 
 ```
 Enter a menu option (R, S, U or X) and press enter:
@@ -407,6 +410,151 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 ```
 
+To reconcile heroes with the online source, select `O` to go to the online menu and type `R`:
+
+
+```
+O
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+R
+
+Reconciliation started at at 2025-10-21 09:46:59.687391Z
+
+
+Hero: 69 ("Batman") is locked by prior manual amendment, skipping reconciliation changes:
+
+Biography: Alignment: bad -> good
+
+Hero: 70 ("Batman") is already up to date
+Hero: 71 ("Batman II") is already up to date
+
+Reconciliation complete at 2025-10-21 09:47:01.497983Z: 0 heroes reconciled, 0 heroes deleted.
+
+
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+```
+
+In this case no change occurred. Hero `69` has a locally amended `Biograhy: alignment` field but is in locked status. To allow reconciliation of this hero, type `U` to unlock it and then re-run reconciliation:
+
+```
+U
+Enter a search string:
+Batman
+Found 1 heroes:
+
+Unlock to enable reconciliation the following hero?
+=============
+id: 6fff241c-44b0-43b9-a687-e0ad101f11a9
+Version: 2
+Timestamp: 2025-10-21T06:15:20.854988Z
+Locked: true
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: bad
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation:
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
+=============
+ (y = yes, n = next, c = cancel)
+y
+Hero was unlocked:
+
+=============
+id: 6fff241c-44b0-43b9-a687-e0ad101f11a9
+Version: 3
+Timestamp: 2025-10-21T09:50:10.116765Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: bad
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation:
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
+=============
+
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+R
+
+Reconciliation started at at 2025-10-21 09:50:14.778669Z
+
+
+
+Reconcile hero: 69 ("Batman") with the following online changes?
+  Biography: Alignment: bad -> good
+ (y = yes, n = no, a = all, q = quit)
+a
+Reconciled hero: 69 ("Batman") with the following online changes:
+Biography: Alignment: bad -> good
+
+Hero: 70 ("Batman") is already up to date
+Hero: 71 ("Batman II") is already up to date
+
+Reconciliation complete at 2025-10-21 09:50:17.918565Z: 1 heroes reconciled, 0 heroes deleted.
+
+
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+```
+
 To add a new hero press `C` and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new hero will be saved or not.
 
@@ -415,27 +563,27 @@ C
 Enter External ID (Server assigned string ID), or enter to abort:
 this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
 Enter Name (Most commonly used name), or enter to abort:
-Bamse 
+Bamse
 
 Populate Powerstats (Power statistics which is mostly misused)? (y/n)
 y
-Enter Powerstats: Intelligence (IQ SD 15 (WAIS)), or enter to finish populating Powerstats:
-85
-Enter Powerstats: Strength (newton), or enter to finish populating Powerstats:
-999
-Enter Powerstats: Speed (km/h), or enter to finish populating Powerstats:
-7 
-Enter Powerstats: Durability (longevity), or enter to finish populating Powerstats:
+Enter Powerstats: Intelligence (%), or enter to finish populating Powerstats:
 30
-Enter Powerstats: Power (whatever), or enter to finish populating Powerstats:
+Enter Powerstats: Strength (%), or enter to finish populating Powerstats:
+99
+Enter Powerstats: Speed (%), or enter to finish populating Powerstats:
+7
+Enter Powerstats: Durability (%), or enter to finish populating Powerstats:
+30
+Enter Powerstats: Power (%), or enter to finish populating Powerstats:
 2
-Enter Powerstats: Combat (fighting skills), or enter to finish populating Powerstats:
+Enter Powerstats: Combat (%), or enter to finish populating Powerstats:
 2
 
 Populate Biography (Hero's quite biased biography)? (y/n)
 y
-Enter Biography: Full Name (Full), or enter to finish populating Biography:
-Banse Brunberg 
+Enter Biography: Full Name (Also applies when hungry), or enter to finish populating Biography:
+Bamse Brunberg
 Enter Biography: Alter Egos (Alter egos of the character), or enter to finish populating Biography:
 Kapten Buster. Ingen har sett honom och Bamse samtidigt.
 Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in json format e.g. ["Insider", "Matches Malone"]), or enter to finish populating Biography:
@@ -455,45 +603,47 @@ Enter Appearance: Gender (unknown, ambiguous, male, female, nonBinary, wontSay),
 m
 Enter Appearance: Race (Species in Latin or English), or enter to finish populating Appearance:
 Usrus arctos
-Enter Appearance: Height (Height in centimeters and / or feet and inches. For multiple representations, enter a list in json format e.g. ["6'2\"", "188 cm"] or a single value like '188 cm', '188' or '1.88' (meters) without surrounding '), or enter to finish populating Appearance:      
+Enter Appearance: Height (Height in centimeters and / or feet and inches. For multiple representations, enter a list in json format e.g. ["6'2\"", "188 cm"] or a single value like '188 cm', '188' or '1.88' (meters) without surrounding '), or enter to finish populating Appearance:
 150 cm
 Enter Appearance: Weight (Weight in kilograms and / or pounds. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like '95 kg' or '95' (kilograms) without surrounding '), or enter to finish populating Appearance:
 250 kg
 Enter Appearance: Eye Colour (The character's eye color of the most recent appearance), or enter to finish populating Appearance:
-brown
+Brown
 Enter Appearance: Hair Colour (The character's hair color of the most recent appearance), or enter to finish populating Appearance:
-brown
+Brown
 
 Populate Work (Hero's work)? (y/n)
-y     
-Enter Work: occupation (Occupation of the character), or enter to finish populating Work:
+y
+Enter Work: Occupation (Occupation of the character), or enter to finish populating Work:
 Law enforcement
-Enter Work: base (A place where the character works or lives or hides rather frequently), or enter to finish populating Work:
-Kullarna 
+Enter Work: Base (A place where the character works or lives or hides rather frequently), or enter to finish populating Work:
+Tre Kullar
 
 Populate Connections (Hero's connections)? (y/n)
 y
 Enter Connections: Group Affiliation (Groups the character is affiliated with wether currently or in the past and if addmittedly or not), or enter to finish populating Connections:
 Bamse, Lille Skutt och Skalman (tm)
 Enter Connections: Relatives (A list of the character's relatives by blood, marriage, adoption, or pure association), or enter to finish populating Connections:
-Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma                
+Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 
 Populate Image (Hero's image)? (y/n)
 n
 
 Save new hero with the following details?
 =============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
+id: 96531606-192c-4931-b57b-0d78e53c8b7a
 Version: 1
+Timestamp: 2025-10-21T10:56:40.570738Z
+Locked: true
 External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
 Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
+Powerstats: Intelligence: 30
+Powerstats: Strength: 99
 Powerstats: Speed: 7
 Powerstats: Durability: 30
 Powerstats: Power: 2
 Powerstats: Combat: 2
-Biography: Full Name: Banse Brunberg
+Biography: Full Name: Bamse Brunberg
 Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
 Biography: Aliases: [Världens starkaste björn]
 Biography: Place of Birth: Vargön
@@ -504,10 +654,10 @@ Appearance: Gender: male
 Appearance: Race: Usrus arctos
 Appearance: Height: 150 cm
 Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
+Appearance: Eye Colour: Brown
+Appearance: Hair Colour: Brown
+Work: Occupation: Law enforcement
+Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
@@ -517,132 +667,14 @@ y
 Created hero:
 
 =============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
+id: 96531606-192c-4931-b57b-0d78e53c8b7a
 Version: 1
+Timestamp: 2025-10-21T10:56:40.570738Z
+Locked: true
 External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
 Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
-Powerstats: Speed: 7
-Powerstats: Durability: 30
-Powerstats: Power: 2
-Powerstats: Combat: 2
-Biography: Full Name: Banse Brunberg
-Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
-Biography: Aliases: [Världens starkaste björn]
-Biography: Place of Birth: Vargön
-Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
-Biography: Publisher: Egmont Publishing
-Biography: Alignment: mostlyGood
-Appearance: Gender: male
-Appearance: Race: Usrus arctos
-Appearance: Height: 150 cm
-Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
-Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
-=============
-```
-
-To amend an existing hero, press `A` and enter a search string. Candiates will be presented by descending order
-of strenght. Press `y` to amend the displayed hero or `n` to review the next one or `c` to cancel.
-Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
-Afterwards the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-
-```
-A
-Enter a search string:
-ba
-Found 1 heroes:
-
-Amend the following hero?
-=============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
-Version: 1
-External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
-Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
-Powerstats: Speed: 7
-Powerstats: Durability: 30
-Powerstats: Power: 2
-Powerstats: Combat: 2
-Biography: Full Name: Banse Brunberg
-Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
-Biography: Aliases: [Världens starkaste björn]
-Biography: Place of Birth: Vargön
-Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
-Biography: Publisher: Egmont Publishing
-Biography: Alignment: mostlyGood
-Appearance: Gender: male
-Appearance: Race: Usrus arctos
-Appearance: Height: 150 cm
-Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
-Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
-=============
- (y = yes, n = next, c = cancel)
-y
-Enter Name (Most commonly used name), or enter to keep current value (Bamse):
-
-
-Amend Powerstats (Power statistics which is mostly misused)? (y/N)
-
-
-Amend Biography (Hero's quite biased biography)? (y/N)
-y
-Enter Biography: Full Name (Full), or enter to keep current value (Banse Brunberg):
-Bamse Brunberg
-Enter Biography: Alter Egos (Alter egos of the character), or enter to keep current value (Kapten Buster. Ingen har sett honom och Bamse samtidigt.):
-
-Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in json format e.g. ["Insider", "Matches Malone"]), or enter to keep current value ([Världens starkaste björn]):
-
-Enter Biography: Place of Birth (Where the character was born), or enter to keep current value (Vargön):
-
-Enter Biography: First Appearance (When the character first appeared in print or in court), or enter to keep current value (Allers, 1966-1970, egen serietidning från 1973):
-
-Enter Biography: Publisher (The publisher of the character's stories or documentary evidence), or enter to keep current value (Egmont Publishing):
-
-Enter Biography: Alignment (The character's moral alignment (unknown, neutral, mostlyGood, good, reasonable, notQuite, bad, ugly, evil, usingMobileSpeakerOnPublicTransport)), or enter to keep current value (mostlyGood):
-
-
-Amend Appearance (Hero's appearance)? (y/N)
-
-
-Amend Work (Hero's work)? (y/N)
-
-
-Amend Connections (Hero's connections)? (y/N)
-
-
-Amend Image (Hero's image)? (y/N)
-
-
-Save the following amendments?
-
-=============
-Biography: Full Name: Banse Brunberg -> Bamse Brunberg
-=============
- (y/n)
-y
-Amended hero:
-
-=============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
-Version: 2
-External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
-Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
+Powerstats: Intelligence: 30
+Powerstats: Strength: 99
 Powerstats: Speed: 7
 Powerstats: Durability: 30
 Powerstats: Power: 2
@@ -658,17 +690,202 @@ Appearance: Gender: male
 Appearance: Race: Usrus arctos
 Appearance: Height: 150 cm
 Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
+Appearance: Eye Colour: Brown
+Appearance: Hair Colour: Brown
+Work: Occupation: Law enforcement
+Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
 =============
 ```
 
-To delete an existing hero, press `D` and enter a search string. Candiates will be presented by descending order
+As the new hero only exists locally and is created in `locked` mode, the reconciliation job will not consider it for deletion:
+
+
+```
+Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+[C]reate a new hero (will prompt for details)
+[L]ist all heroes
+List [T]op n heroes (will prompt for n)
+[S]earch matching heroes (will prompt for a search string)
+[A]mend a hero
+[D]elete a hero
+[E]rase database (delete all heroes)
+Go [O]nline to download heroes
+[Q]uit (exit the program)
+
+
+O
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+R
+
+Reconciliation started at at 2025-10-21 10:58:24.409875Z
+
+
+Hero: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide ("Bamse") does not exist online: "invalid id" but is locked by prior manual amendment - skipping deletion
+Hero: 69 ("Batman") is already up to date
+Hero: 70 ("Batman") is already up to date
+Hero: 71 ("Batman II") is already up to date
+
+Reconciliation complete at 2025-10-21 10:58:32.802370Z: 0 heroes reconciled, 0 heroes deleted.
+```
+
+To auto-delete it, unlock the hero and run the reconciliation job again:
+```
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+U
+Enter a search string:
+Bamse
+Found 1 heroes:
+
+Unlock to enable reconciliation the following hero?
+=============
+id: 96531606-192c-4931-b57b-0d78e53c8b7a
+Version: 1
+Timestamp: 2025-10-21T10:56:40.570738Z
+Locked: true
+External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
+Name: Bamse
+Powerstats: Intelligence: 30
+Powerstats: Strength: 99
+Powerstats: Speed: 7
+Powerstats: Durability: 30
+Powerstats: Power: 2
+Powerstats: Combat: 2
+Biography: Full Name: Bamse Brunberg
+Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
+Biography: Aliases: [Världens starkaste björn]
+Biography: Place of Birth: Vargön
+Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
+Biography: Publisher: Egmont Publishing
+Biography: Alignment: mostlyGood
+Appearance: Gender: male
+Appearance: Race: Usrus arctos
+Appearance: Height: 150 cm
+Appearance: Weight: 250 kg
+Appearance: Eye Colour: Brown
+Appearance: Hair Colour: Brown
+Work: Occupation: Law enforcement
+Work: Base: Tre Kullar
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
+Image: Url: null
+=============
+ (y = yes, n = next, c = cancel)
+y
+Hero was unlocked:
+
+=============
+id: 96531606-192c-4931-b57b-0d78e53c8b7a
+Version: 2
+Timestamp: 2025-10-21T11:04:04.568021Z
+Locked: false
+External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
+Name: Bamse
+Powerstats: Intelligence: 30
+Powerstats: Strength: 99
+Powerstats: Speed: 7
+Powerstats: Durability: 30
+Powerstats: Power: 2
+Powerstats: Combat: 2
+Biography: Full Name: Bamse Brunberg
+Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
+Biography: Aliases: [Världens starkaste björn]
+Biography: Place of Birth: Vargön
+Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
+Biography: Publisher: Egmont Publishing
+Biography: Alignment: mostlyGood
+Appearance: Gender: male
+Appearance: Race: Usrus arctos
+Appearance: Height: 150 cm
+Appearance: Weight: 250 kg
+Appearance: Eye Colour: Brown
+Appearance: Hair Colour: Brown
+Work: Occupation: Law enforcement
+Work: Base: Tre Kullar
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
+Image: Url: null
+=============
+
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+R
+
+Reconciliation started at at 2025-10-21 11:04:09.880651Z
+
+
+
+Hero: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide ("Bamse") does not exist online: invalid id - delete it from local database? (y = yes, n = no, a = all, q = quit)
+a
+Deleted hero:
+
+=============
+id: 96531606-192c-4931-b57b-0d78e53c8b7a
+Version: 2
+Timestamp: 2025-10-21T11:04:04.568021Z
+Locked: false
+External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
+Name: Bamse
+Powerstats: Intelligence: 30
+Powerstats: Strength: 99
+Powerstats: Speed: 7
+Powerstats: Durability: 30
+Powerstats: Power: 2
+Powerstats: Combat: 2
+Biography: Full Name: Bamse Brunberg
+Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
+Biography: Aliases: [Världens starkaste björn]
+Biography: Place of Birth: Vargön
+Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
+Biography: Publisher: Egmont Publishing
+Biography: Alignment: mostlyGood
+Appearance: Gender: male
+Appearance: Race: Usrus arctos
+Appearance: Height: 150 cm
+Appearance: Weight: 250 kg
+Appearance: Eye Colour: Brown
+Appearance: Hair Colour: Brown
+Work: Occupation: Law enforcement
+Work: Base: Tre Kullar
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
+Image: Url: null
+=============
+
+Hero: 69 ("Batman") is already up to date
+Hero: 70 ("Batman") is already up to date
+Hero: 71 ("Batman II") is already up to date
+
+Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 heroes deleted.
+
+
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+```
+
+To (manually) delete an existing hero, return to the main menu and press `D` and enter a search string. Candiates will be presented by descending order
 of strenght. Press `y` to delete the hero or `n` to review the next one or `c` to cancel.
 Pressing `y` will give the user the chance of of revewing the hero to be deleted and confirm deletion with `y` or
 abort the operation with `n`.
@@ -676,108 +893,125 @@ abort the operation with `n`.
 ```
 D
 Enter a search string:
-ba
-Found 1 heroes:
+Batman II
+Found 2 heroes:
 
 Delete the following hero?
 =============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
-Version: 2
-External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
-Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
-Powerstats: Speed: 7
-Powerstats: Durability: 30
-Powerstats: Power: 2
-Powerstats: Combat: 2
-Biography: Full Name: Bamse Brunberg
-Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
-Biography: Aliases: [Världens starkaste björn]
-Biography: Place of Birth: Vargön
-Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
-Biography: Publisher: Egmont Publishing
-Biography: Alignment: mostlyGood
+id: 69287f96-87fe-4f37-b050-5b650b3cfdf7
+Version: 1
+Timestamp: 2025-10-21T10:45:06.300227Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: good
 Appearance: Gender: male
-Appearance: Race: Usrus arctos
-Appearance: Height: 150 cm
-Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
-Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation:
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y = yes, n = next, c = cancel)
 y
 
 Do you really want to delete hero with the following details?
 =============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
-Version: 2
-External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
-Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
-Powerstats: Speed: 7
-Powerstats: Durability: 30
-Powerstats: Power: 2
-Powerstats: Combat: 2
-Biography: Full Name: Bamse Brunberg
-Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
-Biography: Aliases: [Världens starkaste björn]
-Biography: Place of Birth: Vargön
-Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
-Biography: Publisher: Egmont Publishing
-Biography: Alignment: mostlyGood
+id: 69287f96-87fe-4f37-b050-5b650b3cfdf7
+Version: 1
+Timestamp: 2025-10-21T10:45:06.300227Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: good
 Appearance: Gender: male
-Appearance: Race: Usrus arctos
-Appearance: Height: 150 cm
-Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
-Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation:
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y/n)
 y
 Deleted hero:
 
 =============
-id: ad31d12c-c5d4-41dc-9aef-1a1a6cdb121e
-Version: 2
-External ID: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
-Name: Bamse
-Powerstats: Intelligence: 85
-Powerstats: Strength: 999
-Powerstats: Speed: 7
-Powerstats: Durability: 30
-Powerstats: Power: 2
-Powerstats: Combat: 2
-Biography: Full Name: Bamse Brunberg
-Biography: Alter Egos: Kapten Buster. Ingen har sett honom och Bamse samtidigt.
-Biography: Aliases: [Världens starkaste björn]
-Biography: Place of Birth: Vargön
-Biography: First Appearance: Allers, 1966-1970, egen serietidning från 1973
-Biography: Publisher: Egmont Publishing
-Biography: Alignment: mostlyGood
+id: 69287f96-87fe-4f37-b050-5b650b3cfdf7
+Version: 1
+Timestamp: 2025-10-21T10:45:06.300227Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: good
 Appearance: Gender: male
-Appearance: Race: Usrus arctos
-Appearance: Height: 150 cm
-Appearance: Weight: 250 kg
-Appearance: Eye Colour: brown
-Appearance: Hair Colour: brown
-Work: occupation: Law enforcement
-Work: base: Kullarna
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
-Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation:
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
+
+Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+[C]reate a new hero (will prompt for details)
+[L]ist all heroes
+List [T]op n heroes (will prompt for n)
+[S]earch matching heroes (will prompt for a search string)
+[A]mend a hero
+[D]elete a hero
+[E]rase database (delete all heroes)
+Go [O]nline to download heroes
+[Q]uit (exit the program)
 ```
 
 The menu option `E` (for "erase") will prompt the user for deleting all the heroes and despite the popular notion, they don't live forever so be careful with this.

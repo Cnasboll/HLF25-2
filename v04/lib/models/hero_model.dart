@@ -107,7 +107,7 @@ class HeroModel extends Amendable<HeroModel> {
         id: id,
         version: 1,
         timestamp: DateTime.timestamp(),
-        locked: false,
+        locked: true, // Create in locked mode
         externalId: _externalIdField.getNullableString(json)!,
         name: _nameField.getNullableString(json)!,
         powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),

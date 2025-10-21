@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:test/test.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/models/biography_model.dart';
@@ -13,8 +11,8 @@ void main() async {
   test('Can download Batman', () async {
     var heroService = MockHeroService();
     var heroDataManager = HeroDataManager(MockHeroRepository());
-    await heroService.getById("70").then((batmanJsonTuple) {
-      var batman = heroDataManager.heroFromJson(batmanJsonTuple.$1!, DateTime.timestamp());
+    await heroService.getById("70").then((batmanJson) {
+      var batman = heroDataManager.heroFromJson(batmanJson!, DateTime.timestamp());
       expect(batman, isNotNull);
       expect(batman.name, "Batman");
     });
@@ -23,8 +21,8 @@ void main() async {
   test('Can amend other Batman', () async {
     var heroService = MockHeroService();
     var heroDataManager = HeroDataManager(MockHeroRepository());
-    await heroService.getById("69").then((batmanJsonTuple) {
-      var batman = heroDataManager.heroFromJson(batmanJsonTuple.$1!, DateTime.timestamp());
+    await heroService.getById("69").then((batmanJson) {
+      var batman = heroDataManager.heroFromJson(batmanJson!, DateTime.timestamp());
       expect(batman, isNotNull);
       expect(batman.name, "Batman");
 
@@ -56,11 +54,11 @@ void main() async {
       List<String> failures = [];
       var timestamp = DateTime.timestamp();
       for (int i = 1; i < 731; ++i) {
-        await heroService.getById(i.toString()).then((heroJsonTuple) {
+        await heroService.getById(i.toString()).then((heroJson) {
           try {
-            heroDataManager.heroFromJson(heroJsonTuple.$1!, timestamp);
+            heroDataManager.heroFromJson(heroJson!, timestamp);
           } catch (e) {
-            var name = heroJsonTuple.$1!['name'];
+            var name = heroJson!['name'];
             failures.add("Failed to parse hero id $i: $name: $e");
           }
         });
