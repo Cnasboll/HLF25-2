@@ -535,7 +535,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-To manally entera a new hero, press `C` and enter values as prompted. An empty string is treated as abort.
+To manally enter a new hero, press `C` and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new hero will be saved or not.
 
 ```
