@@ -991,7 +991,7 @@ The menu option `E` (for "erase") will prompt the user for _Deleting_ all the he
 
 There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations. `v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
 
-Also note that the parser will try to handle conflicting height or weight information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart` respecively, and `test('Can parse most heros')` in `v04\tests\hero_service_test.dart`, and in particular the consistency checking logic in `v04\value_types\value_type.dart`:
+Also note that the parser will try to handle conflicting _Height_ or _Weight_ information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart` respecively, and `test('Can parse most heros')` in `v04\tests\hero_service_test.dart`, and in particular the consistency checking logic in `v04\value_types\value_type.dart`:
 
 ```
   static (T?, String?) checkConsistency<T extends ValueType<T>>(
@@ -1006,7 +1006,7 @@ Also note that the parser will try to handle conflicting height or weight inform
 ``` 
 which really was the main focus of this assigment for me, roughly 95% of the time spent.
 
-Whenever the _Online_ _Search_ encounters heroes with conflicting `Height` or `Weight` information, the user is given the choice of which system of units to use:
+Whenever the _Online_ _Search_ encounters heroes with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
 
 ```
 Enter a menu option (R, S, U or X) and press enter:
@@ -1039,7 +1039,7 @@ y
 (...)
 ```
 
-When _Reconciling_ an already saved hero with the API, any conflicting `Weight` or `Height` information is resolved to the _current_ system of units for the hero, i.e. the system selected when `S`earching:
+When _Reconciling_ an already saved hero with the API, any conflicting _Weight_ or _Height_ information is resolved to the _current_ system of units for the hero, i.e. the system initally selected when _Searching_ for the hero _Online_:
 
 
 ```
