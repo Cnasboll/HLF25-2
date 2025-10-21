@@ -40,7 +40,7 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   image_url TEXT NULL
 ```
 
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually entered or amended, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
+The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually _Created_ or _Amended_, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
 
 NB: I don't know how to parse
 ```
@@ -266,10 +266,10 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-To amend an existing hero, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one, or `c` to cancel.
-Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
-Upon completion, the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-Any manual amendment sets the _Lock_ flag on the hero to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
+To _Amend_ an existing hero, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to _Amend_. Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed hero or `n` to review the next one, or `c` to cancel.
+Pressing `y` will give the user the chance of _Amendning_ every value and keep current one with pressing enter.
+Upon completion, the _Amended_ fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
+Any manual _Amendment_ sets the _Lock_ flag on the hero to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
 
 ```
 A
@@ -424,7 +424,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-In this case no change occurred. Hero `69` has a locally amended `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this hero, type `U` to _Unlock_ it and then re-run _Reconciliation_:
+In this case no change occurred. Hero `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this hero, type `U` to _Unlock_ it and then re-run _Reconciliation_:
 
 ```
 U
@@ -535,7 +535,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-To manally enter a new hero, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
+To manally _Create_ a new hero, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new hero will be saved or not.
 
 ```
