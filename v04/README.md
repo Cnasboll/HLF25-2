@@ -40,7 +40,7 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   image_url TEXT NULL
 ```
 
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). `external_id` is mapped from the field `id` in the `Hero` dto / api spec in `superheroapi.com` that will be integrated in the next release. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually entered or amended and should not be reconciled with the API until it's first explicitly _unlocked_.
+The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually entered or amended, and should therfore not be reconciled with the API until it's first explicitly _unlocked_.
 
 NB: I don't know how to parse
 ```
@@ -61,7 +61,7 @@ relation:
   relation: Mother
     qualifiers: [deceased]
 ```
-But I simply don't trust the API to adhere to any parseable format for it to be worth the effort!
+But I simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
 
 Secondly, in the following example:
 ```
@@ -70,7 +70,7 @@ Secondly, in the following example:
   },
 ```
 
-The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the api and expected to be treated as such by consumers, but due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
+The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers. Due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
 
 Usage:
 
@@ -88,7 +88,7 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
-To go online and download heroes press `O` and enter the search string as prompted:
+To go _Online_ and _Search_ for heroes to download, type `O` and `S` and enter the search string as prompted:
 
 ```
 O
@@ -104,9 +104,9 @@ Enter a search string:
 Batman
 ```
 
-If no API key and / or API host are specified in a local `.env` file, enter the values as prompted and the `.env` file will be created or updated accordingly.
+If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
 
-When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the hero to die, `a` to try to be a hero oneself or the most reasonably `q` to give up.
+When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the hero to die, or `a` to try to be a hero oneself or the most reasonably `q` to give up.
 
 ```
 Enter your API key: 
@@ -266,10 +266,10 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-To amend an existing hero, exit the _Online_ menu by pressing `X` to go back to the _Main_ menu and enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one or `c` to cancel.
+To amend an existing hero, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one, or `c` to cancel.
 Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
-Afterwards the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-Any manual amendment sets the `lock` flag on the hero to `true` so that it cannot be automatically reconciled with it's online version.
+Upon completion, the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
+Any manual amendment sets the `lock` flag on the hero to `true` to exclude it from any automated reconciliaton with it's online version that would otherwise undo the user's creative efforts.
 
 ```
 A
@@ -424,7 +424,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-In this case no change occurred. Hero `69` has a locally amended `Biograhy: alignment` field but is in locked status. To allow reconciliation of this hero, type `U` to unlock it and then re-run reconciliation:
+In this case no change occurred. Hero `69` has a locally amended `Biograhy: alignment` field but is in `locked` status. To allow reconciliation of this hero, type `U` to unlock it and then re-run reconciliation:
 
 ```
 U
@@ -535,7 +535,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-To manally enter a new hero, press `C` and enter values as prompted. An empty string is treated as abort.
+To manally enter a new hero, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new hero will be saved or not.
 
 ```
@@ -680,7 +680,7 @@ Image: Url: null
 =============
 ```
 
-As the new hero only exists locally and is created in `locked` mode, the reconciliation job will not consider it for deletion:
+As the new hero only exists locally but is created in `locked` state, the reconciliation job will not consider it for deletion:
 
 
 ```
