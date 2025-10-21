@@ -159,7 +159,11 @@ Future<void> saveHeroes(HeroDataManaging heroDataManager) async {
 Online search started at $timestamp
 
 ''');
-  var (results, error) = await heroService.search(query);
+  var results = await heroService.search(query);
+  String? error;
+  if (results != null) {
+    error = results["error"];
+  }
   if (error != null) {
     print("Failed to search online heroes: $error");
     return;
@@ -399,18 +403,23 @@ Reconciliation started at at $timestamp
     Height.conflictResolver = ManualConflictResolver();
     for (var hero in heroDataManager.heroes) {
       heroService ??= HeroService(Env());
-      var (onlineHeroJson, error) = await heroService.getById(hero.externalId);
-      if (onlineHeroJson == null) {
+      var onlineHeroJson = await heroService.getById(hero.externalId);
+      String? error;
+      if (onlineHeroJson !=  null) {
+        error = onlineHeroJson["error"];
+      }
+
+      if (onlineHeroJson == null || error != null) {
         if (hero.locked) {
           print(
-            '''Hero: ${hero.externalId} ("${hero.name}") does not exist online: ${error ?? 'Unknown error'} but is locked by prior manual amendment - skipping deletion''',
+            '''Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" but is locked by prior manual amendment - skipping deletion''',
           );
           continue;
         }
 
         if (deleteAll) {
           print(
-            'Hero: ${hero.externalId} ("${hero.name}") does not exist online: ${error ?? 'Unknown error'} - deleting from local database',
+            'Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" - deleting from local database',
           );
           deleteHeroUnprompted(heroDataManager, hero);
           ++deletionCount;
@@ -418,7 +427,7 @@ Reconciliation started at at $timestamp
         }
 
         var yesNoAllQuit = promptForYesNoAllQuit(
-          'Hero: ${hero.externalId} ("${hero.name}") does not exist online: ${error ?? 'Unknown error'} - delete it from local database?',
+          'Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" - delete it from local database?',
         );
         switch (yesNoAllQuit) {
           case YesNoAllQuit.yes:
