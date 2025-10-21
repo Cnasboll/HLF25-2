@@ -18,7 +18,7 @@ class Env {
     var apiEndpoint = env[apiHostName] ?? '';
     if (apiEndpoint.isEmpty) {
       apiEndpoint = promptFor(
-        'Enter API host or press enter to accept default ($defaultApiHost): ',
+        'Enter API host or press enter to accept default ("$defaultApiHost)": ',
         defaultApiHost,
       );
       saveNeeded = true;

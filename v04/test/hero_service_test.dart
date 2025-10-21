@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:test/test.dart';
 import 'package:v04/managers/hero_data_manager.dart';
+import 'package:v04/models/biography_model.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
 import 'auto_conflict_resolver.dart';
@@ -14,6 +17,32 @@ void main() async {
       var batman = heroDataManager.heroFromJson(batmanJsonTuple.$1!, DateTime.timestamp());
       expect(batman, isNotNull);
       expect(batman.name, "Batman");
+    });
+  });
+
+  test('Can amend other Batman', () async {
+    var heroService = MockHeroService();
+    var heroDataManager = HeroDataManager(MockHeroRepository());
+    await heroService.getById("69").then((batmanJsonTuple) {
+      var batman = heroDataManager.heroFromJson(batmanJsonTuple.$1!, DateTime.timestamp());
+      expect(batman, isNotNull);
+      expect(batman.name, "Batman");
+
+      var amendment = {
+        "biography": {
+          "alignment": "bad",
+        }};
+
+      var amendedBatman = batman.amendWith(amendment);
+      expect(amendedBatman.version, 2);
+      expect(amendedBatman.biography.alignment, Alignment.bad);
+      expect(amendedBatman.biography.aliases, batman.biography.aliases);
+
+      StringBuffer sb = StringBuffer();
+      expect(batman.diff(amendedBatman, sb), true);
+      expect(sb.toString(), '''Biography: Alignment: good -> bad
+''');
+      heroDataManager.persist(amendedBatman);
     });
   });
 

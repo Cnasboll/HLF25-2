@@ -162,7 +162,6 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     (m) => m.race,
     "Race",
     "Species in Latin or English",
-    format: (m) => m.race?.toString() ?? "-",
   );
 
   static FieldBase<AppearanceModel> get _heightField => Field.infer(
@@ -198,7 +197,6 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     "Eye Colour", // British spelling in db and in UI as we're in Europe
     jsonName: "eye-color",
     'The character\'s eye color of the most recent appearance',
-    format: (m) => m.eyeColor?.toString() ?? "-",
   );
 
   static final FieldBase<AppearanceModel> _hairColorField = Field.infer(
@@ -206,7 +204,6 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     "Hair Colour", // British spelling in db and in UI as we're in Europe
     jsonName: "hair-color",
     'The character\'s hair color of the most recent appearance',
-    format: (m) => m.hairColor?.toString() ?? "-",
   );
 
   static final List<FieldBase<AppearanceModel>> staticFields = [

@@ -249,7 +249,7 @@ class Field<T, V> implements FieldBase<T> {
     var lhsValue = getter(lhs);
     var rhsValue = getter(rhs);
 
-    if (!mutable || assignedBySystem || lhsValue == rhsValue) {
+    if (!mutable || assignedBySystem || deepEq.equals(lhsValue, rhsValue)) {
       return false;
     }
 
