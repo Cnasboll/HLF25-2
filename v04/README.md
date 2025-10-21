@@ -40,7 +40,7 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   image_url TEXT NULL
 ```
 
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually entered or amended, and should therfore not be reconciled with the API until it's first explicitly _unlocked_.
+The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually entered or amended, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
 
 NB: I don't know how to parse
 ```
@@ -269,7 +269,7 @@ Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in
 To amend an existing hero, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to amend. Candiates will be presented by descending order of strenght. Press `y` to amend the displayed hero or `n` to review the next one, or `c` to cancel.
 Pressing `y` will give the user the chance of amendning every value and keep current one with pressing enter.
 Upon completion, the amended fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-Any manual amendment sets the `lock` flag on the hero to `true` to exclude it from any automated reconciliaton with it's _Online_ version that would otherwise undo the user's creative efforts.
+Any manual amendment sets the _Lock_ flag on the hero to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
 
 ```
 A
@@ -390,7 +390,7 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 ```
 
-To reconcile heroes with the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
+To _Reconcile_ heroes with the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
 
 
 ```
@@ -424,7 +424,7 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-In this case no change occurred. Hero `69` has a locally amended `Biograhy: alignment` field but is in `locked` status. To allow reconciliation of this hero, type `U` to unlock it and then re-run reconciliation:
+In this case no change occurred. Hero `69` has a locally amended `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this hero, type `U` to _Unlock_ it and then re-run _Reconciliation_:
 
 ```
 U
@@ -680,7 +680,7 @@ Image: Url: null
 =============
 ```
 
-As the new hero only exists locally but is created in `locked` state, the reconciliation job will not consider it for deletion:
+As the new hero only exists locally but is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
 
 
 ```
@@ -717,7 +717,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 10:58:32.802370Z: 0 heroes reconciled, 0 heroes deleted.
 ```
 
-To auto-delete it, _Unlock_ the hero and run the reconciliation job again:
+To auto-_Delete_ it, first _Unlock_ the hero and run the _Reconciliation_ job again:
 ```
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
@@ -858,8 +858,8 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 heroes deleted.
 ```
 
-To (manually) delete an existing hero, return to the _Main_ menu and press `D` and enter a search string. Candiates will be presented by descending order of strenght. Press `y` to delete the hero or `n` to review the next one or `c` to cancel.
-Pressing `y` will give the user the chance of of revewing the hero to be deleted and confirm deletion with `y` or
+To (manually) _Delete_ a locally saved hero, return to the _Main_ menu and press `D` and enter a search string. Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the hero or `n` to review the next one or `c` to cancel.
+Typing `y` will give the user the chance of of revewing the hero to be _Deleted_ and confirm _Deletion_ with `y` or
 abort the operation with `n`.
 
 ```
@@ -986,7 +986,7 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
-The menu option `E` (for "erase") will prompt the user for deleting all the heroes and despite the popular notion, they don't live forever so be careful with this.
+The menu option `E` (for "erase") will prompt the user for _Deleting_ all the heroes and despite the popular notion, they don't live forever so be careful with this.
 `L` (for "list") displays all heroes unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
 
 There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations. `v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
@@ -1039,7 +1039,7 @@ y
 (...)
 ```
 
-When reconciling an already saved hero with the API, any conflicting `Weight` or `Height` information is resolved to the _current_ system of units for the hero, i.e. the system selected when `S`earching:
+When _Reconciling_ an already saved hero with the API, any conflicting `Weight` or `Height` information is resolved to the _current_ system of units for the hero, i.e. the system selected when `S`earching:
 
 
 ```
