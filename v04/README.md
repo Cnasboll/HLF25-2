@@ -8,6 +8,8 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   ```
   id TEXT PRIMARY KEY,
   version INTEGER NOT NULL,
+  timestamp TEXT NOT NULL,
+  locked BOOLEAN NOT NULL,
   external_id TEXT NOT NULL,
   name TEXT NOT NULL,
   intelligence INTEGER NULL,
@@ -25,10 +27,10 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   alignment TEXT NOT NULL,
   gender TEXT NOT NULL,
   race TEXT NULL,
-  height_m REAL NULL,
-  height_system_of_units TEXT NULL,
-  weight_kg REAL NULL,
-  weight_system_of_units TEXT NULL,
+  height_m REAL NOT NULL,
+  height_system_of_units TEXT NOT NULL,
+  weight_kg REAL NOT NULL,
+  weight_system_of_units TEXT NOT NULL,
   eye_colour TEXT NULL,
   hair_colour TEXT NULL,
   occupation TEXT NULL,
@@ -38,7 +40,7 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   image_url TEXT NULL
 ```
 
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). `external_id` is mapped from the field `id` in the `Hero` dto / api spec in `superheroapi.com` that will be integrated in the next release. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness.
+The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). `external_id` is mapped from the field `id` in the `Hero` dto / api spec in `superheroapi.com` that will be integrated in the next release. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually amended or created and should not be reconciled with the API until it's first explicitly unlocked.
 
 NB: I don't know how to parse
 ```
@@ -48,6 +50,18 @@ NB: I don't know how to parse
   }
 ```
 as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so I gave up and store it as a raw `TEXT`.
+One could relatively easy construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
+```
+relation:
+  name: Damian Wayne
+  relation: Son
+    qualifiers: []
+relation:
+  name: Martha Wayne
+  relation: Mother
+    qualifiers: [deceased]
+```
+But I simply don't trust the API to adhere to any parseable format for it to be worth the effort!
 
 Secondly, in the following example:
 ```
@@ -58,11 +72,11 @@ Secondly, in the following example:
 
 The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the api and expected to be treated as such by consumers, but due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
 
-Usage (menu alternatives slightly rearranged since `v02`):
+Usage:
 
 ```
 Welcome to the Hero Manager!
-Enter a menu option (C, L, T, S, A, D, E or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -70,7 +84,327 @@ List [T]op n heroes (will prompt for n)
 [A]mend a hero
 [D]elete a hero
 [E]rase database (delete all heroes)
+Go [O]nline to download heroes
 [Q]uit (exit the program)
+```
+
+To go online and download heroes press `O` and enter the search string as prompted:
+
+```
+O
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+S
+Enter a search string:
+Batman
+```
+
+If no API key and / or API host are specified in a local `.env` file, enter the values as prompted and the `.env` file will be created or updated accordingly.
+
+When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the hero to die, `a` to try to be a hero oneself or the most reasonably `q` to give up.
+
+```
+Enter your API key: 
+extremely_secret_api_key
+Enter API host or press enter to accept default ("www.superheroapi.com)": 
+
+
+Online search started at 2025-10-21 06:06:25.667157Z
+
+
+
+Found 3 heroes online:
+
+Save the following hero locally?
+
+=============
+id: 25af2ebd-ddcb-4abc-ad53-8a29214253bb
+Version: 1
+Timestamp: 2025-10-21T06:06:25.667157Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: good
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation: null
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
+=============
+ (y = yes, n = no, a = all, q = quit)
+a
+Saved hero 69 ("Batman") so it can save you:
+
+=============
+id: 25af2ebd-ddcb-4abc-ad53-8a29214253bb
+Version: 1
+Timestamp: 2025-10-21T06:06:25.667157Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: good
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation: null
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
+=============
+
+Saved hero 70 ("Batman") so it can save you:
+
+=============
+id: cb2d1a59-3ebc-4a0b-9bf8-73e898f32213
+Version: 1
+Timestamp: 2025-10-21T06:06:25.667157Z
+Locked: false
+External ID: 70
+Name: Batman
+Powerstats: Intelligence: 100
+Powerstats: Strength: 26
+Powerstats: Speed: 27
+Powerstats: Durability: 50
+Powerstats: Power: 47
+Powerstats: Combat: 100
+Biography: Full Name: Bruce Wayne
+Biography: Alter Egos: null
+Biography: Aliases: [Insider, Matches Malone]
+Biography: Place of Birth: Crest Hill, Bristol Township; Gotham County
+Biography: First Appearance: Detective Comics #27
+Biography: Publisher: DC Comics
+Biography: Alignment: good
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 6'2"
+Appearance: Weight: 210 lb
+Appearance: Eye Colour: blue
+Appearance: Hair Colour: black
+Work: Occupation: Businessman
+Work: Base: Batcave, Stately Wayne Manor, Gotham City; Hall of Justice, Justice League Watchtower
+Connections: Group Affiliation: Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps
+Connections: Relatives: Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward) 
+Martha Wayne (mother, deceased), Thomas Wayne (father, deceased), Alfred Pennyworth (former guardian), Roderick Kane (grandfather, deceased), Elizabeth Kane (grandmother, deceased), Nathan Kane (uncle, deceased), Simon Hurt (ancestor), Wayne Family
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/639.jpg
+=============
+
+Saved hero 71 ("Batman II") so it can save you:
+
+=============
+id: 6b711498-8fc5-45bb-8a34-de5d2d314755
+Version: 1
+Timestamp: 2025-10-21T06:06:25.667157Z
+Locked: false
+External ID: 71
+Name: Batman II
+Powerstats: Intelligence: 88
+Powerstats: Strength: 11
+Powerstats: Speed: 33
+Powerstats: Durability: 28
+Powerstats: Power: 36
+Powerstats: Combat: 100
+Biography: Full Name: Dick Grayson
+Biography: Alter Egos: Nightwing, Robin
+Biography: Aliases: [Dick Grayson]
+Biography: Place of Birth: null
+Biography: First Appearance: null
+Biography: Publisher: Nightwing
+Biography: Alignment: good
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 175 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation: null
+Work: Base: Gotham City; formerly Bludhaven, New York City
+Connections: Group Affiliation: Justice League Of America, Batman Family
+Connections: Relatives: John Grayson (father, deceased), Mary Grayson (mother, deceased), Bruce Wayne / Batman (adoptive father), Damian Wayne / Robin (foster brother), Jason Todd / Red Hood (adoptive brother), Tim Drake / Red Robin (adoptive brother), Cassandra Cain / Batgirl IV (adoptive sister)        
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
+=============
+
+
+Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
+```
+
+To amend a, hero exit the online meny by pressing `X` to go back to the main meny and enter `A` to search for a hero to amend. Any manual amendment sets the `lock` flag on the hero to true so that it cannot be automatically reconciled.
+
+```
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+X
+Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+[C]reate a new hero (will prompt for details)
+[L]ist all heroes
+List [T]op n heroes (will prompt for n)
+[S]earch matching heroes (will prompt for a search string)
+[A]mend a hero
+[D]elete a hero
+[E]rase database (delete all heroes)
+Go [O]nline to download heroes
+[Q]uit (exit the program)
+
+
+A
+Enter a search string:
+Batman
+Found 3 heroes:
+
+Amend the following hero?
+=============
+id: 6fff241c-44b0-43b9-a687-e0ad101f11a9
+Version: 1
+Timestamp: 2025-10-21T06:14:25.286886Z
+Locked: false
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: good
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation: null
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
+=============
+ (y = yes, n = next, c = cancel)
+y
+Enter Name (Most commonly used name), or enter to keep current value (Batman):
+
+
+Amend Powerstats (Power statistics which is mostly misused)? (y/N)
+
+
+Amend Biography (Hero's quite biased biography)? (y/N)
+y
+Enter Biography: Full Name (Also applies when hungry), or enter to keep current value (Terry McGinnis):
+
+Enter Biography: Alter Egos (Alter egos of the character), or enter to keep current value (null):
+
+Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in json format e.g. ["Insider", "Matches Malone"]), or enter to keep current value ([Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]):
+
+Enter Biography: Place of Birth (Where the character was born), or enter to keep current value (Gotham City, 25th Century):
+
+Enter Biography: First Appearance (When the character first appeared in print or in court), or enter to keep current value (Batman Beyond #1):
+
+Enter Biography: Publisher (The publisher of the character's stories or documentary evidence), or enter to keep current value (DC Comics):
+
+Enter Biography: Alignment (The character's moral alignment (unknown, neutral, mostlyGood, good, reasonable, notQuite, bad, ugly, evil, usingMobileSpeakerOnPublicTransport)), or enter to keep current value (good):
+bad
+
+Amend Appearance (Hero's appearance)? (y/N)
+
+
+Amend Work (Hero's work)? (y/N)
+
+
+Amend Connections (Hero's connections)? (y/N)
+
+
+Amend Image (Hero's image)? (y/N)
+
+
+Save the following amendments?
+
+=============
+Biography: Alignment: good -> bad
+=============
+ (y/n)
+y
+Amended hero:
+
+=============
+id: 6fff241c-44b0-43b9-a687-e0ad101f11a9
+Version: 2
+Timestamp: 2025-10-21T06:15:20.854988Z
+Locked: true
+External ID: 69
+Name: Batman
+Powerstats: Intelligence: 81
+Powerstats: Strength: 40
+Powerstats: Speed: 29
+Powerstats: Durability: 55
+Powerstats: Power: 63
+Powerstats: Combat: 90
+Biography: Full Name: Terry McGinnis
+Biography: Alter Egos: null
+Biography: Aliases: [Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]
+Biography: Place of Birth: Gotham City, 25th Century
+Biography: First Appearance: Batman Beyond #1
+Biography: Publisher: DC Comics
+Biography: Alignment: bad
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 5'10"
+Appearance: Weight: 170 lb
+Appearance: Eye Colour: Blue
+Appearance: Hair Colour: Black
+Work: Occupation: null
+Work: Base: 21st Century Gotham City
+Connections: Group Affiliation: Batman Family, Justice League Unlimited
+Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
+=============
 ```
 
 To add a new hero press `C` and enter values as prompted. An empty string is treated as abort.
