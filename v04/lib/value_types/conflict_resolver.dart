@@ -45,9 +45,9 @@ class AutoConflictResolver<T extends ValueType<T>> extends ConflictResolver<T> {
     for (var v in [value, conflictingInDifferentUnit]) {
       if (v.systemOfUnits == systemOfUnits) {
         resolutionLog.add(
-          "$error. Resolving by using value current system of units (${systemOfUnits.name}) for $valueTypeName: '$v'.",
+          "$error. Resolving by using value in current system of units (${systemOfUnits.name}) for $valueTypeName: '$v'.",
         );
-        return (value, null);
+        return (v, null);
       }
     }
     return (null, '$error. Failed to manually resolve conflict');

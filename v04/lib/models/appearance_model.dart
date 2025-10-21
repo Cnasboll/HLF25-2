@@ -63,11 +63,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
       race: _raceField.getNullableStringForAmendment(this, amendment),
       height: Height.parseList(
         _heightField.getNullableStringListFromJsonForAmendment(this, amendment),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext?.next(_heightField.name),
       ),
       weight: Weight.parseList(
         _weightField.getNullableStringListFromJsonForAmendment(this, amendment),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext?.next(_weightField.name),
       ),
       eyeColor: _eyeColourField.getNullableStringForAmendment(this, amendment),
       hairColor: _hairColorField.getNullableStringForAmendment(this, amendment),
@@ -86,11 +86,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
       race: _raceField.getNullableString(json),
       height: Height.parseList(
         _heightField.getNullableStringList(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext?.next(_heightField.name),
       ),
       weight: Weight.parseList(
         _weightField.getNullableStringList(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext?.next(_weightField.name),
       ),
       eyeColor: _eyeColourField.getNullableString(json),
       hairColor: _hairColorField.getNullableString(json),
