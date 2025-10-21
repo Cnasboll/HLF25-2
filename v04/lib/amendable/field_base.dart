@@ -1,4 +1,5 @@
 import 'package:sqlite3/sqlite3.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/value_types/percentage.dart';
 
 abstract class FieldBase<T> {
@@ -18,9 +19,9 @@ abstract class FieldBase<T> {
   int? getNullableInt(Map<String, dynamic>? json);
   int getIntFromRow(Row row, int defaultValue);
   int? getNullableIntFromRow(Row row);
-  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment);
-  Percentage getPercentageFromJson(Map<String, dynamic>? json, int defaultValue);
-  Percentage? getNullablePercentage(Map<String, dynamic>? json);
+  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment, {ParsingContext? parsingContext});
+  Percentage getPercentageFromJson(Map<String, dynamic>? json, int defaultValue, {ParsingContext? parsingContext});
+  Percentage? getNullablePercentage(Map<String, dynamic>? json, {ParsingContext? parsingContext});
   Percentage getPercentageFromRow(Row row, int defaultValue);
   Percentage? getNullablePercentageFromRow(Row row);
   double getFloatFromRow(Row row, double defaultValue);
@@ -76,6 +77,9 @@ abstract class FieldBase<T> {
   String generateSqliteUpdateClause(String indent);
   Object? Function(T) get getter;
 
+/// Descriptive name of a field
+  String get name;
+  
   /// True if field is mutable
   bool get mutable;
 }

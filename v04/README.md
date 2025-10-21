@@ -991,13 +991,92 @@ The menu option `E` (for "erase") will prompt the user for deleting all the hero
 
 There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI is in fact using json as an intermediate format so that the app is ready to be connected to the API without further modifications. `v04\tests\sql_generation_test.dart` shows expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
 
-Also note that the parser will throw if given conflicting height or weight information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart`, respectively and in particular the consistency checking in `v04\value_types\value_type.dart` :
+Also note that the parser will try to handle conflicting height or weight information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart` respecively, and `test('Can parse most heros')` in `v04\tests\hero_service_test.dart` the consistency checking logic in `v04\value_types\value_type.dart`:
 
 ```
-static (T?, String?) tryParseList<T>(
-    List<String>? valueInVariousUnits,
+  static (T?, String?) checkConsistency<T extends ValueType<T>>(
     String valueTypeName,
-    (T?, String?) Function(String) tryParse,
+    ValueType<T> value,
+    String valueSource,
+    ValueType<T> parsedValue,
+    String input,
+    ParsingContext? parsingContext,
+    ConflictResolver<T>? conflictResolver,
   )
 ``` 
-which really was the main focus of this assigment for me, roughly 95%.
+which really was the main focus of this assigment for me, roughly 95% of the time spent.
+
+When the search encounters heroes with conflicting `Height` or `Weight` information the user is given the choice of which system of units to use:
+
+```
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+
+
+S
+Enter a search string:
+Q
+
+Online search started at 2025-10-21 21:50:50.682706Z
+
+
+When parsing Appearance -> Weight for new hero with externalId: "38" and name: "Aquaman": Conflicting weight information: metric '146 kg' (parsed from '146 kg') corresponds to '322 lb' after converting back to imperial -- expecting '147 kg' in order to match first value of '325 lb' (parsed from '325 lb').
+Type 'i' to use the imperial weight '325 lb' or 'm' to use the metric weight '146 kg' value to resolve this conflict or enter to abort:
+m
+
+Resolve further weight conflicts by selecting the metric value for weight? (Y/n)
+y
+When parsing Appearance -> Weight for new hero with externalId: "38" and name: "Aquaman": Conflicting weight information: metric '146 kg' (parsed from '146 kg') corresponds to '322 lb' after converting back to imperial -- expecting '147 kg' in order to match first value of '325 lb' (parsed from '325 lb'). Resolving by using value in previously decided system of units (metric) for weight: '146 kg'.
+
+Found 18 heroes online:
+
+Save the following hero locally?
+
+y
+(...)
+```
+
+When reconciling an already saved hero with the API, any conflicting weight or height information is resolved to the _current_ system of units for the hero, i.e. the system selected when `S`earching:
+
+
+```
+R
+
+Reconciliation started at at 2025-10-21 22:15:13.530387Z
+
+
+When parsing Appearance -> Weight for hero with id: 58f3b09e-de42-4380-a275-53f9f47a8eaa, externalId: "38" and name: "Aquaman": Conflicting weight information: metric '146 kg' (parsed from '146 kg') corresponds to '322 lb' after converting back to imperial -- expecting '147 kg' in order to match first value of '325 lb' (parsed from '325 lb'). Resolving by using value in current system of units (metric) for weight: '146 kg'.
+Hero: 38 ("Aquaman") is already up to date
+When parsing Appearance -> Weight for hero with id: c96e2e01-72ec-40d3-9d84-299c137f3152, externalId: "573" and name: "Sasquatch": Conflicting weight information: metric '900 kg' (parsed from '900 kg') corresponds to '1984 lb' after converting back to imperial -- expecting '907 kg' in order to match first value of '2000 lb' (parsed from '2000 lb'). Resolving by using value in current system of units (metric) for weight: '900 kg'.
+Hero: 573 ("Sasquatch") is already up to date
+Hero: 129 ("Bomb Queen") is already up to date
+Hero: 37 ("Aqualad") is already up to date
+Hero: 359 ("Jesse Quick") is already up to date
+Hero: 536 ("Quicksilver") is already up to date
+Hero: 70 ("Batman") is already up to date
+Hero: 36 ("Aquababy") is already up to date
+Hero: 535 ("Question") is already up to date
+Hero: 533 ("Q") is already up to date
+Hero: 309 ("Harley Quinn") is already up to date
+Hero: 480 ("Mystique") is already up to date
+Hero: 71 ("Batman II") is already up to date
+Hero: 286 ("Goblin Queen") is already up to date
+Hero: 521 ("Plastique") is already up to date
+Hero: 537 ("Quill") is already up to date
+Hero: 712 ("White Queen") is already up to date
+Hero: 113 ("Blaquesmith") is already up to date
+Hero: 534 ("Quantum") is already up to date
+Hero: 19 ("Allan Quatermain") is already up to date
+
+Reconciliation complete at 2025-10-21 22:15:23.644413Z: 0 heroes reconciled, 0 heroes deleted.
+
+
+Enter a menu option (R, S, U or X) and press enter:
+[R]econcile local heroes with online updates
+[S]earch online for new heroes to save
+[U]nlock manually amended heroes to enable reconciliation
+E[X]it and return to main menu
+```

@@ -10,23 +10,37 @@ import 'package:v04/models/power_stats_model.dart';
 import 'package:v04/models/work_model.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
-import 'package:v04/value_types/conflict_resolver.dart';
-import 'package:v04/value_types/height.dart';
-import 'package:v04/value_types/weight.dart';
 
 class HeroParsingContext implements ParsingContext {
-  HeroParsingContext(this.id, this.externalId, this.name, this.isNew);
+  HeroParsingContext(
+    this.id,
+    this.externalId,
+    this.name,
+    this.isNew, {
+    this.crumbs = const [],
+  });
   final String id;
   final String externalId;
   final String name;
   final bool isNew;
-
+  final List<String> crumbs;
   @override
   String toString() {
     if (isNew) {
-      return 'parsing new hero with externalId: "$externalId" and name: "$name"';
+      return 'parsing ${crumbs.join(" -> ")} for new hero with externalId: "$externalId" and name: "$name"';
     }
-    return 'parsing hero with id: $id, externalId: "$externalId" and name: "$name"';
+    return 'parsing ${crumbs.join(" -> ")} for hero with id: $id, externalId: "$externalId" and name: "$name"';
+  }
+
+  @override
+  ParsingContext next(String crumb) {
+    return HeroParsingContext(
+      id,
+      externalId,
+      name,
+      isNew,
+      crumbs: [...crumbs, crumb],
+    );
   }
 }
 
@@ -86,62 +100,46 @@ class HeroModel extends Amendable<HeroModel> {
   ) {
     var name = _nameField.getStringForAmendment(this, amendment);
     var parsingContext = HeroParsingContext(id, externalId, name, false);
-    var heightConflictResolver = Height.conflictResolver;
-    var weightConflictResolver = Weight.conflictResolver;
-
-    try {
-      // Use height and weight conflict resolvers that use the system of units information from the the current hero being amended
-      Height.conflictResolver = AutoConflictResolver<Height>(
-        appearance.height.systemOfUnits,
-      );
-      Weight.conflictResolver = AutoConflictResolver<Weight>(
-        appearance.weight.systemOfUnits,
-      );
-      return HeroModel(
-        id: id,
-        version: version + 1,
-        timestamp: timestamp,
-        locked:
-            locked ||
-            manualAmendment, // Any manual amendment locks the hero from synchronization with the server
-        externalId: externalId,
-        name: name,
-        powerStats: powerStats.fromChildJsonAmendment(
-          _powerstatsField,
-          amendment,
-          parsingContext: parsingContext,
-        ),
-        biography: biography.fromChildJsonAmendment(
-          _biographyField,
-          amendment,
-          parsingContext: parsingContext,
-        ),
-        appearance: appearance.fromChildJsonAmendment(
-          _appearanceField,
-          amendment,
-          parsingContext: parsingContext,
-        ),
-        work: work.fromChildJsonAmendment(
-          _workField,
-          amendment,
-          parsingContext: parsingContext,
-        ),
-        connections: connections.fromChildJsonAmendment(
-          _connectionsField,
-          amendment,
-          parsingContext: parsingContext,
-        ),
-        image: image.fromChildJsonAmendment(
-          _imageField,
-          amendment,
-          parsingContext: parsingContext,
-        ),
-      );
-    } finally {
-      // Restore previous conflict resolvers
-      Height.conflictResolver = heightConflictResolver;
-      Weight.conflictResolver = weightConflictResolver;
-    }
+    return HeroModel(
+      id: id,
+      version: version + 1,
+      timestamp: timestamp,
+      locked:
+          locked ||
+          manualAmendment, // Any manual amendment locks the hero from synchronization with the server
+      externalId: externalId,
+      name: name,
+      powerStats: powerStats.fromChildJsonAmendment(
+        _powerstatsField,
+        amendment,
+        parsingContext: parsingContext.next(_powerstatsField.name),
+      ),
+      biography: biography.fromChildJsonAmendment(
+        _biographyField,
+        amendment,
+        parsingContext: parsingContext.next(_biographyField.name),
+      ),
+      appearance: appearance.fromChildJsonAmendment(
+        _appearanceField,
+        amendment,
+        parsingContext: parsingContext.next(_appearanceField.name),
+      ),
+      work: work.fromChildJsonAmendment(
+        _workField,
+        amendment,
+        parsingContext: parsingContext.next(_workField.name),
+      ),
+      connections: connections.fromChildJsonAmendment(
+        _connectionsField,
+        amendment,
+        parsingContext: parsingContext.next(_connectionsField.name),
+      ),
+      image: image.fromChildJsonAmendment(
+        _imageField,
+        amendment,
+        parsingContext: parsingContext.next(_imageField.name),
+      ),
+    );
   }
 
   /// Call this to allow the hero to be synced with server again
@@ -163,27 +161,27 @@ class HeroModel extends Amendable<HeroModel> {
       name: name,
       powerStats: PowerStatsModel.fromJson(
         _powerstatsField.getJson(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext.next(_powerstatsField.name),
       ),
       biography: BiographyModel.fromJson(
         _biographyField.getJson(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext.next(_biographyField.name),
       ),
       appearance: AppearanceModel.fromJson(
         _appearanceField.getJson(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext.next(_appearanceField.name),
       ),
       work: WorkModel.fromJson(
         _workField.getJson(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext.next(_workField.name),
       ),
       connections: ConnectionsModel.fromJson(
         _connectionsField.getJson(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext.next(_connectionsField.name),
       ),
       image: ImageModel.fromJson(
         _imageField.getJson(json),
-        parsingContext: parsingContext,
+        parsingContext: parsingContext.next(_imageField.name),
       ),
     );
   }
