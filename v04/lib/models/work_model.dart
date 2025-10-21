@@ -4,6 +4,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 
 class WorkModel extends Amendable<WorkModel> {
   WorkModel({this.occupation, this.base});
@@ -19,14 +20,14 @@ class WorkModel extends Amendable<WorkModel> {
   }
 
   @override
-  WorkModel amendWith(Map<String, dynamic>? amendment) {
+  WorkModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     return WorkModel(
       occupation: _occupationField.getNullableStringForAmendment(this, amendment),
       base: _baseField.getNullableStringForAmendment(this, amendment),
     );
   }
 
-  static WorkModel fromJson(Map<String, dynamic>? json) {
+  static WorkModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     if (json == null) {
       return WorkModel();
     }

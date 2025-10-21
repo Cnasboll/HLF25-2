@@ -10,8 +10,8 @@ import 'package:v04/persistence/hero_repository.dart';
 import 'package:v04/prompts/prompt.dart';
 import 'package:v04/services/hero_service.dart';
 import 'package:v04/services/hero_servicing.dart';
+import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/height.dart';
-import 'package:v04/value_types/manual_conflict_resolver.dart';
 import 'package:v04/value_types/weight.dart';
 
 Future<void> main() async {
@@ -153,8 +153,8 @@ void listMatchingHeroes(HeroDataManaging heroDataManager) {
 Future<void> saveHeroes(HeroDataManaging heroDataManager) async {
   var query = promptFor("Enter a search string:");
   var heroService = HeroService(Env());
-    var timestamp = DateTime.timestamp();
-  print (''' 
+  var timestamp = DateTime.timestamp();
+  print(''' 
 
 Online search started at $timestamp
 
@@ -175,14 +175,16 @@ Online search started at $timestamp
   }
 
   bool saveAll = false;
-  var saveCount  = 0;
+  var saveCount = 0;
+  var heightConflictResolver = Height.conflictResolver;
+  var weightConflictResolver = Weight.conflictResolver;
   try {
-    Height.conflictResolver = ManualConflictResolver();
-    Weight.conflictResolver = ManualConflictResolver();
+    Height.conflictResolver = ManualConflictResolver<Height>();
+    Weight.conflictResolver = ManualConflictResolver<Weight>();
     var searchResponseModel = SearchResponseModel.fromJson(
       heroDataManager,
       results,
-      timestamp
+      timestamp,
     );
 
     print('''
@@ -211,20 +213,23 @@ $hero''');
         }
       }
       heroDataManager.persist(hero);
-      print('''Saved hero ${hero.externalId} ("${hero.name}") so it can save you:
-$hero''');
+      print(
+        '''Saved hero ${hero.externalId} ("${hero.name}") so it can save you:
+$hero''',
+      );
       ++saveCount;
     }
   } catch (e) {
     print("Failed to parse online heroes: $e");
   } finally {
-    Height.conflictResolver = null;
-    Weight.conflictResolver = null;
+    // Restore previous conflict resolvers
+    Height.conflictResolver = heightConflictResolver;
+    Weight.conflictResolver = weightConflictResolver;
   }
 
-    print (''' 
+  print(''' 
 
-Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they can in turn save ${saveCount*saveCount * 10} people, or more, depending on their abilities).
+Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they can in turn save ${saveCount * saveCount * 10} people, or more, depending on their abilities).
 
 ''');
 }
@@ -388,7 +393,7 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
 
 Future<void> reconcileHeroes(HeroDataManaging heroDataManager) async {
   var timestamp = DateTime.timestamp();
-  print (''' 
+  print(''' 
 
 Reconciliation started at at $timestamp
 
@@ -397,7 +402,7 @@ Reconciliation started at at $timestamp
   bool deleteAll = false;
   bool updateAll = false;
   var deletionCount = 0;
-  var reconciliationCount  = 0;
+  var reconciliationCount = 0;
   try {
     Weight.conflictResolver = ManualConflictResolver();
     Height.conflictResolver = ManualConflictResolver();
@@ -405,7 +410,7 @@ Reconciliation started at at $timestamp
       heroService ??= HeroService(Env());
       var onlineHeroJson = await heroService.getById(hero.externalId);
       String? error;
-      if (onlineHeroJson !=  null) {
+      if (onlineHeroJson != null) {
         error = onlineHeroJson["error"];
       }
 
@@ -457,7 +462,9 @@ Reconciliation started at at $timestamp
         var sb = StringBuffer();
         var diff = hero.diff(updatedHero, sb);
         if (!diff) {
-          print('Hero: ${hero.externalId} ("${hero.name}") is already up to date');
+          print(
+            'Hero: ${hero.externalId} ("${hero.name}") is already up to date',
+          );
           continue;
         }
 
@@ -504,11 +511,11 @@ ${sb.toString()}''',
         }
 
         heroDataManager.persist(updatedHero);
-          ++reconciliationCount;
-          print(
-            '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
+        ++reconciliationCount;
+        print(
+          '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
 ${sb.toString()}''',
-          );
+        );
       } catch (e) {
         print(
           'Failed to reconcile hero: ${hero.externalId} ("${hero.name}"): $e',
@@ -519,7 +526,7 @@ ${sb.toString()}''',
     Weight.conflictResolver = null;
     Height.conflictResolver = null;
   }
-  print (''' 
+  print(''' 
 
 Reconciliation complete at ${DateTime.timestamp()}: $reconciliationCount heroes reconciled, $deletionCount heroes deleted.
 

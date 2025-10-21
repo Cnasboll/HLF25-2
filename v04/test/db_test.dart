@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:uuid/uuid.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/models/appearance_model.dart';
 import 'package:v04/models/biography_model.dart';
@@ -28,14 +29,22 @@ Future<void> main() async {
     // First create a db instance, clean it, add some heroes, then shutdown
     var heroDataManager = HeroDataManager(HeroRepository(path));
     heroDataManager.clear();
+
+    var parsingContext = HeroParsingContext(
+      "02ffbb60-762b-4552-8f41-be8aa86869c6",
+      "70",
+      "Batman",
+      false,
+    );
+
     heroDataManager.persist(
       HeroModel(
-        id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
+        id: parsingContext.id,
         version: 1,
         timestamp: deadline,
         locked: false,
-        externalId: "70",
-        name: "Batman",
+        externalId: parsingContext.externalId,
+        name: parsingContext.name,
         powerStats: PowerStatsModel(
           intelligence: Percentage(50),
           strength: Percentage(26),
@@ -56,8 +65,14 @@ Future<void> main() async {
         appearance: AppearanceModel(
           gender: Gender.male,
           race: "Human",
-          height: Height.parseList(["6'2", "188 cm"]),
-          weight: Weight.parseList(["210 lb", "95 kg"]),
+          height: Height.parseList([
+            "6'2",
+            "188 cm",
+          ], parsingContext: parsingContext),
+          weight: Weight.parseList([
+            "210 lb",
+            "95 kg",
+          ], parsingContext: parsingContext),
           eyeColor: 'blue',
           hairColor: 'black',
         ),
@@ -76,14 +91,21 @@ Future<void> main() async {
         ),
       ),
     );
+
+    parsingContext = HeroParsingContext(
+      "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
+      "69",
+      "Robin",
+      false,
+    );
     heroDataManager.persist(
       HeroModel(
-        id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
+        id: parsingContext.id,
         version: 1,
         timestamp: deadline,
         locked: false,
-        externalId: "69",
-        name: "Robin",
+        externalId: parsingContext.externalId,
+        name: parsingContext.name,
         powerStats: PowerStatsModel(
           intelligence: Percentage(51),
           strength: Percentage(23),
@@ -104,8 +126,14 @@ Future<void> main() async {
         appearance: AppearanceModel(
           gender: Gender.unknown,
           race: "Human",
-          height: Height.parseList(["5'10", "178 cm"]),
-          weight: Weight.parseList(["159 lb", "72 kg"]),
+          height: Height.parseList([
+            "5'10",
+            "178 cm",
+          ], parsingContext: parsingContext),
+          weight: Weight.parseList([
+            "159 lb",
+            "72 kg",
+          ], parsingContext: parsingContext),
           eyeColor: 'blue',
           hairColor: 'black',
         ),
@@ -155,24 +183,37 @@ Future<void> main() async {
     heroDataManager.persist(batman);
 
     // Add Alfred, assign a id
-    var alfred = HeroModel.newId(
-      deadline,
-      "3",
-      "Alfred",
-      PowerStatsModel(strength: Percentage(9)),
-      BiographyModel(alignment: Alignment.good, fullName: "Alfred Pennyworth"),
-      AppearanceModel(
+    parsingContext = HeroParsingContext(Uuid().v4(), "3", "Alfred", false);
+    var alfred = HeroModel(
+      id: parsingContext.id,
+      version: 1,
+      timestamp: deadline,
+      locked: false,
+      externalId: parsingContext.externalId,
+      name: parsingContext.name,
+      powerStats: PowerStatsModel(strength: Percentage(9)),
+      biography: BiographyModel(
+        alignment: Alignment.good,
+        fullName: "Alfred Pennyworth",
+      ),
+      appearance: AppearanceModel(
         gender: Gender.wontSay,
         race: "Human",
-        height: Height.parseList(["5'9", "175 cm"]),
-        weight: Weight.parseList(["155 lb", "70 kg"]),
+        height: Height.parseList([
+          "5'9",
+          "175 cm",
+        ], parsingContext: parsingContext),
+        weight: Weight.parseList([
+          "155 lb",
+          "70 kg",
+        ], parsingContext: parsingContext),
       ),
-      WorkModel(occupation: "Butler", base: "Wayne Manor"),
-      ConnectionsModel(
+      work: WorkModel(occupation: "Butler", base: "Wayne Manor"),
+      connections: ConnectionsModel(
         groupAffiliation: "Wayne Manor",
         relatives: "Bruce Wayne (employer)",
       ),
-      ImageModel(
+      image: ImageModel(
         url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
       ),
     );

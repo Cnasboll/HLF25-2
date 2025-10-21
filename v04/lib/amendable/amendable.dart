@@ -1,4 +1,5 @@
 import 'package:v04/amendable/field_provider.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/prompts/prompt.dart';
 import 'package:v04/amendable/field_base.dart';
 
@@ -32,11 +33,11 @@ abstract class Amendable<T extends Amendable<T>> extends FieldProvider<T>
     return true;
   }
 
-  T fromChildJsonAmendment(FieldBase field, Map<String, dynamic>? amendment) {
-    return amendWith(field.getJson(amendment));
+  T fromChildJsonAmendment(FieldBase field, Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
+    return amendWith(field.getJson(amendment), parsingContext: parsingContext);
   }
 
-  T amendWith(Map<String, dynamic>? amendment);
+  T amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext});
 
   T? promptForAmendment() {
     var amendedObject = amendWith(promptForAmendmentJson());

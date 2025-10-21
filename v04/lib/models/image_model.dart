@@ -4,6 +4,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 
 class ImageModel extends Amendable<ImageModel> {
   ImageModel({this.url});
@@ -15,13 +16,13 @@ class ImageModel extends Amendable<ImageModel> {
   }
 
   @override
-  ImageModel amendWith(Map<String, dynamic>? amendment) {
+  ImageModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     return ImageModel(
       url: _urlField.getNullableStringForAmendment(this, amendment),
     );
   }
 
-  static ImageModel fromJson(Map<String, dynamic>? json) {
+  static ImageModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     if (json == null) {
       return ImageModel();
     }
