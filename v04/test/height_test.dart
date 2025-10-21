@@ -1,9 +1,7 @@
-
 import 'package:test/test.dart';
 import 'package:v04/value_types/height.dart';
 
 void main() {
-
   test('a dash means zero feet and zero inches', () {
     final h = Height.parse("-");
     var (feet, inches) = h.wholeFeetAndWholeInches;
@@ -14,15 +12,18 @@ void main() {
     expect(h.toString(), "-");
   });
 
-  test( "For the suphero Dagger, 'Shaker Heights, Ohio' means zero feet and zero inches", () {
-    final h = Height.parse("Shaker Heights, Ohio");
-    var (feet, inches) = h.wholeFeetAndWholeInches;
-    expect(feet, 0);
-    expect(inches, 0);
-    expect(h.wholeCentimeters, 0);
-    expect(h.isImperial, true);
-    expect(h.toString(), "-");
-  });
+  test(
+    "For the suphero Dagger, 'Shaker Heights, Ohio' means zero feet and zero inches",
+    () {
+      final h = Height.parse("Shaker Heights, Ohio");
+      var (feet, inches) = h.wholeFeetAndWholeInches;
+      expect(feet, 0);
+      expect(inches, 0);
+      expect(h.wholeCentimeters, 0);
+      expect(h.isImperial, true);
+      expect(h.toString(), "-");
+    },
+  );
 
   test('parse imperial shorthand', () {
     final h = Height.parse("6'2\"");
@@ -205,7 +206,7 @@ void main() {
           (e) =>
               e is FormatException &&
               e.message ==
-                  "Conflicting height information: metric '190 cm' corresponds to '6'3\"' after converting back to imperial -- expecting '188 cm' in order to match first value of '6'2\"'",
+                  "Conflicting height information: metric '190 cm' (parsed from '190 cm') corresponds to '6'3\"' after converting back to imperial -- expecting '188 cm' in order to match first value of '6'2\"' (parsed from '6'2\"')",
         ),
       ),
     );
@@ -219,7 +220,7 @@ void main() {
           (e) =>
               e is FormatException &&
               e.message ==
-                  "Conflicting height information: '6'3\"' doesn't match first value '6'2\"'",
+                  "Conflicting height information: '6'3\"' (parsed from '6 feet 3') doesn't match first value '6'2\"' (parsed from '6'2\"')",
         ),
       ),
     );

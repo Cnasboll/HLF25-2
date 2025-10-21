@@ -2,6 +2,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/value_types/percentage.dart';
 
 class PowerStatsModel extends Amendable<PowerStatsModel> {
@@ -64,7 +65,7 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   }
 
   @override
-  PowerStatsModel amendWith(Map<String, dynamic>? amendment) {
+  PowerStatsModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     return PowerStatsModel(
       intelligence: _intelligenceField.getPercentageForAmendment(
         this,
@@ -78,7 +79,7 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
     );
   }
 
-  static PowerStatsModel fromJson(Map<String, dynamic>? json) {
+  static PowerStatsModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     if (json == null) {
       return PowerStatsModel();
     }

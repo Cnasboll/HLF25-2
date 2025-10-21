@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/models/appearance_model.dart';
 import 'package:v04/models/biography_model.dart';
 import 'package:v04/models/connections_model.dart';
@@ -9,6 +10,25 @@ import 'package:v04/models/power_stats_model.dart';
 import 'package:v04/models/work_model.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
+import 'package:v04/value_types/conflict_resolver.dart';
+import 'package:v04/value_types/height.dart';
+import 'package:v04/value_types/weight.dart';
+
+class HeroParsingContext implements ParsingContext {
+  HeroParsingContext(this.id, this.externalId, this.name, this.isNew);
+  final String id;
+  final String externalId;
+  final String name;
+  final bool isNew;
+
+  @override
+  String toString() {
+    if (isNew) {
+      return 'parsing new hero with externalId: "$externalId" and name: "$name"';
+    }
+    return 'parsing hero with id: $id, externalId: "$externalId" and name: "$name"';
+  }
+}
 
 class HeroModel extends Amendable<HeroModel> {
   HeroModel({
@@ -52,36 +72,76 @@ class HeroModel extends Amendable<HeroModel> {
       );
 
   @override
-  HeroModel amendWith(Map<String, dynamic>? amendment) {
+  HeroModel amendWith(
+    Map<String, dynamic>? amendment, {
+    ParsingContext? parsingContext,
+  }) {
     return apply(amendment, DateTime.timestamp(), true);
   }
 
-  HeroModel apply(Map<String, dynamic>? amendment, DateTime timestamp, bool manualAmendment) {
-    return HeroModel(
-      id: id,
-      version: version + 1,
-      timestamp: timestamp,
-      locked:
-          locked ||
-          manualAmendment, // Any manual amendment locks the hero from synchronization with the server
-      externalId: externalId,
-      name: _nameField.getStringForAmendment(this, amendment),
-      powerStats: powerStats.fromChildJsonAmendment(
-        _powerstatsField,
-        amendment,
-      ),
-      biography: biography.fromChildJsonAmendment(_biographyField, amendment),
-      appearance: appearance.fromChildJsonAmendment(
-        _appearanceField,
-        amendment,
-      ),
-      work: work.fromChildJsonAmendment(_workField, amendment),
-      connections: connections.fromChildJsonAmendment(
-        _connectionsField,
-        amendment,
-      ),
-      image: image.fromChildJsonAmendment(_imageField, amendment),
-    );
+  HeroModel apply(
+    Map<String, dynamic>? amendment,
+    DateTime timestamp,
+    bool manualAmendment,
+  ) {
+    var name = _nameField.getStringForAmendment(this, amendment);
+    var parsingContext = HeroParsingContext(id, externalId, name, false);
+    var heightConflictResolver = Height.conflictResolver;
+    var weightConflictResolver = Weight.conflictResolver;
+
+    try {
+      // Use height and weight conflict resolvers that use the system of units information from the the current hero being amended
+      Height.conflictResolver = AutoConflictResolver<Height>(
+        appearance.height.systemOfUnits,
+      );
+      Weight.conflictResolver = AutoConflictResolver<Weight>(
+        appearance.weight.systemOfUnits,
+      );
+      return HeroModel(
+        id: id,
+        version: version + 1,
+        timestamp: timestamp,
+        locked:
+            locked ||
+            manualAmendment, // Any manual amendment locks the hero from synchronization with the server
+        externalId: externalId,
+        name: name,
+        powerStats: powerStats.fromChildJsonAmendment(
+          _powerstatsField,
+          amendment,
+          parsingContext: parsingContext,
+        ),
+        biography: biography.fromChildJsonAmendment(
+          _biographyField,
+          amendment,
+          parsingContext: parsingContext,
+        ),
+        appearance: appearance.fromChildJsonAmendment(
+          _appearanceField,
+          amendment,
+          parsingContext: parsingContext,
+        ),
+        work: work.fromChildJsonAmendment(
+          _workField,
+          amendment,
+          parsingContext: parsingContext,
+        ),
+        connections: connections.fromChildJsonAmendment(
+          _connectionsField,
+          amendment,
+          parsingContext: parsingContext,
+        ),
+        image: image.fromChildJsonAmendment(
+          _imageField,
+          amendment,
+          parsingContext: parsingContext,
+        ),
+      );
+    } finally {
+      // Restore previous conflict resolvers
+      Height.conflictResolver = heightConflictResolver;
+      Weight.conflictResolver = weightConflictResolver;
+    }
   }
 
   /// Call this to allow the hero to be synced with server again
@@ -89,42 +149,90 @@ class HeroModel extends Amendable<HeroModel> {
     return copyWith(locked: false);
   }
 
-  HeroModel.fromJson(Map<String, dynamic> json, DateTime timestamp)
-    : this.newId(
-        timestamp,
-        _externalIdField.getNullableString(json)!,
-        _nameField.getNullableString(json)!,
-        PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
-        BiographyModel.fromJson(_biographyField.getJson(json)),
-        AppearanceModel.fromJson(_appearanceField.getJson(json)),
-        WorkModel.fromJson(_workField.getJson(json)),
-        ConnectionsModel.fromJson(_connectionsField.getJson(json)),
-        ImageModel.fromJson(_imageField.getJson(json)),
-      );
+  factory HeroModel.fromJson(Map<String, dynamic> json, DateTime timestamp) {
+    var id = Uuid().v4();
+    var externalId = _externalIdField.getNullableString(json)!;
+    var name = _nameField.getNullableString(json)!;
+    var parsingContext = HeroParsingContext(id, externalId, name, true);
+    return HeroModel(
+      id: id,
+      version: 1,
+      timestamp: timestamp,
+      locked: false,
+      externalId: externalId,
+      name: name,
+      powerStats: PowerStatsModel.fromJson(
+        _powerstatsField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      biography: BiographyModel.fromJson(
+        _biographyField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      appearance: AppearanceModel.fromJson(
+        _appearanceField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      work: WorkModel.fromJson(
+        _workField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      connections: ConnectionsModel.fromJson(
+        _connectionsField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      image: ImageModel.fromJson(
+        _imageField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+    );
+  }
 
-  HeroModel.fromJsonAndId(Map<String, dynamic> json, String id)
-    : this(
-        id: id,
-        version: 1,
-        timestamp: DateTime.timestamp(),
-        locked: true, // Create in locked mode
-        externalId: _externalIdField.getNullableString(json)!,
-        name: _nameField.getNullableString(json)!,
-        powerStats: PowerStatsModel.fromJson(_powerstatsField.getJson(json)),
-        biography: BiographyModel.fromJson(_biographyField.getJson(json)),
-        appearance: AppearanceModel.fromJson(_appearanceField.getJson(json)),
-        work: WorkModel.fromJson(_workField.getJson(json)),
-        connections: ConnectionsModel.fromJson(_connectionsField.getJson(json)),
-        image: ImageModel.fromJson(_imageField.getJson(json)),
-      );
+  factory HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) {
+    var externalId = _externalIdField.getNullableString(json)!;
+    var name = _nameField.getNullableString(json)!;
+    var parsingContext = HeroParsingContext(id, externalId, name, true);
+    return HeroModel(
+      id: id,
+      version: 1,
+      timestamp: DateTime.timestamp(),
+      locked: true, // Create in locked mode
+      externalId: externalId,
+      name: name,
+      powerStats: PowerStatsModel.fromJson(
+        _powerstatsField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      biography: BiographyModel.fromJson(
+        _biographyField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      appearance: AppearanceModel.fromJson(
+        _appearanceField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      work: WorkModel.fromJson(
+        _workField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      connections: ConnectionsModel.fromJson(
+        _connectionsField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+      image: ImageModel.fromJson(
+        _imageField.getJson(json),
+        parsingContext: parsingContext,
+      ),
+    );
+  }
 
   factory HeroModel.fromRow(Row row) {
     return HeroModel(
       version: _versionField.getIntFromRow(row, -1),
       timestamp: _timestampField.getDateTimeFromRow(row, DateTime.timestamp()),
       locked: _lockedField.getBoolFromRow(row, false),
-      id: _idField.getStringFromRow(row, "unknown-id"),
-      externalId: _externalIdField.getStringFromRow(row, "unknown-external-id"),
+      id: _idField.getNullableStringFromRow(row)!,
+      externalId: _externalIdField.getNullableStringFromRow(row)!,
       name: _nameField.getNullableStringFromRow(row) as String,
       powerStats: PowerStatsModel.fromRow(row),
       biography: BiographyModel.fromRow(row),
@@ -303,7 +411,7 @@ class HeroModel extends Amendable<HeroModel> {
     "Version",
     "Version number",
     assignedBySystem: true,
-    comparable: false
+    comparable: false,
   );
 
   static final FieldBase<HeroModel> _timestampField = Field.infer(

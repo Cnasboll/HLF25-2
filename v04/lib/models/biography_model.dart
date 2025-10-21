@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 
 // Levels of evilness
 enum Alignment {
@@ -65,7 +66,7 @@ class BiographyModel extends Amendable<BiographyModel> {
   }
 
   @override
-  BiographyModel amendWith(Map<String, dynamic>? amendment) {
+  BiographyModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     return BiographyModel(
       fullName: _fullNameField.getNullableStringForAmendment(this, amendment),
       alterEgos: _alterEgosField.getNullableStringForAmendment(this, amendment),
@@ -90,7 +91,7 @@ class BiographyModel extends Amendable<BiographyModel> {
     );
   }
 
-  static BiographyModel fromJson(Map<String, dynamic>? json) {
+  static BiographyModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     if (json == null) {
       return BiographyModel();
     }

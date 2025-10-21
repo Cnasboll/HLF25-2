@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/value_type.dart';
@@ -142,8 +143,11 @@ class Height extends ValueType<Height> {
     return (null, 'Could not parse height: $input');
   }
 
-  static Height parseList(List<String>? valueInVariousUnits) {
-    var (value, error) = tryParseList(valueInVariousUnits);
+  static Height parseList(
+    List<String>? valueInVariousUnits, {
+    ParsingContext? parsingContext,
+  }) {
+    var (value, error) = tryParseList(valueInVariousUnits, parsingContext);
     if (error != null) {
       throw FormatException(error);
     }
@@ -151,12 +155,16 @@ class Height extends ValueType<Height> {
   }
 
   static ConflictResolver<Height>? conflictResolver;
-  static (Height?, String?) tryParseList(List<String>? valueVariousUnits) {
+  static (Height?, String?) tryParseList(
+    List<String>? valueVariousUnits,
+    ParsingContext? parsingContext,
+  ) {
     return ValueType.tryParseList(
       valueVariousUnits,
       "height",
       tryParse,
       conflictResolver: conflictResolver,
+      parsingContext: parsingContext,
     );
   }
 
