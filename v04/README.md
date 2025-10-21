@@ -266,7 +266,7 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-To amend a, hero exit the online meny by pressing `X` to go back to the main meny and enter `A` to search for a hero to amend. Any manual amendment sets the `lock` flag on the hero to true so that it cannot be automatically reconciled.
+To amend a, hero exit the online menu by pressing `X` to go back to the main meny and enter `A` to search for a hero to amend. Any manual amendment sets the `lock` flag on the hero to `true` so that it cannot be automatically reconciled with it's online version.
 
 ```
 Enter a menu option (R, S, U or X) and press enter:
