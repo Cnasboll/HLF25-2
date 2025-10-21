@@ -65,14 +65,12 @@ class WorkModel extends Amendable<WorkModel> {
     (m) => m.occupation,
     'Occupation',
     'Occupation of the character',
-    format: (m) => m.occupation?.toString() ?? "-",
   );
 
   static FieldBase<WorkModel> get _baseField => Field.infer(
     (m) => m.base,
     'Base',
     'A place where the character works or lives or hides rather frequently',
-    format: (m) => m.base?.toString() ?? "-",
   );
 
   static final List<FieldBase<WorkModel>> staticFields = [

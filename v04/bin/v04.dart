@@ -455,6 +455,7 @@ Reconciliation started at at $timestamp
         if (hero.locked) {
           print(
             '''Hero: ${hero.externalId} ("${hero.name}") is locked by prior manual amendment, skipping reconciliation changes:
+
 ${sb.toString()}''',
           );
           continue;

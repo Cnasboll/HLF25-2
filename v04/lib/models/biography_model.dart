@@ -152,19 +152,18 @@ class BiographyModel extends Amendable<BiographyModel> {
   static FieldBase<BiographyModel> get _fullNameField => Field.infer(
     (m) => m.fullName,
     "Full Name",
-    "Also applies when hungry",
-    format: (m) => m.fullName?.toString() ?? "-",
+    "Also applies when hungry"
   );
 
   /// Special string literal used in the API to indicate no alter egos exist -- treat as null.
   /// Do not use as an actual alter ego, as villains may exploit this loophole to evade detection systems!
-  static const String alterEgosNoAlterEgosFound = "No alter egos found.";
+  static const String noAlterEgosFound = "No alter egos found.";
 
   static final FieldBase<BiographyModel> _alterEgosField = Field.infer(
     (m) => m.alterEgos,
     "Alter Egos",
     "Alter egos of the character",
-    extraNullLiterals: [alterEgosNoAlterEgosFound],
+    extraNullLiterals: [noAlterEgosFound]
   );
 
   static final FieldBase<BiographyModel> _aliasesField = Field.infer(
@@ -183,21 +182,18 @@ class BiographyModel extends Amendable<BiographyModel> {
     (m) => m.placeOfBirth,
     "Place of Birth",
     "Where the character was born",
-    format: (m) => m.placeOfBirth?.toString() ?? "-",
   );
 
   static final FieldBase<BiographyModel> _firstAppearanceField = Field.infer(
     (m) => m.firstAppearance,
     "First Appearance",
     "When the character first appeared in print or in court",
-    format: (m) => m.firstAppearance?.toString() ?? "-",
   );
 
   static final FieldBase<BiographyModel> _publisherField = Field.infer(
     (m) => m.publisher,
     "Publisher",
     "The publisher of the character's stories or documentary evidence",
-    format: (m) => m.publisher?.toString() ?? "-",
   );
 
   static final FieldBase<BiographyModel> _alignmentField = Field.infer(
