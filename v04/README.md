@@ -1086,8 +1086,11 @@ This locates all heroes where any field contains the string `Batman` in any lett
 ### Name-search and match
 To actually enjoy the capapabilites of _SHQL™_, type:
 `name ~ "Batman"` which finds all heroes where only the `name` field contains the string `"Batman"` in any letter-case.
+
 Type: `name = "Batman"` which finds all the heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
-Type: `name in ["Batman", "Robin"]` to find all heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` whihc an upper-case `R`and lower-case `robin`.
+
+Type: `name in ["Batman", "Robin"]` to find all heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
+
 Type: `lowercase(name) in ["batman", "robin"]` to find all heroes where the name in any letter case is either `"batman`" or `"robin"`.
 
 ### Villian (*Biography.Alignment*) search
@@ -1171,4 +1174,3 @@ Inherited from the calculator project, the following functions(arities), are sti
 
 The language has been extended with the following string functions:
 `LOWERCASE(1)`, `UPPERCASE(1)`.
-
