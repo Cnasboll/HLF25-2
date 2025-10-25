@@ -1147,7 +1147,7 @@ To find _troglodytes_, try:
 `work.base ~ "cave"`
 
 ## General
-The following enumns are mapped to integer constants:
+The following enums are mapped to integer constants:
 From the `Gender` enum in `Appearance`: `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`
 
 From the `Alignment` enum in `Biography`: `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`
@@ -1156,9 +1156,9 @@ From the `SystemOfUnits` enum in `value_types\value_type.dart`: `metric` = `0`, 
 
 Four (4) string literals are accpted:
 
-Ordinary double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
+Ordinary (_garden variety_) double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
 
-Ordindary single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading.
+Ordinary (_garden variety_) single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading.
 
 To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` and `r'hello\s+world'`, respectively to allow any amount of wordly space.
 
@@ -1198,16 +1198,33 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 `work.occupation` - `string`
 `work.base` - `string`
 `connections.group_affiliation` - `string`
-`connectionsrelatives` - `string`
-`image_url` - `string`
+`connections.relatives` - `string`
+`image.url` - `string`
 
 Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
+
 `E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
 
 Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy):
+
 `MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
 
 The language has been extended with the following string functions:
-`LOWERCASE(1)`, `UPPERCASE(1)`.
 
+`LOWERCASE(1)`, `UPPERCASE(1)`
 
+### Operators
+### Unary
+#### Boolean
+ `NOT` (alias `!`)
+#### Arithmentic
+ `-`, `+`
+### Binary
+#### Boolean
+`AND`, `OR`, `XOR`
+#### Relational
+`=`, `<>` (alias `!=`), `>`, `<`, `<=`, `>=`
+### Matching
+`IN` (works for string or lists),  `~`, `!~`
+### Arithmetic
+`*`, `/`, `%`, `+`, `-`

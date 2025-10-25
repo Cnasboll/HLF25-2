@@ -138,7 +138,7 @@ class Token {
       default:
         break;
     }
-    var operatorSymbol = _boolOpTable[keyword] ?? _symbolTable[tokenType];
+    var operatorSymbol = _keywordOpTable[keyword] ?? _symbolTable[tokenType];
     if (operatorSymbol != null) {
       symbol = operatorSymbol;
       operatorPrecedence = _operatorPrecendences[symbol]!;
@@ -272,7 +272,7 @@ class Token {
     };
   }
 
-  static Map<Keywords, Symbols> getBoolOpTable() {
+  static Map<Keywords, Symbols> getKeywordOpTable() {
     return {
       Keywords.inKeyword: Symbols.inOp,
       Keywords.notKeyword: Symbols.not,
@@ -288,7 +288,7 @@ class Token {
   static final Map<Symbols, int> _operatorPrecendences =
       getOperatorPrecendences();
   static final Map<TokenTypes, Symbols> _symbolTable = getSymbolTable();
-  static final Map<Keywords, Symbols> _boolOpTable = getBoolOpTable();
+  static final Map<Keywords, Symbols> _keywordOpTable = getKeywordOpTable();
   final Keywords _keyword;
   final LiteralTypes _literalType;
   final int _operatorPrecedence;
