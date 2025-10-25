@@ -1151,7 +1151,7 @@ to find all _Heroes_ where the `name` field is exactly `"Batman"` with an upper-
 Type: `lowercase(name) in ["batman", "robin"]` to find all _Heroes_ where the name in any letter case is either `"batman`" or `"robin"`.
 
 ### Villian (*Biography.Alignment*) search
-As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`, respectively, one can type:
+As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOSTLY_GOOD` = `2`, `GOOD` = `3`, `REASONABLE` = `4`, `NOT_QUITE` = `5`, `BAD` = `6`, `UGLY` = `7`, `EVIL` = `8`, `USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT` = `9`, respectively, one can type:
 
 `biography.alignment = bad`
 
@@ -1170,16 +1170,16 @@ To find dumb _Villians_ with the letter `x` in their name, try out:
 `name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined standard criteria.
 
 ### Gender (*Appearance.Gender*) search
-As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`, respectively, one can type:
+As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`, respectively, one can type:
 
-`biography.gender != male` or `biography.gender in [female, nonBinary]` to find female and / or non-binary _Heroes_.
+`biography.gender != male` or `biography.gender in [female, non_binary]` to find female and / or non-binary _Heroes_.
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
 
 To find _Heroes_ meeting WHOs definition of _obesity_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
 
-`appearance.weight / pow(appearance.height, 2) >= 25`
+`appearance.weight.kg / pow(appearance.height.m, 2) >= 25`
 
 _NB: This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
 
@@ -1190,11 +1190,11 @@ To find _troglodytes_, try:
 
 ## General
 The following enums are mapped to integer constants:
-From the `Gender` enum in `Appearance`: `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`
+From the `Gender` enum in `Appearance`:  `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`
 
-From the `Alignment` enum in `Biography`: `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`
+From the `Alignment` enum in `Biography`: `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOSTLY_GOOD` = `2`, `GOOD` = `3`, `REASONABLE` = `4`, `NOT_QUITE` = `5`, `BAD` = `6`, `UGLY` = `7`, `EVIL` = `8`, `USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT` = `9`
 
-From the `SystemOfUnits` enum in `value_types\value_type.dart`: `metric` = `0`, `imperial` = `1`
+From the `SystemOfUnits` enum in `value_types\value_type.dart`: `METRIC` = `0`, `IMPERIAL` = `1`
 
 Four (4) string literals are accpted:
 
@@ -1207,6 +1207,7 @@ To work with regular expressions in matching, raw double- and single-quoted stri
 As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
 `~` and `!~` stands for matches and doesn't match, respectively, so `"Super Man" ~ r"Super.*Man"` evaluates to  `TRUE` (`1`)
 
+### All fields (_pseudoconstants_)
 The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the _SHQL™_ language, given the actual values for the current `HeroModel`.
 
 (They are not _variables_ as the _SHQL™_ has no means of _changing_ them):
@@ -1232,10 +1233,10 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 - `biography.alignment` - `integer` (see the `Alignment` enum above)
 - `appearance.gender` - `integer` (see the `Gender` enum above)
 - `appearance.race` - `string`
-- `appearance.height_m` - `double`
-- `appearance.height_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-- `appearance.weight_kg` - `double`
-- `appearance.weight_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+- `appearance.height.m` - `double`
+- `appearance.height.system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+- `appearance.weight.kg` - `double`
+- `appearance.weight.system_of_units` - `integer` (see the `SystemOfUnits` enum above)
 - `appearance.eye_colour` - `string`
 - `appearance.hair_colour` - `string`
 - `work.occupation` - `string`
@@ -1244,14 +1245,17 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 - `connections.relatives` - `string`
 - `image.url` - `string`
 
+### Mathematical constants
 Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
 
 `E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
 
+### Mathematical functions
 Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy):
 
 `MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
 
+### String functions
 The language has been extended with the following string functions:
 
 `LOWERCASE(1)`, `UPPERCASE(1)`

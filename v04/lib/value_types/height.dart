@@ -266,6 +266,7 @@ class Height extends ValueType<Height> {
     "Height (m)",
     jsonName: "height-metres",
     sqliteName: "height_m",
+    shqlName: "m",
     'The character\'s height in metres',
     nullable: false,
   );
@@ -275,8 +276,10 @@ class Height extends ValueType<Height> {
     "Height System of Units",
     jsonName: "height-system-of-units",
     sqliteName: "height_system_of_units",
+    shqlName: "system_of_units",
     'The source system of units for height value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
     sqliteGetter: (h) => h.systemOfUnits.name,
+    shqlGetter: (h) => h.systemOfUnits.index,
     nullable: false,
   );
 
