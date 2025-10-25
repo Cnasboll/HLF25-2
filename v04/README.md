@@ -1109,7 +1109,9 @@ As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as th
 
 `biography.alignment = bad`
 
-or `alignment > good`
+or:
+
+`alignment > good`
 
 or whatever criterion meets the user's personal villain definition to filter on _Villains_.
 
@@ -1128,11 +1130,11 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
-To find heroes meeting WHOs definition of _obeisy_ who sport a BMI (body-mass-index) at or aboove the magic cutoff 25, type:
+To find heroes meeting WHOs definition of _obeisy_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m^{2}, type:
 
 `appearance.weight / pow(appearance.height, 2) >= 25`
 
-_NB:_ This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
+_NB: This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
 
 ## Base search:
 To find _troglodytes_, try:
@@ -1140,7 +1142,6 @@ To find _troglodytes_, try:
 `work.base ~ "cave"`
 
 ## General
-To 
 The following enumns are mapped to integer constants:
 From the `Gender` enum in `Appearance`: `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`
 
@@ -1149,13 +1150,20 @@ From the `Alignment` enum in `Biography`: `unknown` = `0`, `neutral` = `1`, `mos
 From the `SystemOfUnits` enum in `value_types\value_type.dart`: `metric` = `0`, `imperial` = `1`
 
 Four (4) string literals are accpted:
+
 Ordinary double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
-Ordindary single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading. To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` or `r'hello\s+world'` to allow any amount of wordly space.
+
+Ordindary single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading.
+
+To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` and `r'hello\s+world'`, respectively to allow any amount of wordly space.
 
 As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
 `~` and `!~` stands for matches and doesn't match, respectively, so `"Super Man" ~ r"Super.*Man"` evaluates to  `TRUE` (`1`)
 
-The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the _SHQL™_ language, given the actual values for the current `HeroModel`. They are not _variables_ as the _SHQL™_ has no means of _changing_ them:
+The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the _SHQL™_ language, given the actual values for the current `HeroModel`.
+
+(They are not _variables_ as the _SHQL™_ has no means of _changing_ them):
+
 `id`  - a `string` representing the local `Uuid`.
 `version` - `integer`
 `timestamp` - as a `string`
@@ -1191,8 +1199,10 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
 `E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
 
-Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches. This is considered ground research as an application of using these functions on `HeroModel` predicates is yet to be found -- but it works:
+Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so authors remain conviced the rest will come in handy):
 `MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
 
 The language has been extended with the following string functions:
 `LOWERCASE(1)`, `UPPERCASE(1)`.
+
+
