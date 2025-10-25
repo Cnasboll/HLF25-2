@@ -1214,17 +1214,17 @@ The language has been extended with the following string functions:
 `LOWERCASE(1)`, `UPPERCASE(1)`
 
 ### Operators
-### Unary
-#### Boolean
+#### Unary
+##### Boolean
  `NOT` (alias `!`)
-#### Arithmentic
+##### Arithmentic
  `-`, `+`
-### Binary
-#### Boolean
+#### Binary
+#### #Boolean
 `AND`, `OR`, `XOR`
-#### Relational
+##### Relational
 `=`, `<>` (alias `!=`), `>`, `<`, `<=`, `>=`
-### Matching
+##### Matching
 `IN` (works for string or lists),  `~`, `!~`
-### Arithmetic
+##### Arithmetic
 `*`, `/`, `%`, `+`, `-`
