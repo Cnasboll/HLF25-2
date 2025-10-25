@@ -182,6 +182,10 @@ void main() {
     expect(3.1415926535897932 * 2, Calculator.calculate('PI * 2'));
   });
 
+  test('Calculate with lowercase constants', () {
+    expect(3.1415926535897932 * 2, Calculator.calculate('pi * 2'));
+  });
+
   test('Calculate with functions', () {
     expect(4, Calculator.calculate('POW(2,2)'));
   });

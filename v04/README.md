@@ -1211,37 +1211,37 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 
 (They are not _variables_ as the _SHQL™_ has no means of _changing_ them):
 
-`id`  - a `string` representing the local `Uuid`.
-`version` - `integer`
-`timestamp` - as a `string`
-`locked` - as `0` or `1` (`TRUE` or `FALSE`)
-`external_id` - as a `string`, corresponding to the `id` field in the API,
-`name` - `string`
-`powerstats.intelligence` - `integer`
-`powerstats.strength` - `integer`
-`powerstats.speed` - `integer`
-`powerstats.durability` - `integer`
-`powerstats.power` - `integer`
-`powerstats.combat` - `integer`
-`biography.full_name` - `string`
-`biography.alter_egos` - `string`
-`biography.aliases` - `string` representation of the aliases list.
-`biography.place_of_birth` - `string`
-`biography.first_appearance` - `string`
-`biography.alignment` - `integer` (see the `Alignment` enum above)
-`appearance.gender` - `integer` (see the `Gender` enum above)
-`appearance.race` - `string`
-`appearance.height_m` - `double`
-`appearance.height_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-`appearance.weight_kg` - `double`
-`appearance.weight_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-`appearance.eye_colour` - `string`
-`appearance.hair_colour` - `string`
-`work.occupation` - `string`
-`work.base` - `string`
-`connections.group_affiliation` - `string`
-`connections.relatives` - `string`
-`image.url` - `string`
+- `id`  - a `string` representing the local `Uuid`.
+- `external_id` - as a `string`, corresponding to the `id` field in the API,
+- `version` - `integer`
+- `timestamp` - as a Iso8601 `string`
+- `locked` - as `0` or `1` (`TRUE` or `FALSE`)
+- `name` - `string`
+- `powerstats.intelligence` - `integer`
+- `powerstats.strength` - `integer`
+- `powerstats.speed` - `integer`
+- `powerstats.durability` - `integer`
+- `powerstats.power` - `integer`
+- `powerstats.combat` - `integer`
+- `biography.full_name` - `string`
+- `biography.alter_egos` - `string`
+- `biography.aliases` - `string` representation of the aliases list.
+- `biography.place_of_birth` - `string`
+- `biography.first_appearance` - `string`
+- `biography.alignment` - `integer` (see the `Alignment` enum above)
+- `appearance.gender` - `integer` (see the `Gender` enum above)
+- `appearance.race` - `string`
+- `appearance.height_m` - `double`
+- `appearance.height_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+- `appearance.weight_kg` - `double`
+- `appearance.weight_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+- `appearance.eye_colour` - `string`
+- `appearance.hair_colour` - `string`
+- `work.occupation` - `string`
+- `work.base` - `string`
+- `connections.group_affiliation` - `string`
+- `connections.relatives` - `string`
+- `image.url` - `string`
 
 Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
 
