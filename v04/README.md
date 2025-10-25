@@ -1085,40 +1085,58 @@ This locates all heroes where any field contains the string `Batman` in any lett
 
 ### Name-search and match
 To actually enjoy the capapabilites of _SHQL™_, type:
-`name ~ "Batman"` which finds all heroes where only the `name` field contains the string `"Batman"` in any letter-case.
 
-Type: `name = "Batman"` which finds all the heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
+`name ~ "Batman"`
 
-Type: `name in ["Batman", "Robin"]` to find all heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
+which finds all heroes where only the `name` field contains the string `"Batman"` in any letter-case.
+
+Type:
+
+`name = "Batman"`
+
+to find all the heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
+
+Type
+
+`name in ["Batman", "Robin"]`
+
+to find all heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
 
 Type: `lowercase(name) in ["batman", "robin"]` to find all heroes where the name in any letter case is either `"batman`" or `"robin"`.
 
 ### Villian (*Biography.Alignment*) search
 As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`, respectively, one can type:
-`biography.alignment = bad` or `alignment > good` or whatever criterion meets the user's personal villain definition to filter on _Villains_.
+
+`biography.alignment = bad`
+
+or `alignment > good`
+
+or whatever criterion meets the user's personal villain definition to filter on _Villains_.
 
 To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_, try:
+
 `biography.alignment > reasonable AND powerstats.strength >= powerstats.intelligence*1.1`.
 
 To find dumb _Villians_ with the letter `x` in their name, try out:
+
 `name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined standard criteria.
 
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`, respectively, one can type:
+
 `biography.gender != male` or `biography.gender in [female, nonBinary]` to find female and / or non-binary heroes.
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
 To find heroes meeting WHOs definition of _obeisy_ who sport a BMI (body-mass-index) at or aboove the magic cutoff 25, type:
 
-
 `appearance.weight / pow(appearance.height, 2) >= 25`
-
 
 _NB:_ This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
 
 ## Base search:
 To find _troglodytes_, try:
+
 `work.base ~ "cave"`
 
 ## General
