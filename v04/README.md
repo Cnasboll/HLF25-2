@@ -1074,8 +1074,48 @@ Hero: 19 ("Allan Quatermain") is already up to date
 Reconciliation complete at 2025-10-21 22:15:23.644413Z: 0 heroes reconciled, 0 heroes deleted.
 ```
 
-Finally but not least, local searches using the `SHQL`, short for `Super Hero Query Language` that is adapted from the calculator developed in project in `v01` but extended to be useful as a predicate for `HeroModel`-instances.
+## SHQL - Super Hero Query Language ™
+Finally but not least, local searches uses the _SHQL™_, short for _Super Hero Query Language™_ that is adapted from the calculator developed in project in `v01` but extended to be useful as a predicate for `HeroModel`-instances.
 
+## Economical fallback example without utilizing SHQL™
+To match Batman, type:
+`Batman`
+This locates all heroes where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level. _Note that the parser assumes that usage of _SHQL™_ is intentional if a search term is a valid _SHQL™_ expression. The developers will not claim responsibiliy for any costs incurred out of unintentional _SHQL™_ engine utilization._
+## Basic examples *with* SHQL™
+
+### Name-search and match
+To actually enjoy the capapabilites of _SHQL™_, type:
+`name ~ "Batman"` which finds all heroes where only the `name` field contains the string `"Batman"` in any letter-case.
+Type: `name = "Batman"` which finds all the heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
+Type: `name in ["Batman", "Robin"]` to find all heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` whihc an upper-case `R`and lower-case `robin`.
+Type: `lowercase(name) in ["batman", "robin"]` to find all heroes where the name in any letter case is either `"batman`" or `"robin"`.
+
+### Villian (*Biography.Alignment*) search
+As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`, respectively, one can type:
+`biography.alignment = bad` or `alignment > good` or whatever criterion meets the user's personal villain definition to filter on _Villains_.
+
+To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_, try:
+`biography.alignment > reasonable AND powerstats.strength >= powerstats.intelligence*1.1`.
+
+To find dumb _Villians_ with the letter `x` in their name, try out:
+`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined stanard criteria.
+
+### Gender (*Appearance.Gender*) search
+As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`, respectively, one can type:
+`biography.gender != male` or `biography.gender in [female, nonBinary]` to find female and / or non-binary heroes.
+
+### BMI (body-mass index) search:
+As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
+To find heroes who meet WHOs definition of obeisy and sport a a BMI (body-mass-index) at or aboove the magic cutoff 25, type:
+`appearance.weight / pow(appearance.height, 2) >= 25`
+_NB:_ This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
+
+## Base search:
+To find _troglodytes_, try:
+`work.base ~ "cave"`
+
+## General
+To 
 The following enumns are mapped to integer constants:
 From the `Gender` enum in `Appearance`: `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`
 
@@ -1083,39 +1123,44 @@ From the `Alignment` enum in `Biography`: `unknown` = `0`, `neutral` = `1`, `mos
 
 From the `SystemOfUnits` enum in `value_types\value_type.dart`: `metric` = `0`, `imperial` = `1`
 
-As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
+Four (4) string literals are accpted:
+Ordinary double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
+Ordindary single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading. To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` or `r'hello\s+world'` to allow any amount of wordly space.
 
-The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the language, given the actual values for the current `HeroModel`. They are not _variables_ as the _SHQL_ has no means of _changing_ them:
+As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
+`~` and `!~` stands for matches and doesn't match, respectively, so `"Super Man" ~ r"Super.*Man"` evaluates to  `TRUE` (`1`)
+
+The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the _SHQL™_ language, given the actual values for the current `HeroModel`. They are not _variables_ as the _SHQL™_ has no means of _changing_ them:
 `id`  - a `string` representing the local `Uuid`.
 `version` - `integer`
 `timestamp` - as a `string`
 `locked` - as `0` or `1` (`TRUE` or `FALSE`)
 `external_id` - as a `string`, corresponding to the `id` field in the API,
 `name` - `string`
-`intelligence` - `integer`
-`strength` - `integer`
-`speed` - `integer`
-`durability` - `integer`
-`power` - `integer`
-`combat` - `integer`
-`full_name` - `string`
-`alter_egos` - `string`
-`aliases` - `string` representation of the aliases list.
-`place_of_birth` - `string`
-`first_appearance` - `string`
-`alignment` - `integer` (see the `Alignment` enum above)
-`gender` - `integer` (see the `Gender` enum above)
-`race` - `string`
-`height_m` - `double`
-`height_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-`weight_kg` - `double`
-`weight_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-`eye_colour` - `string`
-`hair_colour` - `string`
-`occupation` - `string`
-`base` - `string`
-`group_affiliation` - `string`
-`relatives` - `string`
+`powerstats.intelligence` - `integer`
+`powerstats.strength` - `integer`
+`powerstats.speed` - `integer`
+`powerstats.durability` - `integer`
+`powerstats.power` - `integer`
+`powerstats.combat` - `integer`
+`biography.full_name` - `string`
+`biography.alter_egos` - `string`
+`biography.aliases` - `string` representation of the aliases list.
+`biography.place_of_birth` - `string`
+`biography.first_appearance` - `string`
+`biography.alignment` - `integer` (see the `Alignment` enum above)
+`appearance.gender` - `integer` (see the `Gender` enum above)
+`appearance.race` - `string`
+`appearance.height_m` - `double`
+`appearance.height_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+`appearance.weight_kg` - `double`
+`appearance.weight_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+`appearance.eye_colour` - `string`
+`appearance.hair_colour` - `string`
+`work.occupation` - `string`
+`work.base` - `string`
+`connections.group_affiliation` - `string`
+`connectionsrelatives` - `string`
 `image_url` - `string`
 
 Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
@@ -1124,14 +1169,6 @@ Inherited from the calculator project, the following constants are still defined
 Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches. This is considered ground research as an application of using these functions on `HeroModel` predicates is yet to be found -- but it works:
 `MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
 
-Ergo, to list only _Villians_ go to the _Main_ menu, type `S` for _Search_ and enter the query:
-`alignment = bad` or `alignment > good` or whatever criterion meets your personal villain definition!
+The language has been extended with the following string functions:
+`LOWERCASE(1)`, `UPPERCASE(1)`.
 
-To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_, try:
-`alignment > reasonable AND strength >= intelligence*1.1`
-
-To find dumb _Villians_ with the letter `x` in their name, try out:
-`"x" in name AND alignment >= bad AND intelligence < 50`
-
-To find troglodytes, try:
-`"cave" in base`

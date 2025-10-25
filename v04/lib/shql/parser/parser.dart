@@ -81,21 +81,21 @@ class Parser {
     bool allowSign = true,
   ]) {
     // If we find a plus or minus sign here, consider that a sign for the operand, then we recurse
-    if (tokenEnumerator.current.tokenType == TokenTypes.add) {
+    if (tokenEnumerator.current.symbol == Symbols.add) {
       tokenEnumerator.next();
       return ParseTree.withChildren(Symbols.unaryPlus, [
         parseOperand(tokenEnumerator, constantsSet, false),
       ]);
     }
 
-    if (tokenEnumerator.current.tokenType == TokenTypes.sub) {
+    if (tokenEnumerator.current.symbol == Symbols.sub) {
       tokenEnumerator.next();
       return ParseTree.withChildren(Symbols.unaryMinus, [
         parseOperand(tokenEnumerator, constantsSet, false),
       ]);
     }
 
-    if (tokenEnumerator.current.keyword == Keywords.notKeyword) {
+    if (tokenEnumerator.current.symbol == Symbols.not) {
       tokenEnumerator.next();
       return ParseTree.withChildren(Symbols.not, [
         parseOperand(tokenEnumerator, constantsSet),
