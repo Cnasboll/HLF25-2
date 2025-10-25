@@ -1101,7 +1101,7 @@ To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_
 `biography.alignment > reasonable AND powerstats.strength >= powerstats.intelligence*1.1`.
 
 To find dumb _Villians_ with the letter `x` in their name, try out:
-`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined stanard criteria.
+`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined standard criteria.
 
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`, respectively, one can type:
@@ -1109,8 +1109,12 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
-To find heroes who meet WHOs definition of obeisy and sport a a BMI (body-mass-index) at or aboove the magic cutoff 25, type:
+To find heroes meeting WHOs definition of _obeisy_ who sport a BMI (body-mass-index) at or aboove the magic cutoff 25, type:
+
+
 `appearance.weight / pow(appearance.height, 2) >= 25`
+
+
 _NB:_ This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
 
 ## Base search:
