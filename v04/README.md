@@ -1,12 +1,12 @@
 # v04
 Manually generated README for v04
 
-#SuperHero dexx
+#Hero Manager
 
 ## Usage
 Stand in `HLF25-2\v04` and type `dart run`
 
-### Db structure
+### DB structure
 This creates a little sqlite db (`v04.db`) that contains a simple table `heroes` with the following structure:
 
   ```
@@ -44,9 +44,18 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   image_url TEXT NULL
 ```
 #### Fields
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually _Created_ or _Amended_, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
 
-NB: I don't know how to parse
+`id` is a `Uuid`.
+
+ `gender`, `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source).
+ 
+ When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`.
+ 
+ The column `aliases` stores an encoded JSON-array as author(s) couldn't be bothered to create another table and pray to the SQL gods for forgiveness.
+ 
+ A `locked` field of nozero indicates that the _Hero_ has been manually _Created_ or _Amended_, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
+
+NB: We don't know how to parse
 ```
 "connections": {
     "group-affiliation": "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
@@ -54,6 +63,7 @@ NB: I don't know how to parse
   }
 ```
 as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so I gave up and store it as a raw `TEXT`.
+
 One could relatively easy construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
 ```
 relation:
@@ -65,7 +75,7 @@ relation:
   relation: Mother
     qualifiers: [deceased]
 ```
-But I simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
+But we simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
 
 Secondly, in the following example:
 ```
@@ -74,9 +84,11 @@ Secondly, in the following example:
   },
 ```
 
-The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers. Due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
+The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers.
 
-### Basic
+Due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
+
+### Basic usage
 #### _Main_ menu
 
 ```
@@ -94,7 +106,7 @@ Go [O]nline to download heroes
 ```
 
 #### _Online Search_
-To go _Online_ and _Search_ for heroes to download, type `O` and `S` and enter the _Search_ string as prompted:
+To go _Online_ and _Search_ for _Heroes_ to download, type `O` and `S` and enter the _Search_ string as prompted:
 
 ```
 O
@@ -112,7 +124,7 @@ Batman
 
 If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
 
-When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the hero to die, or `a` to try to be a hero oneself or the most reasonably `q` to give up.
+When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the _Hero_ to die, or `a` to try to be a hero oneself or the most reasonably `q` to give up.
 
 ```
 Enter your API key: 
@@ -273,16 +285,16 @@ Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in
 ```
 
 #### _Amendment_ of locally saved _Hero_
-To _Amend_ an existing _hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to _Amend_. 
+To _Amend_ an existing _Hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the _Hero_ to _Amend_. 
 
 The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
 
-Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed hero or `n` to review the next one, or `c` to cancel.
+Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed _Hero_ or `n` to review the next one, or `c` to cancel.
 
 Pressing `y` will give the user the chance of _Amendning_ every value and keep current one with pressing enter.
 
 Upon completion, the _Amended_ fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-Any manual _Amendment_ sets the _Lock_ flag on the hero to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
+Any manual _Amendment_ sets the _Lock_ flag on the _Hero_ to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
 
 ```
 A
@@ -439,7 +451,7 @@ E[X]it and return to main menu
 ```
 
 ##### _Unlock_ to allow reconciliation
-In this case no change occurred. Hero `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this hero, type `U` to _Unlock_ it and then re-run _Reconciliation_:
+In this case no change occurred. _Hero_ `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this _Hero_, type `U` to _Unlock_ it and then re-run _Reconciliation_:
 
 ```
 U
@@ -551,8 +563,8 @@ E[X]it and return to main menu
 ```
 
 #### _Create_ a local _hero_
-To manally _Create_ a new local _hero_, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
-User will be prompted if the new hero will be saved or not.
+To manally _Create_ a new local _Hero_, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
+User will be prompted if the new _Hero_ will be saved or not.
 
 ```
 C
@@ -696,8 +708,8 @@ Image: Url: null
 =============
 ```
 
-#### _Auto-delete_ a local _hero_
-As the new hero only exists locally but is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
+#### _Auto-delete_ a local _Hero_
+As the new _Hero_ only exists locally but is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
 
 
 ```
@@ -734,7 +746,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 10:58:32.802370Z: 0 heroes reconciled, 0 heroes deleted.
 ```
 
-To auto-_Delete_ it, first _Unlock_ the hero and run the _Reconciliation_ job again:
+To auto-_Delete_ it, first _Unlock_ the _Hero_ and run the _Reconciliation_ job again:
 ```
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
@@ -875,14 +887,14 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 heroes deleted.
 ```
 
-#### _Manually delete_ a local _hero_
-To (manually) _Delete_ a locally saved _hero_, return to the _Main_ menu and press `D` and enter a search string.
+#### _Manually delete_ a local _Hero_
+To (manually) _Delete_ a locally saved _Hero_, return to the _Main_ menu and press `D` and enter a search string.
 
 The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
 
-Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the hero or `n` to review the next one or `c` to cancel.
+Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the _Hero_ or `n` to review the next one or `c` to cancel.
 
-Typing `y` will give the user the chance of of revewing the hero to be _Deleted_ and confirm _Deletion_ with `y` or
+Typing `y` will give the user the chance of of revewing the _Hero_ to be _Deleted_ and confirm _Deletion_ with `y` or
 abort the operation with `n`.
 
 ```
@@ -1010,11 +1022,15 @@ Go [O]nline to download heroes
 ```
 
 #### _Erase_ entire database
-The menu option `E` (for "erase") will prompt the user for _Deleting_ all the heroes and despite the popular notion, they don't live forever so be careful with this.
+The menu option `E` (for "erase") will prompt the user for _Deleting_ all the _Heroes_ and despite the popular notion, they don't live forever so be careful with this.
 `L` (for "list") displays all heroes unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
 
 ### Unit tests
-There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations. `v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
+There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`.
+
+The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations.
+
+`v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason author(s) don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
 
 ### Conflict resolution
 Also note that the parser will try to handle conflicting _Height_ or _Weight_ information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart` respecively, and `test('Can parse most heros')` in `v04\tests\hero_service_test.dart`, and in particular the consistency checking logic in `v04\value_types\value_type.dart`:
@@ -1032,7 +1048,7 @@ Also note that the parser will try to handle conflicting _Height_ or _Weight_ in
 ``` 
 which really was the main focus of this assigment for me, roughly 95% of the time spent.
 
-Whenever the _Online_ _Search_ encounters heroes with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
+Whenever the _Online_ _Search_ encounters _Heroes_ with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
 
 ```
 Enter a menu option (R, S, U or X) and press enter:
@@ -1065,7 +1081,7 @@ y
 (...)
 ```
 
-When _Reconciling_ an already saved hero with the API, any conflicting _Weight_ or _Height_ information is resolved to the _current_ system of units for the hero, i.e. the system initally selected when _Searching_ for the hero _Online_:
+When _Reconciling_ an already saved _Hero_ with the API, any conflicting _Weight_ or _Height_ information is resolved to the _current_ system of units for the _Hero_, i.e. the system initally selected when _Searching_ for the _Hero_ _Online_:
 
 
 ```
@@ -1108,7 +1124,7 @@ To match Batman, type:
 
 `Batman`
 
-This locates all heroes where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level.
+This locates all _Heroes_ where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level.
 
 _Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred due to unintentional _SHQL™_ engine utilization._
 
@@ -1119,21 +1135,21 @@ To actually enjoy the capapabilites of _SHQL™_, type:
 
 `name ~ "Batman"`
 
-which finds all heroes where only the `name` field contains the string `"Batman"` in any letter-case.
+which finds all _Heroes_ where only the `name` field contains the string `"Batman"` in any letter-case.
 
 Type:
 
 `name = "Batman"`
 
-to find all the heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
+to find all the _Heroes_ where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
 
 Type
 
 `name in ["Batman", "Robin"]`
 
-to find all heroes where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
+to find all _Heroes_ where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
 
-Type: `lowercase(name) in ["batman", "robin"]` to find all heroes where the name in any letter case is either `"batman`" or `"robin"`.
+Type: `lowercase(name) in ["batman", "robin"]` to find all _Heroes_ where the name in any letter case is either `"batman`" or `"robin"`.
 
 ### Villian (*Biography.Alignment*) search
 As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`, respectively, one can type:
@@ -1157,11 +1173,12 @@ To find dumb _Villians_ with the letter `x` in their name, try out:
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`, respectively, one can type:
 
-`biography.gender != male` or `biography.gender in [female, nonBinary]` to find female and / or non-binary heroes.
+`biography.gender != male` or `biography.gender in [female, nonBinary]` to find female and / or non-binary _Heroes_.
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
-To find heroes meeting WHOs definition of _obesity_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
+
+To find _Heroes_ meeting WHOs definition of _obesity_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
 
 `appearance.weight / pow(appearance.height, 2) >= 25`
 
