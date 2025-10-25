@@ -272,9 +272,15 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-#### _Amndment_ of locally saved _Hero_
-To _Amend_ an existing _hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to _Amend_. The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields. Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed hero or `n` to review the next one, or `c` to cancel.
+#### _Amendment_ of locally saved _Hero_
+To _Amend_ an existing _hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to _Amend_. 
+
+The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
+
+Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed hero or `n` to review the next one, or `c` to cancel.
+
 Pressing `y` will give the user the chance of _Amendning_ every value and keep current one with pressing enter.
+
 Upon completion, the _Amended_ fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
 Any manual _Amendment_ sets the _Lock_ flag on the hero to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
 
@@ -870,7 +876,12 @@ Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 h
 ```
 
 #### _Manually delete_ a local _hero_
-To (manually) _Delete_ a locally saved _hero_, return to the _Main_ menu and press `D` and enter a search string. Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the hero or `n` to review the next one or `c` to cancel.
+To (manually) _Delete_ a locally saved _hero_, return to the _Main_ menu and press `D` and enter a search string.
+
+The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
+
+Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the hero or `n` to review the next one or `c` to cancel.
+
 Typing `y` will give the user the chance of of revewing the hero to be _Deleted_ and confirm _Deletion_ with `y` or
 abort the operation with `n`.
 
@@ -1099,7 +1110,7 @@ To match Batman, type:
 
 This locates all heroes where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level.
 
-_Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred out of unintentional _SHQL™_ engine utilization._
+_Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred due to unintentional _SHQL™_ engine utilization._
 
 ## Basic examples *with* SHQL™
 
