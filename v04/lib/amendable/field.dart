@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field_base.dart';
 import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/prompts/prompt.dart';
+import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/utils/enum_parsing.dart';
 import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/percentage.dart';
@@ -673,6 +674,31 @@ class Field<T, V> implements FieldBase<T> {
         .where((c) => c.mutable)
         .map((c) => c.generateSqliteUpdateClause(indent))
         .join(',\n$indent');
+  }
+
+  @override
+  void declareIdentifiers(ConstantsSet constantsSet) {
+    if (_children.isEmpty) {
+      constantsSet.identifiers.include(sqliteName.toUpperCase());
+    }
+    for (var child in _children) {
+      child.declareIdentifiers(constantsSet);
+    }
+  }
+
+  @override
+  void registerIdentifiers(T t, ConstantsSet constantsSet) {
+    if (_children.isEmpty) {
+      constantsSet.constants.register(
+        sqliteGetter(t),
+        constantsSet.identifiers.include(sqliteName.toUpperCase()),
+      );
+      return;
+    }
+
+    for (var child in _children) {
+      child.registerIdentifiers(getter(t), constantsSet);
+    }
   }
 
   /// Function to get the field from an object

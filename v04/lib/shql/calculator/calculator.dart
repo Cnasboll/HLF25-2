@@ -18,7 +18,7 @@ class RuntimeException implements Exception {
 }
 
 class Calculator {
-  static num calculate(String expression, {ConstantsSet? constantsSet}) {
+  static dynamic calculate(String expression, {ConstantsSet? constantsSet}) {
     var v = Tokenizer.tokenize(expression).toList();
     constantsSet ??= prepareConstantsSet();
 
