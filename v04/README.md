@@ -85,7 +85,7 @@ Secondly, in the following example:
 
 The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers.
 
-Due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
+Due to the lack of escaping (pun intended) any _Villain_ could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the _Villain_ not having any alter ago at all! I assume this loophole is planted here to test our attention.
 
 ### Basic usage
 #### _Main_ menu
@@ -123,7 +123,7 @@ Batman
 
 If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
 
-When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the _Hero_ to die, or `a` to try to be a hero oneself or the most reasonably `q` to give up.
+When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the _Hero_ to die, or `a` to try to be a hero oneself, or -- the most reasonably, `q` to give up.
 
 ```
 Enter your API key: 
@@ -561,8 +561,8 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-#### _Create_ a local _hero_
-To manally _Create_ a new local _Hero_, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
+#### _Create_ a local _Hero_
+To manually _Create_ a new local _Hero_ (mainly _known_, but not necessarily _recongnised_ around their immediate neighbourhood), press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new _Hero_ will be saved or not.
 
 ```
