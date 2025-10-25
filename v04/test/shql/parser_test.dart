@@ -12,9 +12,9 @@ void main() {
     var p = Parser.parse(v.lookahead(), constantsSet);
     expect(Symbols.add, p.symbol);
     expect(Symbols.integerLiteral, p.children[0].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(10, constantsSet.constants.constants[p.children[0].qualifier!]);
     expect(Symbols.integerLiteral, p.children[1].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(2, constantsSet.constants.constants[p.children[1].qualifier!]);
   });
 
   test('Parse addition and multiplication', () {
@@ -26,7 +26,7 @@ void main() {
     expect(Symbols.integerLiteral, p.children[0].children[0].symbol);
     expect(
       10,
-      constantsSet.integers.constants[p.children[0].children[0].qualifier!],
+      constantsSet.constants.constants[p.children[0].children[0].qualifier!],
     );
     expect(Symbols.mul, p.children[0].children[1].symbol);
     expect(
@@ -35,7 +35,7 @@ void main() {
     );
     expect(
       13,
-      constantsSet.integers.constants[p
+      constantsSet.constants.constants[p
           .children[0]
           .children[1]
           .children[0]
@@ -47,14 +47,14 @@ void main() {
     );
     expect(
       37,
-      constantsSet.integers.constants[p
+      constantsSet.constants.constants[p
           .children[0]
           .children[1]
           .children[1]
           .qualifier!],
     );
     expect(Symbols.integerLiteral, p.children[1].symbol);
-    expect(1, constantsSet.integers.constants[p.children[1].qualifier!]);
+    expect(1, constantsSet.constants.constants[p.children[1].qualifier!]);
   });
 
   test('Parse addition and multiplication with parenthesis', () {
@@ -63,12 +63,12 @@ void main() {
     var p = Parser.parse(v.lookahead(), constantsSet);
     expect(Symbols.add, p.symbol);
     expect(Symbols.integerLiteral, p.children[0].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(10, constantsSet.constants.constants[p.children[0].qualifier!]);
     expect(Symbols.mul, p.children[1].symbol);
     expect(Symbols.integerLiteral, p.children[1].children[0].symbol);
     expect(
       13,
-      constantsSet.integers.constants[p.children[1].children[0].qualifier!],
+      constantsSet.constants.constants[p.children[1].children[0].qualifier!],
     );
     expect(Symbols.add, p.children[1].children[1].symbol);
     expect(
@@ -77,7 +77,7 @@ void main() {
     );
     expect(
       37,
-      constantsSet.integers.constants[p
+      constantsSet.constants.constants[p
           .children[1]
           .children[1]
           .children[0]
@@ -89,7 +89,7 @@ void main() {
     );
     expect(
       1,
-      constantsSet.integers.constants[p
+      constantsSet.constants.constants[p
           .children[1]
           .children[1]
           .children[1]
@@ -106,7 +106,7 @@ void main() {
     expect(Symbols.integerLiteral, p.children[0].children[0].symbol);
     expect(
       10,
-      constantsSet.integers.constants[p.children[0].children[0].qualifier!],
+      constantsSet.constants.constants[p.children[0].children[0].qualifier!],
     );
     expect(Symbols.mul, p.children[0].children[1].symbol);
     expect(
@@ -115,7 +115,7 @@ void main() {
     );
     expect(
       13,
-      constantsSet.integers.constants[p
+      constantsSet.constants.constants[p
           .children[0]
           .children[1]
           .children[0]
@@ -127,14 +127,14 @@ void main() {
     );
     expect(
       37,
-      constantsSet.integers.constants[p
+      constantsSet.constants.constants[p
           .children[0]
           .children[1]
           .children[1]
           .qualifier!],
     );
     expect(Symbols.integerLiteral, p.children[1].symbol);
-    expect(1, constantsSet.integers.constants[p.children[1].qualifier!]);
+    expect(1, constantsSet.constants.constants[p.children[1].qualifier!]);
   });
 
   test('Parse function call', () {
