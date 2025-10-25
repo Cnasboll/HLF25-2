@@ -134,89 +134,92 @@ Future<void> main() async {
     batman.registerIdentifiers(heroScope);
 
     // These are all identifiers registered for a HeroModel in SHQL™
-    expect(["ANSWER",
-"TRUE",
-"FALSE",
-"E",
-"LN10",
-"LN2",
-"LOG2E",
-"LOG10E",
-"PI",
-"SQRT1_2",
-"SQRT2",
-"AVOGADRO",
-"SIN",
-"COS",
-"TAN",
-"ACOS",
-"ASIN",
-"ATAN",
-"SQRT",
-"EXP",
-"LOG",
-"LOWERCASE",
-"UPPERCASE",
-"MIN",
-"MAX",
-"ATAN2",
-"POW",
-"UNKNOWN",
-"NEUTRAL",
-"MOSTLY_GOOD",
-"GOOD",
-"REASONABLE",
-"NOT_QUITE",
-"BAD",
-"UGLY",
-"EVIL",
-"USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT",
-"AMBIGUOUS",
-"MALE",
-"FEMALE",
-"NON_BINARY",
-"WONT_SAY",
-"METRIC",
-"IMPERIAL",
-"ID",
-"VERSION",
-"TIMESTAMP",
-"LOCKED",
-"EXTERNAL_ID",
-"NAME",
-"POWERSTATS",
-"INTELLIGENCE",
-"STRENGTH",
-"SPEED",
-"DURABILITY",
-"POWER",
-"COMBAT",
-"BIOGRAPHY",
-"FULL_NAME",
-"ALTER_EGOS",
-"ALIASES",
-"PLACE_OF_BIRTH",
-"FIRST_APPEARANCE",
-"PUBLISHER",
-"ALIGNMENT",
-"APPEARANCE",
-"GENDER",
-"RACE",
-"HEIGHT",
-"M",
-"SYSTEM_OF_UNITS",
-"WEIGHT",
-"KG",
-"EYE_COLOUR",
-"HAIR_COLOUR",
-"WORK",
-"OCCUPATION",
-"BASE",
-"CONNECTIONS",
-"GROUP_AFFILIATION",
-"RELATIVES",
-"IMAGE",
-"URL"], heroScope.identifiers.constants);
+    expect([
+      "NULL",
+      "ANSWER",
+      "TRUE",
+      "FALSE",
+      "E",
+      "LN10",
+      "LN2",
+      "LOG2E",
+      "LOG10E",
+      "PI",
+      "SQRT1_2",
+      "SQRT2",
+      "AVOGADRO",
+      "SIN",
+      "COS",
+      "TAN",
+      "ACOS",
+      "ASIN",
+      "ATAN",
+      "SQRT",
+      "EXP",
+      "LOG",
+      "LOWERCASE",
+      "UPPERCASE",
+      "MIN",
+      "MAX",
+      "ATAN2",
+      "POW",
+      "UNKNOWN",
+      "NEUTRAL",
+      "MOSTLY_GOOD",
+      "GOOD",
+      "REASONABLE",
+      "NOT_QUITE",
+      "BAD",
+      "UGLY",
+      "EVIL",
+      "USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT",
+      "AMBIGUOUS",
+      "MALE",
+      "FEMALE",
+      "NON_BINARY",
+      "WONT_SAY",
+      "METRIC",
+      "IMPERIAL",
+      "ID",
+      "VERSION",
+      "TIMESTAMP",
+      "LOCKED",
+      "EXTERNAL_ID",
+      "NAME",
+      "POWERSTATS",
+      "INTELLIGENCE",
+      "STRENGTH",
+      "SPEED",
+      "DURABILITY",
+      "POWER",
+      "COMBAT",
+      "BIOGRAPHY",
+      "FULL_NAME",
+      "ALTER_EGOS",
+      "ALIASES",
+      "PLACE_OF_BIRTH",
+      "FIRST_APPEARANCE",
+      "PUBLISHER",
+      "ALIGNMENT",
+      "APPEARANCE",
+      "GENDER",
+      "RACE",
+      "HEIGHT",
+      "M",
+      "SYSTEM_OF_UNITS",
+      "WEIGHT",
+      "KG",
+      "EYE_COLOUR",
+      "HAIR_COLOUR",
+      "WORK",
+      "OCCUPATION",
+      "BASE",
+      "CONNECTIONS",
+      "GROUP_AFFILIATION",
+      "RELATIVES",
+      "IMAGE",
+      "URL",
+    ], heroScope.identifiers.constants);
 
     expect(Calculator.calculate('UNKNOWN', constantsSet: heroScope), 0);
     expect(Calculator.calculate('NEUTRAL', constantsSet: heroScope), 1);
@@ -227,7 +230,13 @@ Future<void> main() async {
     expect(Calculator.calculate('BAD', constantsSet: heroScope), 6);
     expect(Calculator.calculate('UGLY', constantsSet: heroScope), 7);
     expect(Calculator.calculate('EVIL', constantsSet: heroScope), 8);
-    expect(Calculator.calculate('USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT', constantsSet: heroScope), 9);
+    expect(
+      Calculator.calculate(
+        'USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT',
+        constantsSet: heroScope,
+      ),
+      9,
+    );
 
     expect(Calculator.calculate('UNKNOWN', constantsSet: heroScope), 0);
     expect(Calculator.calculate('AMBIGUOUS', constantsSet: heroScope), 1);
@@ -239,128 +248,201 @@ Future<void> main() async {
     expect(Calculator.calculate('METRIC', constantsSet: heroScope), 0);
     expect(Calculator.calculate('IMPERIAL', constantsSet: heroScope), 1);
 
-    expect(Calculator.calculate('id', constantsSet: heroScope), "02ffbb60-762b-4552-8f41-be8aa86869c6");
+    expect(
+      Calculator.calculate('id', constantsSet: heroScope),
+      "02ffbb60-762b-4552-8f41-be8aa86869c6",
+    );
     expect(Calculator.calculate('version', constantsSet: heroScope), 1);
-    expect(Calculator.calculate('timestamp', constantsSet: heroScope), "2025-10-28T18:00:00.000Z");
+    expect(
+      Calculator.calculate('timestamp', constantsSet: heroScope),
+      "2025-10-28T18:00:00.000Z",
+    );
     expect(Calculator.calculate("locked", constantsSet: heroScope), 0);
     expect(Calculator.calculate('external_id', constantsSet: heroScope), "70");
     expect(Calculator.calculate('name', constantsSet: heroScope), "Batman");
 
-    /*expect("Bruce Wayne", Calculator.calculate('biography.full_name', constantsSet: constantsSet));
-    expect(5, Calculator.calculate('powerstats.intelligence', constantsSet: constantsSet));
-    expect(6, Calculator.calculate('powerstats.strength', constantsSet: constantsSet));
-    expect(7, Calculator.calculate('powerstats.speed', constantsSet: constantsSet));
-    expect(8, Calculator.calculate('powerstats.durability', constantsSet: constantsSet));*/
-
-    /*for (var field in HeroModel.generateSqliteColumnNameList()) {
-      constantsSet.identifiers.include(field.sqlite);
-    }
-
-    final idIdentifier = constantsSet.identifiers.include("id");
-    final externalIdIdentifier = constantsSet.identifiers.include("external_id");
-    final versionIdentifier = constantsSet.identifiers.include("version");
-    final timestampIdentifier = constantsSet.identifiers.include("timestamp");
-    final lockedIdentifier = constantsSet.identifiers.include("locked");
-    final nameIdentifier = constantsSet.identifiers.include("name");
-
-    final powerStatsIdentifier = constantsSet.identifiers.include("powerstats");
-    final intelligenceIdentifier = constantsSet.identifiers.include("intelligence");
-    final strengthIdentifier = constantsSet.identifiers.include("strength");
-    final speedIdentifier = constantsSet.identifiers.include("speed");
-    final durabilityIdentifier = constantsSet.identifiers.include("durability");
-    final powerIdentifier = constantsSet.identifiers.include("power");
-    final combatIdentifier = constantsSet.identifiers.include("combat");
-
-    final biographyIdentifier = constantsSet.identifiers.include("biography");
-    final fullNameIdentifier = constantsSet.identifiers.include("full_name");
-    final alterEgosIdentifier = constantsSet.identifiers.include("alter_egos");
-    final aliasesIdentifier = constantsSet.identifiers.include("aliases");
-    final placeOfBirthIdentifier = constantsSet.identifiers.include("place_of_birth");
-    final firstAppearanceIdentifier = constantsSet.identifiers.include("first_appearance");
-    final publisherIdentifier = constantsSet.identifiers.include("publisher");
-    final alignmentIdentifier = constantsSet.identifiers.include("alignment");
-
-
-    final appearanceIdentifier = constantsSet.identifiers.include("appearance");
-    final genderIdentifier = constantsSet.identifiers.include("gender");
-    final raceIdentifier = constantsSet.identifiers.include("race");
-    final heightMetresIdentifier = constantsSet.identifiers.include("height_m");
-    final heightSystemOfUnitsIdentifier = constantsSet.identifiers.include("height_system_of_units");
-    final weightKilogramsIdentifier = constantsSet.identifiers.include("weight_kg");
-    final weightSystemOfUnitsIdentifier = constantsSet.identifiers.include("weight_system_of_units");
-    final eyeColorIdentifier = constantsSet.identifiers.include("eye_color");
-    final hairColorIdentifier = constantsSet.identifiers.include("hair_color");
-
-    final workIdentifier = constantsSet.identifiers.include("work");
-    final occupationIdentifier = constantsSet.identifiers.include("occupation");
-    final baseIdentifier = constantsSet.identifiers.include("base");
-
-    final connectionsIdentifier = constantsSet.identifiers.include("connections");
-    final groupAffiliationIdentifier = constantsSet.identifiers.include("group_affiliation");
-    final relativesIdentifier = constantsSet.identifiers.include("relatives");
-
-    final imageIdentifier = constantsSet.identifiers.include("image");
-    final urlIdentifier = constantsSet.identifiers.include("url");
-
-    ConstantsSet heroScope = constantsSet.createChild();
-    heroScope.constants.register(batman.id, idIdentifier);
-    heroScope.constants.register(batman.externalId, externalIdIdentifier);
-    heroScope.constants.register(batman.version, versionIdentifier);
-    heroScope.constants.register(batman.timestamp.toIso8601String(), timestampIdentifier);
-    heroScope.constants.register(batman.locked, lockedIdentifier);
-    heroScope.constants.register(batman.name, nameIdentifier);
-
-    ConstantsSet powerStatsScope = heroScope.getSubModelScope(powerStatsIdentifier);
-    powerStatsScope.constants.register(batman.powerStats.intelligence?.value ?? 0, intelligenceIdentifier);
-    powerStatsScope.constants.register(batman.powerStats.strength?.value ?? 0, strengthIdentifier);
-    powerStatsScope.constants.register(batman.powerStats.speed?.value ?? 0, speedIdentifier);
-    powerStatsScope.constants.register(batman.powerStats.durability?.value ?? 0, durabilityIdentifier);
-    powerStatsScope.constants.register(batman.powerStats.power?.value ?? 0, powerIdentifier);
-    powerStatsScope.constants.register(batman.powerStats.combat?.value ?? 0, combatIdentifier);
-
-    ConstantsSet biographyScope = heroScope.getSubModelScope(biographyIdentifier);
-    biographyScope.constants.register(batman.biography.fullName, fullNameIdentifier);
-    biographyScope.constants.register(batman.biography.alterEgos, alterEgosIdentifier);
-    biographyScope.constants.register(batman.biography.aliases, aliasesIdentifier);
-    biographyScope.constants.register(batman.biography.placeOfBirth, placeOfBirthIdentifier);
-    biographyScope.constants.register(batman.biography.firstAppearance, firstAppearanceIdentifier);
-    biographyScope.constants.register(batman.biography.publisher, publisherIdentifier);
-    biographyScope.constants.register(batman.biography.alignment.name, alignmentIdentifier);
-
-    ConstantsSet appearanceScope = heroScope.getSubModelScope(appearanceIdentifier);
-    appearanceScope.constants.register(batman.appearance.gender.index, genderIdentifier);
-    appearanceScope.constants.register(batman.appearance.race, raceIdentifier);
-    appearanceScope.constants.register(batman.appearance.height.value, heightMetresIdentifier);
-    appearanceScope.constants.register(batman.appearance.height.systemOfUnits.index, heightSystemOfUnitsIdentifier);
-    appearanceScope.constants.register(batman.appearance.weight.value, weightKilogramsIdentifier);
-    appearanceScope.constants.register(batman.appearance.weight.systemOfUnits.index, weightSystemOfUnitsIdentifier);
-    appearanceScope.constants.register(batman.appearance.eyeColor, eyeColorIdentifier);
-    appearanceScope.constants.register(batman.appearance.hairColor, hairColorIdentifier);
-
-    ConstantsSet workScope = heroScope.getSubModelScope(workIdentifier);
-    workScope.constants.register(batman.work.occupation, occupationIdentifier);
-    workScope.constants.register(batman.work.base, baseIdentifier);
-
-    ConstantsSet connectionsScope = heroScope.getSubModelScope(connectionsIdentifier);
-    connectionsScope.constants.register(batman.connections.groupAffiliation, groupAffiliationIdentifier);
-    connectionsScope.constants.register(batman.connections.relatives, relativesIdentifier);
-
-    ConstantsSet imageScope = heroScope.getSubModelScope(imageIdentifier);
-    imageScope.constants.register(batman.image.url, urlIdentifier);
-
-    var heroes = [batman, robin, alfred];
-    heroes.sort();
-    expect(heroes[0].name, "Robin");
-    expect(heroes[1].name, "Alfred");
-    expect(heroes[2].name, "Batman");
-
-    alfred = alfred.copyWith(
-      powerStats: alfred.powerStats.copyWith(strength: Percentage(30)),
+    expect(
+      Calculator.calculate('biography.full_name', constantsSet: heroScope),
+      "Bruce Wayne",
     );
-    heroes = [batman, robin, alfred];
-    heroes.sort();
-    expect(heroes[0].name, "Alfred");
-    expect(heroes[1].name, "Robin");
-    expect(heroes[2].name, "Batman");*/
+    expect(
+      Calculator.calculate('biography.alter_egos', constantsSet: heroScope),
+      null,
+    );
+    expect(Calculator.calculate('biography.aliases', constantsSet: heroScope), [
+      "Insider",
+      "Matches Malone",
+    ]);
+    expect(
+      Calculator.calculate('biography.place_of_birth', constantsSet: heroScope),
+      "Crest Hill, Bristol Township; Gotham County",
+    );
+    expect(
+      Calculator.calculate(
+        'biography.first_appearance',
+        constantsSet: heroScope,
+      ),
+      "Detective Comics #27",
+    );
+    expect(
+      Calculator.calculate('biography.publisher', constantsSet: heroScope),
+      "DC Comics",
+    );
+    expect(
+      Calculator.calculate('biography.alignment', constantsSet: heroScope),
+      Alignment.mostlyGood.index,
+    );
+
+    expect(
+      Calculator.calculate('powerstats.intelligence', constantsSet: heroScope),
+      5,
+    );
+    expect(
+      Calculator.calculate('powerstats.strength', constantsSet: heroScope),
+      null,
+    );
+    expect(
+      Calculator.calculate('powerstats.speed', constantsSet: heroScope),
+      null,
+    );
+    expect(
+      Calculator.calculate('powerstats.durability', constantsSet: heroScope),
+      null,
+    );
+
+    expect(
+      Calculator.calculate('appearance.race', constantsSet: heroScope),
+      "Human",
+    );
+    expect(
+      Calculator.calculate('appearance.gender', constantsSet: heroScope),
+      Gender.male.index,
+    );
+    expect(
+      Calculator.calculate('appearance.height.m', constantsSet: heroScope),
+      1.8796,
+    );
+    expect(
+      Calculator.calculate(
+        'appearance.height.system_of_units',
+        constantsSet: heroScope,
+      ),
+      SystemOfUnits.imperial.index,
+    );
+    expect(
+      Calculator.calculate('appearance.weight.kg', constantsSet: heroScope),
+      94.80080533,
+    );
+    expect(
+      Calculator.calculate(
+        'appearance.weight.system_of_units',
+        constantsSet: heroScope,
+      ),
+      SystemOfUnits.imperial.index,
+    );
+    expect(
+      Calculator.calculate('appearance.eye_colour', constantsSet: heroScope),
+      "blue",
+    );
+    expect(
+      Calculator.calculate('appearance.hair_colour', constantsSet: heroScope),
+      "black",
+    );
+
+    expect(
+      Calculator.calculate('work.occupation', constantsSet: heroScope),
+      "CEO of Wayne Enterprises",
+    );
+    expect(
+      Calculator.calculate('work.base', constantsSet: heroScope),
+      "Gotham City",
+    );
+
+    expect(
+      Calculator.calculate(
+        'connections.group_affiliation',
+        constantsSet: heroScope,
+      ),
+      "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
+    );
+    expect(
+      Calculator.calculate('connections.relatives', constantsSet: heroScope),
+      "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
+    );
+
+    expect(
+      Calculator.calculate('image.url', constantsSet: heroScope),
+      "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
+    );
+
+    expect(Calculator.calculate('name ~ "Batman"', constantsSet: heroScope), 1);
+
+    expect(Calculator.calculate('name = "Batman"', constantsSet: heroScope), 1);
+
+    expect(
+      Calculator.calculate(
+        'name in ["Batman", "Robin"]',
+        constantsSet: heroScope,
+      ),
+      1,
+    );
+
+    expect(
+      Calculator.calculate(
+        'lowercase(name) in ["batman", "robin"]',
+        constantsSet: heroScope,
+      ),
+      1,
+    );
+
+    expect(
+      Calculator.calculate(
+        'biography.alignment = bad',
+        constantsSet: heroScope,
+      ),
+      0,
+    );
+
+    expect(
+      Calculator.calculate(
+        'biography.alignment > good',
+        constantsSet: heroScope,
+      ),
+      0,
+    );
+
+    expect(
+      Calculator.calculate(
+        'biography.alignment = good',
+        constantsSet: heroScope,
+      ),
+      0,
+    );
+
+    expect(
+      Calculator.calculate(
+        'appearance.weight.kg / pow(appearance.height.m, 2)',
+        constantsSet: heroScope,
+      ),
+      26.8337366955048,
+    );
+
+    expect(
+      Calculator.calculate(
+        'appearance.weight.kg / pow(appearance.height.m, 2) >= 25',
+        constantsSet: heroScope,
+      ),
+      1, // TRUE - Batman is indeed obese as per WHO standards
+    );
+
+    expect(
+      Calculator.calculate('work.base ~ "cave"', constantsSet: heroScope),
+      0, // False, no mentionon of Batcave, batman is no troglodyte
+    );
+
+    expect(
+      Calculator.calculate('"cave" in work.base', constantsSet: heroScope),
+      0, // False, no mentionon of Batcave, batman is no troglodyte
+    );
   });
 }

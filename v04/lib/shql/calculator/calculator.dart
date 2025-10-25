@@ -35,16 +35,28 @@ class Calculator {
 
   static ConstantsSet prepareConstantsSet() {
     var constantsSet = ConstantsSet();
-    
+
+    // Register null constant
+    constantsSet.constants.register(
+      null,
+      constantsSet.identifiers.include("NULL"),
+    );
+
     // Register mathematical constants
     for (var entry in _int_constants.entries) {
-      constantsSet.constants.register(entry.value, constantsSet.identifiers.include(entry.key));
+      constantsSet.constants.register(
+        entry.value,
+        constantsSet.identifiers.include(entry.key),
+      );
     }
-    
+
     for (var entry in _double_constants.entries) {
-      constantsSet.constants.register(entry.value, constantsSet.identifiers.include(entry.key));
+      constantsSet.constants.register(
+        entry.value,
+        constantsSet.identifiers.include(entry.key),
+      );
     }
-    
+
     // Register mathematical functions
     for (var entry in _unaryFunctions.entries) {
       constantsSet.identifiers.include(entry.key);
@@ -67,6 +79,10 @@ class Calculator {
 
     if (parseTree.children.length < 2) {
       return double.nan;
+    }
+
+    if (parseTree.symbol == Symbols.memberAccess) {
+      return evaluateMemberAccess(parseTree, constantsSet);
     }
 
     return evaluateBinaryOperator(
@@ -92,21 +108,41 @@ class Calculator {
           return rhs.contains(lhs) ? 1 : 0;
         }
       case Symbols.add:
-        return argument1 + argument2;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return double.nan;
+          }
+          return argument1 + argument2;
+        }
 
       case Symbols.sub:
-        return argument1 - argument2;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return double.nan;
+          }
+          return argument1 - argument2;
+        }
 
       case Symbols.div:
-        return argument1 / argument2;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return double.nan;
+          }
+          return argument1 / argument2;
+        }
 
       case Symbols.eq:
         {
           return argument1 == argument2 ? 1 : 0;
         }
+
       case Symbols.match:
       case Symbols.notMatch:
         {
+          if ([argument1, argument2].contains(null)) {
+            return 0;
+          }
+
           var negated = symbol == Symbols.notMatch;
           var regex = RegExp(argument2.toString(), caseSensitive: false);
           var match = regex.hasMatch(argument1.toString());
@@ -114,18 +150,48 @@ class Calculator {
         }
 
       case Symbols.gt:
-        return argument1 > argument2 ? 1 : 0;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return 0;
+          }
+          return argument1 > argument2 ? 1 : 0;
+        }
 
       case Symbols.gtEq:
-        return argument1 >= argument2 ? 1 : 0;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return 0;
+          }
+          return argument1 >= argument2 ? 1 : 0;
+        }
       case Symbols.lt:
-        return argument1 < argument2 ? 1 : 0;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return 0;
+          }
+          return argument1 < argument2 ? 1 : 0;
+        }
       case Symbols.ltEq:
-        return argument1 <= argument2 ? 1 : 0;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return 0;
+          }
+          return argument1 <= argument2 ? 1 : 0;
+        }
       case Symbols.mod:
-        return argument1 % argument2;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return double.nan;
+          }
+          return argument1 % argument2;
+        }
       case Symbols.mul:
-        return argument1 * argument2;
+        {
+          if ([argument1, argument2].contains(null)) {
+            return double.nan;
+          }
+          return argument1 * argument2;
+        }
       case Symbols.neq:
         return argument1 != argument2 ? 1 : 0;
 
@@ -167,8 +233,10 @@ class Calculator {
     ConstantsSet constantsSet,
   ) {
     var identifier = constantsSet.identifiers.constants[parseTree.qualifier!];
-    var constant = constantsSet.constants.getByIdentifier(parseTree.qualifier!);
-    if (constant != null) {
+    var (constant, index) = constantsSet.constants.getByIdentifier(
+      parseTree.qualifier!,
+    );
+    if (constant != null || index != null) {
       if (parseTree.children.isNotEmpty) {
         var argumentCount = parseTree.children.length;
         throw RuntimeException(
@@ -236,6 +304,77 @@ class Calculator {
     ].contains(symbol);
   }
 
+  static dynamic evaluateMemberAccess(
+    ParseTree parseTree,
+    ConstantsSet constantsSet,
+  ) {
+    if (parseTree.children.length != 2) {
+      throw RuntimeException('Member access must have exactly 2 children');
+    }
+
+    var leftChild = parseTree.children[0];
+    var rightChild = parseTree.children[1];
+
+    // Right side must always be an identifier
+    if (rightChild.symbol != Symbols.identifier) {
+      throw RuntimeException(
+        'Right side of member access must be an identifier',
+      );
+    }
+
+    ConstantsSet targetScope;
+
+    if (leftChild.symbol == Symbols.identifier) {
+      // Simple case: a.b
+      targetScope = constantsSet.getSubModelScope(leftChild.qualifier!);
+    } else if (leftChild.symbol == Symbols.memberAccess) {
+      // Recursive case: a.b.c (where a.b is another memberAccess)
+      // We need to resolve the left side to get the appropriate scope
+      targetScope = _resolveMemberAccessToScope(leftChild, constantsSet);
+    } else {
+      throw RuntimeException(
+        'Left side of member access must be an identifier or another member access',
+      );
+    }
+
+    return evaluateIdentifier(rightChild, targetScope);
+  }
+
+  static ConstantsSet _resolveMemberAccessToScope(
+    ParseTree memberAccessTree,
+    ConstantsSet constantsSet,
+  ) {
+    if (memberAccessTree.symbol != Symbols.memberAccess) {
+      throw RuntimeException('Expected member access parse tree');
+    }
+
+    var leftChild = memberAccessTree.children[0];
+    var rightChild = memberAccessTree.children[1];
+
+    if (rightChild.symbol != Symbols.identifier) {
+      throw RuntimeException(
+        'Right side of member access must be an identifier',
+      );
+    }
+
+    ConstantsSet intermediateScope;
+
+    if (leftChild.symbol == Symbols.identifier) {
+      // Base case: a.b - get sub-scope of a
+      intermediateScope = constantsSet.getSubModelScope(leftChild.qualifier!);
+    } else if (leftChild.symbol == Symbols.memberAccess) {
+      // Recursive case: resolve a.b first, then get its sub-scope
+      intermediateScope = _resolveMemberAccessToScope(leftChild, constantsSet);
+    } else {
+      throw RuntimeException(
+        'Left side of member access must be an identifier or another member access',
+      );
+    }
+
+    // Now get the sub-scope of the right identifier within the intermediate scope
+    return intermediateScope.getSubModelScope(rightChild.qualifier!);
+  }
+
   static dynamic evaluateUnary(ParseTree parseTree, ConstantsSet constantsSet) {
     if (!isUnary(parseTree.symbol)) {
       return null;
@@ -244,27 +383,31 @@ class Calculator {
       return double.nan;
     }
 
+    var arg = evaluate(parseTree.children.first, constantsSet);
+    if (arg == null) {
+      return double.nan;
+    }
     switch (parseTree.symbol) {
       case Symbols.unaryMinus:
         // Unary minus
-        return -evaluate(parseTree.children.first, constantsSet);
+        return -arg;
       case Symbols.unaryPlus:
         // Unary plus
-        return evaluate(parseTree.children.first, constantsSet);
+        return arg;
       case Symbols.not:
-        return evaluate(parseTree.children.first, constantsSet) == 0 ? 1 : 0;
+        return arg == 0 ? 1 : 0;
       default:
         return null;
     }
   }
 
-static final Map<String, int> _int_constants = {
-  "ANSWER": 42,
-  "TRUE": 1,
-  "FALSE": 0,
-};
+  static final Map<String, int> _int_constants = {
+    "ANSWER": 42,
+    "TRUE": 1,
+    "FALSE": 0,
+  };
 
-static final Map<String, double> _double_constants = {
+  static final Map<String, double> _double_constants = {
     "E": e,
     "LN10": ln10,
     "LN2": ln2,
@@ -276,7 +419,7 @@ static final Map<String, double> _double_constants = {
     "AVOGADRO": 6.0221408e+23,
   };
 
- static final Map<String, dynamic Function(dynamic)> _unaryFunctions = {
+  static final Map<String, dynamic Function(dynamic)> _unaryFunctions = {
     "SIN": (a) => sin(a),
     "COS": (a) => cos(a),
     "TAN": (a) => tan(a),
@@ -290,7 +433,8 @@ static final Map<String, double> _double_constants = {
     "UPPERCASE": (a) => a.toString().toUpperCase(),
   };
 
-  static final Map<String, dynamic Function(dynamic, dynamic)> _binaryFunctions = {
+  static final Map<String, dynamic Function(dynamic, dynamic)>
+  _binaryFunctions = {
     "MIN": (a, b) => min(a, b),
     "MAX": (a, b) => max(a, b),
     "ATAN2": (a, b) => atan2(a, b),

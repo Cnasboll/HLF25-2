@@ -1188,6 +1188,10 @@ To find _troglodytes_, try:
 
 `work.base ~ "cave"`
 
+or
+
+`"cave" in work.base` for a case sensitive match.
+
 ## General
 The following enums are mapped to integer constants:
 From the `Gender` enum in `Appearance`:  `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`
@@ -1245,10 +1249,12 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 - `connections.relatives` - `string`
 - `image.url` - `string`
 
-### Mathematical constants
-Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
+### General constants
+`NULL`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
 
-`E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
+### Mathematical constants
+Inherited from the calculator project, the following constants are mapped directly to constants in `math.dart`:
+`E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`
 
 ### Mathematical functions
 Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy):
@@ -1272,6 +1278,6 @@ The language has been extended with the following string functions:
 ##### Relational
 `=`, `<>` (alias `!=`), `>`, `<`, `<=`, `>=`
 ##### Matching
-`IN` (works for string or lists),  `~`, `!~`
+`IN` (works for strings or lists),  `~`, `!~`
 ##### Arithmetic
 `*`, `/`, `%`, `+`, `-`

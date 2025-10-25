@@ -6,6 +6,7 @@ import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
 import 'package:v04/amendable/parsing_context.dart';
+import 'package:v04/utils/json_parsing.dart';
 
 // Levels of evilness
 enum Alignment {
@@ -164,7 +165,8 @@ class BiographyModel extends Amendable<BiographyModel> {
     (m) => m.alterEgos,
     "Alter Egos",
     "Alter egos of the character",
-    extraNullLiterals: [noAlterEgosFound]
+    extraNullLiterals: [noAlterEgosFound],
+    shqlGetter: (m) => specialNullCoalesce(m.alterEgos, extraNullLiterals: [noAlterEgosFound])
   );
 
   static final FieldBase<BiographyModel> _aliasesField = Field.infer(
@@ -175,6 +177,7 @@ class BiographyModel extends Amendable<BiographyModel> {
     // but putting JSON in column is an anti-pattern. Will I be condemned to purgatory?
     // Will the database deities show mercy?
     sqliteGetter: ((m) => m.aliases == null ? null : jsonEncode(m.aliases)),
+    shqlGetter: (m) => m.aliases,
     prompt:
         ' as a single value (\'Insider\') without surrounding \' or a list in json format e.g. ["Insider", "Matches Malone"]',
   );
