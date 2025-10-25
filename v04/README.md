@@ -62,17 +62,16 @@ NB: We don't know how to parse
     "relatives": "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)"
   }
 ```
-as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so I gave up and store it as a raw `TEXT`.
+as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so author(s) gave up and store it as a raw `TEXT`.
 
 One could relatively easy construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
-```
-relation:
-  name: Damian Wayne
-  relation: Son
+```yaml
+relations:
+  - name: Damian Wayne
+    relation: Son
     qualifiers: []
-relation:
-  name: Martha Wayne
-  relation: Mother
+  - name: Martha Wayne
+    relation: Mother
     qualifiers: [deceased]
 ```
 But we simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
