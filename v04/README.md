@@ -1079,8 +1079,13 @@ Finally but not least, local searches uses the _SHQL™_, short for _Super Hero 
 
 ## Economical fallback example without utilizing SHQL™
 To match Batman, type:
+
 `Batman`
-This locates all heroes where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level. _Note that the parser assumes that usage of _SHQL™_ is intentional if a search term is a valid _SHQL™_ expression. The developers will not claim responsibiliy for any costs incurred out of unintentional _SHQL™_ engine utilization._
+
+This locates all heroes where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level.
+
+_Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred out of unintentional _SHQL™_ engine utilization._
+
 ## Basic examples *with* SHQL™
 
 ### Name-search and match
@@ -1199,7 +1204,7 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
 `E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
 
-Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so authors remain conviced the rest will come in handy):
+Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy):
 `MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
 
 The language has been extended with the following string functions:
