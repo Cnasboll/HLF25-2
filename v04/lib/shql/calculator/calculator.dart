@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'dart:math';
 
 import 'package:v04/shql/parser/constants_set.dart';
@@ -31,18 +32,21 @@ class Calculator {
     }
 
     // Register mathematical constants
-    for (var entry in _mathematicalConstants.entries) {
+    for (var entry in _constants.entries) {
       constantsSet.identifiers.include(entry.key);
     }
 
     // Register mathematical functions
-    for (var entry in _mathematicalFunctions.entries) {
+    for (var entry in _unaryFunctions.entries) {
+      constantsSet.identifiers.include(entry.key);
+    }
+    for (var entry in _binaryFunctions.entries) {
       constantsSet.identifiers.include(entry.key);
     }
     return evaluate(p, constantsSet);
   }
 
-  static num evaluate(ParseTree parseTree, ConstantsSet constantsSet) {
+  static dynamic evaluate(ParseTree parseTree, ConstantsSet constantsSet) {
     var result = evaluateTerminal(parseTree, constantsSet);
     if (result != null) {
       return result;
@@ -63,8 +67,21 @@ class Calculator {
     );
   }
 
-  static num evaluateBinaryOperator(Symbols symbol, num argument1, argument2) {
+  static num evaluateBinaryOperator(
+    Symbols symbol,
+    dynamic argument1,
+    argument2,
+  ) {
     switch (symbol) {
+      case Symbols.inOp:
+        {
+          if (argument2 is List) {
+            return argument2.contains(argument1) ? 1 : 0;
+          }
+          var lhs = argument1 is String ? argument1 : argument1.toString();
+          var rhs = argument2 is String ? argument2 : argument2.toString();
+          return rhs.contains(lhs) ? 1 : 0;
+        }
       case Symbols.add:
         return argument1 + argument2;
 
@@ -78,6 +95,15 @@ class Calculator {
         {
           return argument1 == argument2 ? 1 : 0;
         }
+      case Symbols.match:
+      case Symbols.notMatch:
+        {
+          var negated = symbol == Symbols.notMatch;
+          var regex = RegExp(argument2.toString(), caseSensitive: false);
+          var match = regex.hasMatch(argument1.toString());
+          return negated ? (match ? 0 : 1) : (match ? 1 : 0);
+        }
+
       case Symbols.gt:
         return argument1 > argument2 ? 1 : 0;
 
@@ -105,12 +131,21 @@ class Calculator {
     }
   }
 
-  static num? evaluateTerminal(ParseTree parseTree, ConstantsSet constantsSet) {
+  static dynamic evaluateTerminal(
+    ParseTree parseTree,
+    ConstantsSet constantsSet,
+  ) {
     switch (parseTree.symbol) {
+      case Symbols.list:
+        return parseTree.children
+            .map((child) => evaluate(child, constantsSet))
+            .toList();
       case Symbols.floatLiteral:
         return constantsSet.doubles.constants[parseTree.qualifier!];
       case Symbols.integerLiteral:
         return constantsSet.integers.constants[parseTree.qualifier!];
+      case Symbols.stringLiteral:
+        return constantsSet.strings.constants[parseTree.qualifier!];
       case Symbols.identifier:
         return evaluateIdentifier(parseTree, constantsSet);
       default:
@@ -118,12 +153,12 @@ class Calculator {
     }
   }
 
-  static num? evaluateIdentifier(
+  static dynamic evaluateIdentifier(
     ParseTree parseTree,
     ConstantsSet constantsSet,
   ) {
     var identifier = constantsSet.identifiers.constants[parseTree.qualifier!];
-    var constant = _mathematicalConstants[identifier];
+    var constant = _constants[identifier];
     if (constant != null) {
       if (parseTree.children.isNotEmpty) {
         var argumentCount = parseTree.children.length;
@@ -134,29 +169,29 @@ class Calculator {
       return constant;
     }
 
-    var functionArity = _mathematicalFunctions[identifier];
-    if (functionArity != null) {
-      if (parseTree.children.length != functionArity) {
+    var unaryFunction = _unaryFunctions[identifier];
+    if (unaryFunction != null) {
+      if (parseTree.children.length != 1) {
         var argumentCount = parseTree.children.length;
         throw RuntimeException(
-          "Function $identifier() takes $functionArity argument(s), $argumentCount given.",
+          "Function $identifier() takes 1 argument, $argumentCount given.",
         );
       }
+      return unaryFunction(evaluate(parseTree.children.first, constantsSet));
+    }
 
-      if (functionArity == 1) {
-        return evaluateUnaryFunction(
-          identifier,
-          evaluate(parseTree.children.first, constantsSet),
+    var binaryFunction = _binaryFunctions[identifier];
+    if (binaryFunction != null) {
+      if (parseTree.children.length != 2) {
+        var argumentCount = parseTree.children.length;
+        throw RuntimeException(
+          "Function $identifier() takes 2 arguments, $argumentCount given.",
         );
       }
-
-      if (functionArity == 2) {
-        return evaluateBinaryFunction(
-          identifier,
-          evaluate(parseTree.children[0], constantsSet),
-          evaluate(parseTree.children[1], constantsSet),
-        );
-      }
+      return binaryFunction(
+        evaluate(parseTree.children[0], constantsSet),
+        evaluate(parseTree.children[1], constantsSet),
+      );
     }
 
     if (parseTree.children.isNotEmpty) {
@@ -167,31 +202,6 @@ class Calculator {
     throw RuntimeException(
       'Unidentified identifier "$identifier" used as a constant.',
     );
-  }
-
-  static num evaluateUnaryFunction(String name, num argument) {
-    switch (name) {
-      case "SIN":
-        return sin(argument);
-      case "COS":
-        return cos(argument);
-      case "TAN":
-        return tan(argument);
-      case "ACOS":
-        return acos(argument);
-      case "ASIN":
-        return asin(argument);
-      case "ATAN":
-        return atan(argument);
-      case "SQRT":
-        return sqrt(argument);
-      case "EXP":
-        return exp(argument);
-      case "LOG":
-        return log(argument);
-      default:
-        return double.nan;
-    }
   }
 
   static num evaluateBinaryFunction(String name, num argument1, argument2) {
@@ -217,7 +227,7 @@ class Calculator {
     ].contains(symbol);
   }
 
-  static num? evaluateUnary(ParseTree parseTree, ConstantsSet constantsSet) {
+  static dynamic evaluateUnary(ParseTree parseTree, ConstantsSet constantsSet) {
     if (!isUnary(parseTree.symbol)) {
       return null;
     }
@@ -239,7 +249,7 @@ class Calculator {
     }
   }
 
-  static final Map<String, num> _mathematicalConstants = {
+  static final Map<String, num> _constants = {
     "E": e,
     "LN10": ln10,
     "LN2": ln2,
@@ -254,20 +264,24 @@ class Calculator {
     "FALSE": 0,
   };
 
-  static final Map<String, int> _mathematicalFunctions = {
-    //Functions and their arity
-    "MIN": 2,
-    "MAX": 2,
-    "ATAN2": 2,
-    "POW": 2,
-    "SIN": 1,
-    "COS": 1,
-    "TAN": 1,
-    "ACOS": 1,
-    "ASIN": 1,
-    "ATAN": 1,
-    "SQRT": 1,
-    "EXP": 1,
-    "LOG": 1,
+ static final Map<String, dynamic Function(dynamic)> _unaryFunctions = {
+    "SIN": (a) => sin(a),
+    "COS": (a) => cos(a),
+    "TAN": (a) => tan(a),
+    "ACOS": (a) => acos(a),
+    "ASIN": (a) => asin(a),
+    "ATAN": (a) => atan(a),
+    "SQRT": (a) => sqrt(a),
+    "EXP": (a) => exp(a),
+    "LOG": (a) => log(a),
+    "LOWERCASE": (a) => a.toString().toLowerCase(),
+    "UPPERCASE": (a) => a.toString().toUpperCase(),
+  };
+
+  static final Map<String, dynamic Function(dynamic, dynamic)> _binaryFunctions = {
+    "MIN": (a, b) => min(a, b),
+    "MAX": (a, b) => max(a, b),
+    "ATAN2": (a, b) => atan2(a, b),
+    "POW": (a, b) => pow(a, b),
   };
 }

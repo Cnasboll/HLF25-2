@@ -53,8 +53,58 @@ void main() {
     expect(1, Calculator.calculate('5*2 <> 1+8'));
   });
 
+  test('Calculate not equal true with exclamation equals', () {
+    expect(1, Calculator.calculate('5*2 != 1+8'));
+  });
+
+  test('Evaluate match true', () {
+    expect(1, Calculator.calculate('"Super Man" ~  r"Super\\s*Man"'));
+    expect(1, Calculator.calculate('"Superman" ~  r"Super\\s*Man"'));
+    expect(1, Calculator.calculate('"Batman" ~  "batman"'));
+  });
+
+  test('Evaluate match false', () {
+    expect(0, Calculator.calculate('"Bat Man" ~  r"Super\\s*Man"'));
+    expect(0, Calculator.calculate('"Batman" ~  r"Super\\s*Man"'));
+  });
+
+  test('Evaluate mismatch true', () {
+    expect(1, Calculator.calculate('"Bat Man" !~  r"Super\\s*Man"'));
+    expect(1, Calculator.calculate('"Batman" !~  r"Super\\s*Man"'));
+
+  });
+
+  test('Evaluate mismatch false', () {
+    expect(0, Calculator.calculate('"Super Man" !~  r"Super\\s*Man"'));
+    expect(0, Calculator.calculate('"Superman" !~  r"Super\\s*Man"'));
+  });
+
+  test('Evaluate in list true', () {
+    expect(1, Calculator.calculate('"Super Man" in ["Super Man", "Batman"]'));
+    expect(1, Calculator.calculate('"Batman" in  ["Super Man", "Batman"]'));
+  });
+
+  test('Evaluate lower case in list true', () {
+    expect(1, Calculator.calculate('lowercase("Robin") in  ["batman", "robin"]'));
+    expect(1, Calculator.calculate('lowercase("Batman") in  ["batman", "robin"]'));
+  });
+
+  test('Evaluate in list false', () {
+    expect(0, Calculator.calculate('"Robin" in  ["Super Man", "Batman"]'));
+    expect(0, Calculator.calculate('"Superman" in ["Super Man", "Batman"]'));
+  });
+
+  test('Evaluate lower case in list false', () {
+    expect(0, Calculator.calculate('lowercase("robin") in  ["super man", "batman"]'));
+    expect(0, Calculator.calculate('lowercase("superman") in  ["super man", "batman"]'));
+  });
+
   test('Calculate not equal false', () {
     expect(0, Calculator.calculate('5*2 <> 2+8'));
+  });
+
+  test('Calculate not equal false with exclamation equals', () {
+    expect(0, Calculator.calculate('5*2 != 2+8'));
   });
 
   test('Calculate less than false', () {
@@ -111,6 +161,10 @@ void main() {
 
   test('calculate_negation', () {
     expect(0, Calculator.calculate('NOT 11'));
+  });
+
+  test('calculate_negation with exclamation', () {
+    expect(0, Calculator.calculate('!11'));
   });
 
   test('Calculate unary minus', () {
