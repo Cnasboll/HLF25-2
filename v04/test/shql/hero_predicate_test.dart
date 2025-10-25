@@ -133,31 +133,117 @@ Future<void> main() async {
     HeroModel.declareIdentifiers(heroScope);
     batman.registerIdentifiers(heroScope);
 
-    expect(Calculator.calculate('unknown', constantsSet: heroScope), 0);
-    expect(Calculator.calculate('neutral', constantsSet: heroScope), 1);
-    expect(Calculator.calculate('mostlyGood', constantsSet: heroScope), 2);
-    expect(Calculator.calculate('good', constantsSet: heroScope), 3);
-    expect(Calculator.calculate('reasonable', constantsSet: heroScope), 4);
-    expect(Calculator.calculate('notQuite', constantsSet: heroScope), 5);
-    expect(Calculator.calculate('bad', constantsSet: heroScope), 6);
-    expect(Calculator.calculate('ugly', constantsSet: heroScope), 7);
-    expect(Calculator.calculate('evil', constantsSet: heroScope), 8);
-    expect(Calculator.calculate('usingMobileSpeakerOnPublicTransport', constantsSet: heroScope), 9);
+    // These are all identifiers registered for a HeroModel in SHQL™
+    expect(["ANSWER",
+"TRUE",
+"FALSE",
+"E",
+"LN10",
+"LN2",
+"LOG2E",
+"LOG10E",
+"PI",
+"SQRT1_2",
+"SQRT2",
+"AVOGADRO",
+"SIN",
+"COS",
+"TAN",
+"ACOS",
+"ASIN",
+"ATAN",
+"SQRT",
+"EXP",
+"LOG",
+"LOWERCASE",
+"UPPERCASE",
+"MIN",
+"MAX",
+"ATAN2",
+"POW",
+"UNKNOWN",
+"NEUTRAL",
+"MOSTLY_GOOD",
+"GOOD",
+"REASONABLE",
+"NOT_QUITE",
+"BAD",
+"UGLY",
+"EVIL",
+"USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT",
+"AMBIGUOUS",
+"MALE",
+"FEMALE",
+"NON_BINARY",
+"WONT_SAY",
+"METRIC",
+"IMPERIAL",
+"ID",
+"VERSION",
+"TIMESTAMP",
+"LOCKED",
+"EXTERNAL_ID",
+"NAME",
+"POWERSTATS",
+"INTELLIGENCE",
+"STRENGTH",
+"SPEED",
+"DURABILITY",
+"POWER",
+"COMBAT",
+"BIOGRAPHY",
+"FULL_NAME",
+"ALTER_EGOS",
+"ALIASES",
+"PLACE_OF_BIRTH",
+"FIRST_APPEARANCE",
+"PUBLISHER",
+"ALIGNMENT",
+"APPEARANCE",
+"GENDER",
+"RACE",
+"HEIGHT",
+"M",
+"SYSTEM_OF_UNITS",
+"WEIGHT",
+"KG",
+"EYE_COLOUR",
+"HAIR_COLOUR",
+"WORK",
+"OCCUPATION",
+"BASE",
+"CONNECTIONS",
+"GROUP_AFFILIATION",
+"RELATIVES",
+"IMAGE",
+"URL"], heroScope.identifiers.constants);
 
-    expect(Calculator.calculate('unknown', constantsSet: heroScope), 0);
-    expect(Calculator.calculate('ambiguous', constantsSet: heroScope), 1);
-    expect(Calculator.calculate('male', constantsSet: heroScope), 2);
-    expect(Calculator.calculate('female', constantsSet: heroScope), 3);
-    expect(Calculator.calculate('nonBinary', constantsSet: heroScope), 4);
-    expect(Calculator.calculate('wontSay', constantsSet: heroScope), 5);
+    expect(Calculator.calculate('UNKNOWN', constantsSet: heroScope), 0);
+    expect(Calculator.calculate('NEUTRAL', constantsSet: heroScope), 1);
+    expect(Calculator.calculate('MOSTLY_GOOD', constantsSet: heroScope), 2);
+    expect(Calculator.calculate('GOOD', constantsSet: heroScope), 3);
+    expect(Calculator.calculate('REASONABLE', constantsSet: heroScope), 4);
+    expect(Calculator.calculate('NOT_QUITE', constantsSet: heroScope), 5);
+    expect(Calculator.calculate('BAD', constantsSet: heroScope), 6);
+    expect(Calculator.calculate('UGLY', constantsSet: heroScope), 7);
+    expect(Calculator.calculate('EVIL', constantsSet: heroScope), 8);
+    expect(Calculator.calculate('USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT', constantsSet: heroScope), 9);
 
-    expect(Calculator.calculate('metric', constantsSet: heroScope), 0);
-    expect(Calculator.calculate('imperial', constantsSet: heroScope), 1);
+    expect(Calculator.calculate('UNKNOWN', constantsSet: heroScope), 0);
+    expect(Calculator.calculate('AMBIGUOUS', constantsSet: heroScope), 1);
+    expect(Calculator.calculate('MALE', constantsSet: heroScope), 2);
+    expect(Calculator.calculate('FEMALE', constantsSet: heroScope), 3);
+    expect(Calculator.calculate('NON_BINARY', constantsSet: heroScope), 4);
+    expect(Calculator.calculate('WONT_SAY', constantsSet: heroScope), 5);
+
+    expect(Calculator.calculate('METRIC', constantsSet: heroScope), 0);
+    expect(Calculator.calculate('IMPERIAL', constantsSet: heroScope), 1);
 
     expect(Calculator.calculate('id', constantsSet: heroScope), "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(Calculator.calculate('version', constantsSet: heroScope), 1);
     expect(Calculator.calculate('timestamp', constantsSet: heroScope), "2025-10-28T18:00:00.000Z");
     expect(Calculator.calculate("locked", constantsSet: heroScope), 0);
+    expect(Calculator.calculate('external_id', constantsSet: heroScope), "70");
     expect(Calculator.calculate('name', constantsSet: heroScope), "Batman");
 
     /*expect("Bruce Wayne", Calculator.calculate('biography.full_name', constantsSet: constantsSet));

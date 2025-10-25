@@ -170,6 +170,7 @@ class Weight extends ValueType<Weight> {
     "Weight (kg)",
     jsonName: "weight-kilograms",
     sqliteName: "weight_kg",
+    shqlName: "kg",
     'The character\'s weight of in kilograms',
     nullable: false,
   );
@@ -179,8 +180,10 @@ class Weight extends ValueType<Weight> {
     "Weight System of Units",
     jsonName: "weight-system-of-units",
     sqliteName: "weight_system_of_units",
+    shqlName: "system_of_units",
     'The source system of units for the weight value (${SystemOfUnits.values.map((e) => e.name).join(" or ")})',
     sqliteGetter: (h) => h.systemOfUnits.name,
+    shqlGetter: (h) => h.systemOfUnits.index,
     nullable: false,
   );
 

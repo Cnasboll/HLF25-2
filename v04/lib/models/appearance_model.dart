@@ -170,6 +170,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     Gender.values.map((e) => e.name).join(', '),
     format: (m) => (m.gender.name).toString(),
     sqliteGetter: (m) => (m.gender.name),
+    shqlGetter: (m) => (m.gender.index),
     nullable: false,
   );
 

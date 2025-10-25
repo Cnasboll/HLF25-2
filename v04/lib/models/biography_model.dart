@@ -203,6 +203,7 @@ class BiographyModel extends Amendable<BiographyModel> {
     "The character's moral alignment (${Alignment.values.map((e) => e.name).join(', ')})",
     format: (m) => m.alignment.name,
     sqliteGetter: (m) => m.alignment.name,
+    shqlGetter: (m) => m.alignment.index,
     nullable: false,
   );
 

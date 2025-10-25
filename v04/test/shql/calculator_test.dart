@@ -207,25 +207,25 @@ void main() {
     constantsSet.registerEnum<Alignment>(Alignment.values);
     constantsSet.registerEnum<Gender>(Gender.values);
     constantsSet.registerEnum<SystemOfUnits>(SystemOfUnits.values);
-    expect(0, Calculator.calculate('unknown', constantsSet: constantsSet));
-    expect(1, Calculator.calculate('neutral', constantsSet: constantsSet));
-    expect(2, Calculator.calculate('mostlyGood', constantsSet: constantsSet));
-    expect(3, Calculator.calculate('good', constantsSet: constantsSet));
-    expect(4, Calculator.calculate('reasonable', constantsSet: constantsSet));
-    expect(5, Calculator.calculate('notQuite', constantsSet: constantsSet));
-    expect(6, Calculator.calculate('bad', constantsSet: constantsSet));
-    expect(7, Calculator.calculate('ugly', constantsSet: constantsSet));
-    expect(8, Calculator.calculate('evil', constantsSet: constantsSet));
-    expect(9, Calculator.calculate('usingMobileSpeakerOnPublicTransport', constantsSet: constantsSet));
+    expect(Calculator.calculate('UNKNOWN', constantsSet: constantsSet), 0);
+    expect(Calculator.calculate('NEUTRAL', constantsSet: constantsSet), 1);
+    expect(Calculator.calculate('MOSTLY_GOOD', constantsSet: constantsSet), 2);
+    expect(Calculator.calculate('GOOD', constantsSet: constantsSet), 3);
+    expect(Calculator.calculate('REASONABLE', constantsSet: constantsSet), 4);
+    expect(Calculator.calculate('NOT_QUITE', constantsSet: constantsSet), 5);
+    expect(Calculator.calculate('BAD', constantsSet: constantsSet), 6);
+    expect(Calculator.calculate('UGLY', constantsSet: constantsSet), 7);
+    expect(Calculator.calculate('EVIL', constantsSet: constantsSet), 8);
+    expect(Calculator.calculate('USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT', constantsSet: constantsSet), 9);
 
-    expect(0, Calculator.calculate('unknown', constantsSet: constantsSet));
-    expect(1, Calculator.calculate('ambiguous', constantsSet: constantsSet));
-    expect(2, Calculator.calculate('male', constantsSet: constantsSet));
-    expect(3, Calculator.calculate('female', constantsSet: constantsSet));
-    expect(4, Calculator.calculate('nonBinary', constantsSet: constantsSet));
-    expect(5, Calculator.calculate('wontSay', constantsSet: constantsSet));
+    expect(Calculator.calculate('UNKNOWN', constantsSet: constantsSet), 0);
+    expect(Calculator.calculate('AMBIGUOUS', constantsSet: constantsSet), 1);
+    expect(Calculator.calculate('MALE', constantsSet: constantsSet), 2);
+    expect(Calculator.calculate('FEMALE', constantsSet: constantsSet), 3);
+    expect(Calculator.calculate('NON_BINARY', constantsSet: constantsSet), 4);
+    expect(Calculator.calculate('WONT_SAY', constantsSet: constantsSet), 5);
 
-    expect(0, Calculator.calculate('metric', constantsSet: constantsSet));
-    expect(1, Calculator.calculate('imperial', constantsSet: constantsSet));
+    expect(Calculator.calculate('METRIC', constantsSet: constantsSet), 0);
+    expect(Calculator.calculate('IMPERIAL', constantsSet: constantsSet), 1);
   });
 }

@@ -84,9 +84,31 @@ class ConstantsSet {
     for (var value in values) {
       constants.register(
         value.index,
-        identifiers.include(value.name.toUpperCase()),
+        identifiers.include(_camelCaseToScreamingSnakeCase(value.name)),
       );
     }
+  }
+
+  String _camelCaseToScreamingSnakeCase(String camelCase) {
+    if (camelCase.isEmpty) return camelCase;
+    
+    final buffer = StringBuffer();
+    
+    for (int i = 0; i < camelCase.length; i++) {
+      final char = camelCase[i];
+      
+      if (char.toUpperCase() == char && char.toLowerCase() != char) {
+        // This is an uppercase letter
+        if (i > 0) {
+          buffer.write('_');
+        }
+        buffer.write(char.toUpperCase());
+      } else {
+        buffer.write(char.toUpperCase());
+      }
+    }
+    
+    return buffer.toString();
   }
 
   final ConstantsTable<dynamic> _constants;
