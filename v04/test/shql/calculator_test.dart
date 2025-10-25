@@ -1,3 +1,5 @@
+import 'package:v04/models/appearance_model.dart';
+import 'package:v04/models/biography_model.dart';
 import 'package:v04/shql/calculator/calculator.dart';
 import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/shql/parser/lookahead_iterator.dart';
@@ -5,6 +7,7 @@ import 'package:v04/shql/parser/parser.dart';
 import 'package:v04/shql/tokenizer/token.dart';
 import 'package:v04/shql/tokenizer/tokenizer.dart';
 import 'package:test/test.dart';
+import 'package:v04/value_types/value_type.dart';
 
 void main() {
     test('Parse addition', () {
@@ -13,9 +16,9 @@ void main() {
     var p = Parser.parse(v.lookahead(), constantsSet);
     expect(Symbols.add, p.symbol);
     expect(Symbols.integerLiteral, p.children[0].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(10, constantsSet.constants.constants[p.children[0].qualifier!]);
     expect(Symbols.integerLiteral, p.children[1].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(10, constantsSet.constants.constants[p.children[0].qualifier!]);
   });
 
   test('Calculate addition', () {
@@ -195,4 +198,30 @@ void main() {
     expect(3.7416573867739413, Calculator.calculate('SQRT(POW(2,2)+10)'));
   });
 
+  test('Export enums', () {
+    ConstantsSet constantsSet = Calculator.prepareConstantsSet();
+    constantsSet.registerEnum<Alignment>(Alignment.values);
+    constantsSet.registerEnum<Gender>(Gender.values);
+    constantsSet.registerEnum<SystemOfUnits>(SystemOfUnits.values);
+    expect(0, Calculator.calculate('unknown', constantsSet: constantsSet));
+    expect(1, Calculator.calculate('neutral', constantsSet: constantsSet));
+    expect(2, Calculator.calculate('mostlyGood', constantsSet: constantsSet));
+    expect(3, Calculator.calculate('good', constantsSet: constantsSet));
+    expect(4, Calculator.calculate('reasonable', constantsSet: constantsSet));
+    expect(5, Calculator.calculate('notQuite', constantsSet: constantsSet));
+    expect(6, Calculator.calculate('bad', constantsSet: constantsSet));
+    expect(7, Calculator.calculate('ugly', constantsSet: constantsSet));
+    expect(8, Calculator.calculate('evil', constantsSet: constantsSet));
+    expect(9, Calculator.calculate('usingMobileSpeakerOnPublicTransport', constantsSet: constantsSet));
+
+    expect(0, Calculator.calculate('unknown', constantsSet: constantsSet));
+    expect(1, Calculator.calculate('ambiguous', constantsSet: constantsSet));
+    expect(2, Calculator.calculate('male', constantsSet: constantsSet));
+    expect(3, Calculator.calculate('female', constantsSet: constantsSet));
+    expect(4, Calculator.calculate('nonBinary', constantsSet: constantsSet));
+    expect(5, Calculator.calculate('wontSay', constantsSet: constantsSet));
+
+    expect(0, Calculator.calculate('metric', constantsSet: constantsSet));
+    expect(1, Calculator.calculate('imperial', constantsSet: constantsSet));
+  });
 }

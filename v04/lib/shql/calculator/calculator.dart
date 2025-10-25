@@ -18,9 +18,9 @@ class RuntimeException implements Exception {
 }
 
 class Calculator {
-  static num calculate(String expression) {
+  static num calculate(String expression, {ConstantsSet? constantsSet}) {
     var v = Tokenizer.tokenize(expression).toList();
-    var constantsSet = ConstantsSet();
+    constantsSet ??= prepareConstantsSet();
 
     var tokenEnumerator = v.lookahead();
     var p = Parser.parse(tokenEnumerator, constantsSet);
@@ -30,12 +30,21 @@ class Calculator {
         'Unexpcted token "${tokenEnumerator.next().lexeme}" after parsing expression.',
       );
     }
+    return evaluate(p, constantsSet);
+  }
 
+  static ConstantsSet prepareConstantsSet() {
+    var constantsSet = ConstantsSet();
+    
     // Register mathematical constants
-    for (var entry in _constants.entries) {
-      constantsSet.identifiers.include(entry.key);
+    for (var entry in _int_constants.entries) {
+      constantsSet.constants.register(entry.value, constantsSet.identifiers.include(entry.key));
     }
-
+    
+    for (var entry in _double_constants.entries) {
+      constantsSet.constants.register(entry.value, constantsSet.identifiers.include(entry.key));
+    }
+    
     // Register mathematical functions
     for (var entry in _unaryFunctions.entries) {
       constantsSet.identifiers.include(entry.key);
@@ -43,7 +52,7 @@ class Calculator {
     for (var entry in _binaryFunctions.entries) {
       constantsSet.identifiers.include(entry.key);
     }
-    return evaluate(p, constantsSet);
+    return constantsSet;
   }
 
   static dynamic evaluate(ParseTree parseTree, ConstantsSet constantsSet) {
@@ -141,11 +150,11 @@ class Calculator {
             .map((child) => evaluate(child, constantsSet))
             .toList();
       case Symbols.floatLiteral:
-        return constantsSet.doubles.constants[parseTree.qualifier!];
+        return constantsSet.constants.constants[parseTree.qualifier!] as double;
       case Symbols.integerLiteral:
-        return constantsSet.integers.constants[parseTree.qualifier!];
+        return constantsSet.constants.constants[parseTree.qualifier!] as int;
       case Symbols.stringLiteral:
-        return constantsSet.strings.constants[parseTree.qualifier!];
+        return constantsSet.constants.constants[parseTree.qualifier!] as String;
       case Symbols.identifier:
         return evaluateIdentifier(parseTree, constantsSet);
       default:
@@ -158,7 +167,7 @@ class Calculator {
     ConstantsSet constantsSet,
   ) {
     var identifier = constantsSet.identifiers.constants[parseTree.qualifier!];
-    var constant = _constants[identifier];
+    var constant = constantsSet.constants.getByIdentifier(parseTree.qualifier!);
     if (constant != null) {
       if (parseTree.children.isNotEmpty) {
         var argumentCount = parseTree.children.length;
@@ -249,7 +258,13 @@ class Calculator {
     }
   }
 
-  static final Map<String, num> _constants = {
+static final Map<String, int> _int_constants = {
+  "ANSWER": 42,
+  "TRUE": 1,
+  "FALSE": 0,
+};
+
+static final Map<String, double> _double_constants = {
     "E": e,
     "LN10": ln10,
     "LN2": ln2,
@@ -259,9 +274,6 @@ class Calculator {
     "SQRT1_2": sqrt1_2,
     "SQRT2": sqrt2,
     "AVOGADRO": 6.0221408e+23,
-    "ANSWER": 42,
-    "TRUE": 1,
-    "FALSE": 0,
   };
 
  static final Map<String, dynamic Function(dynamic)> _unaryFunctions = {
