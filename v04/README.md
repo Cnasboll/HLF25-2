@@ -1130,7 +1130,7 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
-To find heroes meeting WHOs definition of _obeisy_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
+To find heroes meeting WHOs definition of _obesity_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
 
 `appearance.weight / pow(appearance.height, 2) >= 25`
 
