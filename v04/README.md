@@ -562,7 +562,7 @@ E[X]it and return to main menu
 ```
 
 #### _Create_ a local _Hero_
-To manually _Create_ a new local _Hero_ (mainly _known_, but not necessarily _recongnised_ around their immediate neighbourhood), press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
+To manally _Create_ a new local _Hero_ (mainly _known_, but not necesarily _recongnised_ around their immediate neighbourhood), press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new _Hero_ will be saved or not.
 
 ```
@@ -708,7 +708,7 @@ Image: Url: null
 ```
 
 #### _Auto-delete_ a local _Hero_
-As the new _Hero_ only exists locally but is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
+As the new _Hero_ only exists locally and is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
 
 
 ```
