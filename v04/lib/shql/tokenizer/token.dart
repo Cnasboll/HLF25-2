@@ -214,7 +214,7 @@ class Token {
     var precedence = 0;
     return {
       // Member access
-      Symbols.memberAccess: precedence,
+      Symbols.memberAccess: precedence++,
       // In [array]
       Symbols.inOp: precedence,
       // Not

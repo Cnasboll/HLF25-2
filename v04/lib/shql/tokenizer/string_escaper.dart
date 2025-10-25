@@ -41,7 +41,7 @@ class StringEscaper {
     }
 
     var sb = StringBuffer();
-    for (int i = 0; i < escapedString.length - 1; ++i) {
+    for (int i = 1; i < escapedString.length - 1; ++i) {
       var ch = escapedString[i];
       if (ch == '\\') {
         ch = escapedString[++i];
@@ -66,11 +66,6 @@ class StringEscaper {
 
       sb.write(ch);
     }
-
-    if (escapedString.isNotEmpty) {
-      sb.write(escapedString[escapedString.length - 1]);
-    }
-
     return sb.toString();
   }
 }

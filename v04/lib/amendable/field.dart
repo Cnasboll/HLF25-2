@@ -719,13 +719,12 @@ class Field<T, V> implements FieldBase<T> {
       return;
     }
 
+    var subModelScope = constantsSet.getSubModelScope(
+      constantsSet.identifiers.include(shqlName.toUpperCase()),
+    );
+
     for (var child in _children) {
-      child.registerIdentifiers(
-        getter(t),
-        constantsSet.getSubModelScope(
-          constantsSet.identifiers.include(shqlName.toUpperCase()),
-        ),
-      );
+      child.registerIdentifiers(getter(t), subModelScope);
     }
   }
 

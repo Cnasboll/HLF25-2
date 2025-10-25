@@ -22,15 +22,15 @@ class ConstantsTable<T> {
     return index;
   }
 
-  T? getByIdentifier(int identifier) {
+  (T?, int?) getByIdentifier(int identifier) {
     var index = _indexByIdentifier[identifier];
     if (index == null) {
       if (_parent != null) {
         return _parent.getByIdentifier(identifier);
       }
-      return null;
+      return (null, null);
     }
-    return _constants[index];
+    return (_constants[index], index);
   }
 
   List<T> get constants {
