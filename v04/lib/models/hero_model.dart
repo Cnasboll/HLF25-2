@@ -10,6 +10,7 @@ import 'package:v04/models/power_stats_model.dart';
 import 'package:v04/models/work_model.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
+import 'package:v04/shql/parser/constants_set.dart';
 
 class HeroParsingContext implements ParsingContext {
   HeroParsingContext(
@@ -367,6 +368,18 @@ class HeroModel extends Amendable<HeroModel> {
     return '${staticFields.where((c) => c.mutable).map((f) => f.generateSqliteUpdateClause(indent)).join(',\n$indent')}\n';
   }
 
+  static void declareIdentifiers(ConstantsSet constantsSet) {
+    for (var field in staticFields) {
+      field.declareIdentifiers(constantsSet);
+    }
+  }
+
+  void registerIdentifiers(ConstantsSet constantsSet) {
+    for (var field in staticFields) {
+      field.registerIdentifiers(this, constantsSet);
+    }
+  }
+
   @override
   List<FieldBase<HeroModel>> get fields => staticFields;
 
@@ -426,6 +439,7 @@ class HeroModel extends Amendable<HeroModel> {
     (h) => h.locked,
     "Locked",
     "Whether the hero is locked and not synchronized with the server",
+    sqliteGetter: (h) => h.locked ? 1 : 0,
     assignedBySystem: true,
     comparable: false,
   );

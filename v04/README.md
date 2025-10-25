@@ -1228,6 +1228,7 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 - `biography.aliases` - `string` representation of the aliases list.
 - `biography.place_of_birth` - `string`
 - `biography.first_appearance` - `string`
+- `biography.publisher` - `string`
 - `biography.alignment` - `integer` (see the `Alignment` enum above)
 - `appearance.gender` - `integer` (see the `Gender` enum above)
 - `appearance.race` - `string`

@@ -74,15 +74,10 @@ class ConstantsSet {
     return ConstantsSet._child(this);
   }
 
-  ConstantsSet createSubModelScope(String identifier) {
-    final identifierIndex = identifiers.include(identifier);
-    final scope = ConstantsSet._subModel(this);
-    _subModelScopes[identifierIndex] = scope;
+  ConstantsSet getSubModelScope(int identifier) {
+    var scope = _subModelScopes[identifier];
+    scope ??= _subModelScopes[identifier] = ConstantsSet._subModel(this);
     return scope;
-  }
-
-  ConstantsSet? getSubModelScope(int identifierIndex) {
-    return _subModelScopes[identifierIndex];
   }
 
   void registerEnum<T extends Enum>(Iterable<T> values) {
