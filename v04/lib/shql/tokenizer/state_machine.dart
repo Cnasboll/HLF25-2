@@ -17,11 +17,15 @@ enum ECharCodeClasses {
   minusOp,
   plusOp,
   eq,
+  exclamation,
+  tilde,
   lt,
   gt,
   // Special addition for string literals:
   backslash,
-  quote,
+  doubleQuote,
+  singleQuote,
+  r,
 }
 
 enum TokenizerState {
@@ -29,11 +33,18 @@ enum TokenizerState {
   identifier,
   number,
   float,
-  string,
-  escape,
+  doubleQuotedString,
+  singleQuotedString,
+  escapeDoubleQuotedString,
+  escapeSingleQuotedString,
+  doubleQuotedRawString,
+  singleQuotedRawString,
+  exclamation,
   lt,
   gt,
   acceptEq,
+  acceptMatch,
+  acceptNotMatch,
   acceptLPar,
   acceptRPar,
   acceptLBrack,
@@ -47,14 +58,19 @@ enum TokenizerState {
   numberDot,
   acceptNumber,
   acceptFloat,
-  acceptString,
+  acceptDoubleQuotedString,
+  acceptDoubleQuotedRawString,
+  acceptSingleQuotedString,
+  acceptSingleQuotedRawString,
   acceptComma,
   acceptDot,
+  acceptNot,
   acceptGt,
   acceptLt,
   acceptLtEq,
   acceptNeq,
   acceptGtEq,
+  r,
 }
 
 // Apparently there is no built in Char type:
@@ -146,6 +162,14 @@ class StateMachine {
   }
 
   static ECharCodeClasses? categorize(Char charCode) {
+
+    var characterString = String.fromCharCode(charCode);
+    var charCodeClass = _charCodeClassTable[characterString];
+
+    if (charCodeClass != null) {
+      return charCodeClass;
+    }
+
     if (isLetter(charCode)) {
       return ECharCodeClasses.letter;
     }
@@ -158,8 +182,7 @@ class StateMachine {
       return ECharCodeClasses.whitespace;
     }
 
-    var characterString = String.fromCharCode(charCode);
-    return _charCodeClassTable[characterString];
+    return null;
   }
 
   static Map<String, ECharCodeClasses> createCharCodeClassTable() {
@@ -177,29 +200,47 @@ class StateMachine {
       '+': ECharCodeClasses.plusOp,
       '-': ECharCodeClasses.minusOp,
       '=': ECharCodeClasses.eq,
+      '!': ECharCodeClasses.exclamation,
+      "~": ECharCodeClasses.tilde,
       '<': ECharCodeClasses.lt,
       '>': ECharCodeClasses.gt,
       '\\': ECharCodeClasses.backslash,
-      '"': ECharCodeClasses.quote,
+      '"': ECharCodeClasses.doubleQuote,
+      "'": ECharCodeClasses.singleQuote,
+      "r": ECharCodeClasses.r,
     };
   }
 
   static Map<(TokenizerState, ECharCodeClasses), TokenizerState>
   createTransitionTable() {
     return {
+      (TokenizerState.start, ECharCodeClasses.r): TokenizerState.r,
       (TokenizerState.start, ECharCodeClasses.letter):
           TokenizerState.identifier,
       (TokenizerState.start, ECharCodeClasses.underscore):
           TokenizerState.identifier,
       (TokenizerState.start, ECharCodeClasses.digit): TokenizerState.number,
-      (TokenizerState.start, ECharCodeClasses.quote): TokenizerState.string,
+      (TokenizerState.start, ECharCodeClasses.doubleQuote):
+          TokenizerState.doubleQuotedString,
+      (TokenizerState.start, ECharCodeClasses.singleQuote):
+          TokenizerState.singleQuotedString,
+      (TokenizerState.r, ECharCodeClasses.doubleQuote):
+          TokenizerState.doubleQuotedRawString,
+      (TokenizerState.r, ECharCodeClasses.singleQuote):
+          TokenizerState.singleQuotedRawString,
+      (TokenizerState.start, ECharCodeClasses.exclamation):
+          TokenizerState.exclamation,
       (TokenizerState.start, ECharCodeClasses.gt): TokenizerState.gt,
       (TokenizerState.start, ECharCodeClasses.lt): TokenizerState.lt,
       (TokenizerState.start, ECharCodeClasses.eq): TokenizerState.acceptEq,
+      (TokenizerState.start, ECharCodeClasses.tilde):
+          TokenizerState.acceptMatch,
       (TokenizerState.start, ECharCodeClasses.lPar): TokenizerState.acceptLPar,
       (TokenizerState.start, ECharCodeClasses.rPar): TokenizerState.acceptRPar,
-      (TokenizerState.start, ECharCodeClasses.lBrack): TokenizerState.acceptLBrack,
-      (TokenizerState.start, ECharCodeClasses.rBrack): TokenizerState.acceptRBrack,
+      (TokenizerState.start, ECharCodeClasses.lBrack):
+          TokenizerState.acceptLBrack,
+      (TokenizerState.start, ECharCodeClasses.rBrack):
+          TokenizerState.acceptRBrack,
       (TokenizerState.start, ECharCodeClasses.divOp):
           TokenizerState.acceptDivOp,
       (TokenizerState.start, ECharCodeClasses.modOp):
@@ -212,36 +253,67 @@ class StateMachine {
           TokenizerState.acceptMinusOp,
       (TokenizerState.start, ECharCodeClasses.comma):
           TokenizerState.acceptComma,
-    (TokenizerState.start, ECharCodeClasses.dot):
-          TokenizerState.acceptDot,          
+      (TokenizerState.start, ECharCodeClasses.dot): TokenizerState.acceptDot,
       (TokenizerState.start, ECharCodeClasses.whitespace): TokenizerState.start,
+      (TokenizerState.identifier, ECharCodeClasses.r):
+          TokenizerState.identifier,      
       (TokenizerState.identifier, ECharCodeClasses.letter):
           TokenizerState.identifier,
       (TokenizerState.identifier, ECharCodeClasses.underscore):
           TokenizerState.identifier,
       (TokenizerState.identifier, ECharCodeClasses.digit):
           TokenizerState.identifier,
+      (TokenizerState.r, ECharCodeClasses.letter): TokenizerState.identifier,
+      (TokenizerState.r, ECharCodeClasses.underscore):
+          TokenizerState.identifier,
+      (TokenizerState.r, ECharCodeClasses.digit): TokenizerState.identifier,
       (TokenizerState.number, ECharCodeClasses.digit): TokenizerState.number,
       (TokenizerState.number, ECharCodeClasses.dot): TokenizerState.numberDot,
       (TokenizerState.numberDot, ECharCodeClasses.digit): TokenizerState.float,
       (TokenizerState.float, ECharCodeClasses.digit): TokenizerState.float,
-      (TokenizerState.string, ECharCodeClasses.backslash): TokenizerState.escape,
-      (TokenizerState.string, ECharCodeClasses.quote): TokenizerState.acceptString,
+      (TokenizerState.doubleQuotedString, ECharCodeClasses.backslash):
+          TokenizerState.escapeDoubleQuotedString,
+      (TokenizerState.doubleQuotedString, ECharCodeClasses.doubleQuote):
+          TokenizerState.acceptDoubleQuotedString,
+      (TokenizerState.doubleQuotedRawString, ECharCodeClasses.doubleQuote):
+          TokenizerState.acceptDoubleQuotedRawString,
+      (TokenizerState.singleQuotedString, ECharCodeClasses.backslash):
+          TokenizerState.escapeSingleQuotedString,
+      (TokenizerState.singleQuotedString, ECharCodeClasses.singleQuote):
+          TokenizerState.acceptSingleQuotedString,
+      (TokenizerState.singleQuotedRawString, ECharCodeClasses.singleQuote):
+          TokenizerState.acceptSingleQuotedRawString,
+      (TokenizerState.exclamation, ECharCodeClasses.eq):
+          TokenizerState.acceptNeq,
+      (TokenizerState.exclamation, ECharCodeClasses.tilde):
+          TokenizerState.acceptNotMatch,
       (TokenizerState.lt, ECharCodeClasses.eq): TokenizerState.acceptLtEq,
       (TokenizerState.lt, ECharCodeClasses.gt): TokenizerState.acceptNeq,
       (TokenizerState.gt, ECharCodeClasses.eq): TokenizerState.acceptGtEq,
+      (TokenizerState.acceptMatch, ECharCodeClasses.tilde):
+          TokenizerState.acceptMatch,
     };
   }
 
   static Map<TokenizerState, TokenizerState> createDefaultTransitionTable() {
     return {
+      TokenizerState.r: TokenizerState.acceptIdentifier,
       TokenizerState.identifier: TokenizerState.acceptIdentifier,
       TokenizerState.number: TokenizerState.acceptNumber,
       TokenizerState.float: TokenizerState.acceptFloat,
+      TokenizerState.exclamation: TokenizerState.acceptNot,
       TokenizerState.gt: TokenizerState.acceptGt,
       TokenizerState.lt: TokenizerState.acceptLt,
-      TokenizerState.string: TokenizerState.string,
-      TokenizerState.escape: TokenizerState.string,
+      TokenizerState.doubleQuotedString: TokenizerState.doubleQuotedString,
+      TokenizerState.singleQuotedString: TokenizerState.singleQuotedString,
+      TokenizerState.doubleQuotedRawString:
+          TokenizerState.doubleQuotedRawString,
+      TokenizerState.singleQuotedRawString:
+          TokenizerState.singleQuotedRawString,
+      TokenizerState.escapeDoubleQuotedString:
+          TokenizerState.doubleQuotedString,
+      TokenizerState.escapeSingleQuotedString:
+          TokenizerState.singleQuotedString,
     };
   }
 
@@ -253,6 +325,9 @@ class StateMachine {
       TokenizerState.acceptModOp: TokenTypes.mod,
       TokenizerState.acceptEq: TokenTypes.eq,
       TokenizerState.acceptFloat: TokenTypes.floatLiteral,
+      TokenizerState.acceptMatch: TokenTypes.match,
+      TokenizerState.acceptNotMatch: TokenTypes.notMatch,
+      TokenizerState.acceptNot: TokenTypes.not,
       TokenizerState.acceptGt: TokenTypes.gt,
       TokenizerState.acceptGtEq: TokenTypes.gtEq,
       TokenizerState.acceptIdentifier: TokenTypes.identifier,
@@ -264,7 +339,14 @@ class StateMachine {
       TokenizerState.acceptMulOp: TokenTypes.mul,
       TokenizerState.acceptNeq: TokenTypes.neq,
       TokenizerState.acceptNumber: TokenTypes.integerLiteral,
-      TokenizerState.acceptString: TokenTypes.stringLiteral,
+      TokenizerState.acceptDoubleQuotedString:
+          TokenTypes.doubleQuotedStringLiteral,
+      TokenizerState.acceptDoubleQuotedRawString:
+          TokenTypes.doubleQuotedRawStringLiteral,
+      TokenizerState.acceptSingleQuotedString:
+          TokenTypes.singleQuotedStringLiteral,
+      TokenizerState.acceptSingleQuotedRawString:
+          TokenTypes.singleQuotedRawStringLiteral,
       TokenizerState.acceptPlusOp: TokenTypes.add,
       TokenizerState.acceptRBrack: TokenTypes.rBrack,
       TokenizerState.acceptRPar: TokenTypes.rPar,

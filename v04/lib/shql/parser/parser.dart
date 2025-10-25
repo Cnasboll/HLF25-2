@@ -143,10 +143,17 @@ class Parser {
             double.parse(tokenEnumerator.current.lexeme),
           ),
         );
-      case LiteralTypes.stringLiteral:
+      case LiteralTypes.doubleQuotedStringLiteral:
+      case LiteralTypes.singleQuotedStringLiteral:
         return ParseTree.withQualifier(
           Symbols.stringLiteral,
           constantsSet.strings.include(StringEscaper.unescape(tokenEnumerator.current.lexeme)),
+        );
+      case LiteralTypes.doubleQuotedRawStringLiteral:
+      case LiteralTypes.singleQuotedRawStringLiteral:
+        return ParseTree.withQualifier(
+          Symbols.stringLiteral,
+          constantsSet.strings.include(tokenEnumerator.current.lexeme.substring( 2, tokenEnumerator.current.lexeme.length - 1)),
         );
       default:
     }
