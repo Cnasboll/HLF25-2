@@ -227,5 +227,7 @@ void main() {
 
     expect(Calculator.calculate('METRIC', constantsSet: constantsSet), 0);
     expect(Calculator.calculate('IMPERIAL', constantsSet: constantsSet), 1);
+
+    expect(Calculator.calculate('NULL', constantsSet: constantsSet), null);
   });
 }

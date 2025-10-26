@@ -57,85 +57,19 @@ Future<void> main() async {
       ),
     );
 
-    var robin = HeroModel(
-      id: "008b98a5-3ce6-4448-99f4-d4ce296fcdfc",
-      version: 1,
-      timestamp: deadline,
-      locked: false,
-      externalId: "69",
-      name: "Robin",
-      powerStats: PowerStatsModel(strength: Percentage(20)),
-      biography: BiographyModel(
-        fullName: "Dick Grayson",
-        alterEgos: "Nightwing",
-        aliases: ["Robin", "Nightwing"],
-        placeOfBirth: "Gotham City",
-        firstAppearance: "Detective Comics #38",
-        publisher: "DC Comics",
-        alignment: Alignment.reasonable,
-      ),
-      appearance: AppearanceModel(
-        gender: Gender.unknown,
-        race: "Human",
-        height: Height.parseList(["5'10", "178 cm"]),
-        weight: Weight.parseList(["159 lb", "72 kg"]),
-        eyeColor: 'blue',
-        hairColor: 'black',
-      ),
-      work: WorkModel(occupation: "Hero", base: "Gotham City"),
-      connections: ConnectionsModel(
-        groupAffiliation: "Teen Titans, Batman Family",
-        relatives: "Bruce Wayne (guardian), Alfred Pennyworth (butler)",
-      ),
-      image: ImageModel(
-        url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
-      ),
-    );
-
-    // Now create a new db instance, read the snapshot, and verify
-    // Add Alfred, assign a id
-    var alfred = HeroModel(
-      id: "5a743508-8c18-4736-b966-d3a059019416",
-      timestamp: deadline,
-      version: 1,
-      locked: false,
-      externalId: "68",
-      name: "Alfred",
-      powerStats: PowerStatsModel(strength: Percentage(10)),
-      biography: BiographyModel(
-        alignment: Alignment.good,
-        fullName: "Alfred Pennyworth",
-      ),
-      appearance: AppearanceModel(
-        gender: Gender.wontSay,
-        race: "Human",
-        height: Height.parseList(["5'9", "175 cm"]),
-        weight: Weight.parseList(["155 lb", "70 kg"]),
-      ),
-      work: WorkModel(occupation: "Butler", base: "Wayne Manor"),
-      connections: ConnectionsModel(
-        groupAffiliation: "Wayne Manor",
-        relatives: "Bruce Wayne (employer)",
-      ),
-      image: ImageModel(
-        url: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
-      ),
-    );
-
     ConstantsSet constantsSet = Calculator.prepareConstantsSet();
     constantsSet.registerEnum<Alignment>(Alignment.values);
     constantsSet.registerEnum<Gender>(Gender.values);
     constantsSet.registerEnum<SystemOfUnits>(SystemOfUnits.values);
+    HeroModel.declareIdentifiers(constantsSet);
 
     // Hero scope inherits from root
     ConstantsSet heroScope = constantsSet.createChild();
 
-    HeroModel.declareIdentifiers(heroScope);
     batman.registerIdentifiers(heroScope);
 
     // These are all identifiers registered for a HeroModel in SHQL™
     expect([
-      "NULL",
       "ANSWER",
       "TRUE",
       "FALSE",
