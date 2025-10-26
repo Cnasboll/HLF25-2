@@ -14,6 +14,7 @@ Manually generated README for v04
       - [_Create_ a local _Hero_](#create-a-local-hero)
       - [_Auto-delete_ a local _Hero_](#auto-delete-a-local-hero)
       - [_Manually delete_ a local _Hero_](#manually-delete-a-local-hero)
+      - [Search for a local _Hero_](#search-for-a-local-hero)
       - [_Erase_ entire database](#erase-entire-database)
     - [Unit tests](#unit-tests)
     - [Conflict resolution](#conflict-resolution)
@@ -89,13 +90,13 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
 
  `gender`, `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source).
  
- When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`.
+ When synching with the _Online_ source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`.
  
  The column `aliases` stores an encoded JSON-array as author(s) couldn't be bothered to create another table and pray to the SQL gods for forgiveness.
  
  A `locked` field of nozero indicates that the _Hero_ has been manually _Created_ or _Amended_, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
 
-NB: We don't know how to parse
+NB: Author(s) don't know how to parse
 ```
 "connections": {
     "group-affiliation": "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
@@ -125,7 +126,7 @@ Secondly, in the following example:
 
 The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers.
 
-Due to the lack of escaping (pun intended) any _Villain_ could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the _Villain_ not having any alter ago at all! I assume this loophole is planted here to test our attention.
+Due to the lack of escaping (pun intended) any _Villain_ could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the _Villain_ not having any alter ago at all! Author(s) assume this loophole is planted here to test our attention.
 
 ### Basic usage
 #### _Main_ menu
@@ -145,7 +146,7 @@ Go [O]nline to download heroes
 ```
 
 #### _Online Search_
-To go _Online_ and _Search_ for _Heroes_ to download, type `O` and `S` and enter the _Search_ string as prompted:
+To go _Online_ and _Search_ for _Heroes_ to download, type `O` and enter a search term in plaintext, or type `S` to be prompted for the _Search_ string as prompted:
 
 ```
 O
@@ -155,7 +156,7 @@ Enter a menu option (R, S, U or X) and press enter:
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
+NB! For less advanced users, typing a _Search_ string followed by enter directly under the _Online_ menu, i.e. Batman is a shortcut for _Searching Online_ for Batman whithout the extra step of typing _S_ followed by the _Search_ string. Please use this feature sparingly, especially if on a metered connection or if an adult needs to dial a phone call.
 S
 Enter a search string:
 Batman
@@ -389,7 +390,7 @@ Enter Biography: Full Name (Also applies when hungry), or enter to keep current 
 
 Enter Biography: Alter Egos (Alter egos of the character), or enter to keep current value (null):
 
-Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in json format e.g. ["Insider", "Matches Malone"]), or enter to keep current value ([Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]):
+Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in JSON format e.g. ["Insider", "Matches Malone"]), or enter to keep current value ([Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]):
 
 Enter Biography: Place of Birth (Where the character was born), or enter to keep current value (Gotham City, 25th Century):
 
@@ -456,7 +457,7 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 ```
 
 #### _Reconiliation_ of locally saved heros against _Online_ source
-To _Reconcile_ locally saved _heroes_ a gainst the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
+To _Reconcile_ locally saved _heroes_ against the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
 
 
 ```
@@ -635,7 +636,7 @@ Enter Biography: Full Name (Also applies when hungry), or enter to finish popula
 Bamse Brunberg
 Enter Biography: Alter Egos (Alter egos of the character), or enter to finish populating Biography:
 Kapten Buster. Ingen har sett honom och Bamse samtidigt.
-Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in json format e.g. ["Insider", "Matches Malone"]), or enter to finish populating Biography:
+Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in JSON format e.g. ["Insider", "Matches Malone"]), or enter to finish populating Biography:
 Världens starkaste björn
 Enter Biography: Place of Birth (Where the character was born), or enter to finish populating Biography:
 Vargön
@@ -652,9 +653,9 @@ Enter Appearance: Gender (unknown, ambiguous, male, female, nonBinary, wontSay),
 m
 Enter Appearance: Race (Species in Latin or English), or enter to finish populating Appearance:
 Usrus arctos
-Enter Appearance: Height (Height in centimeters and / or feet and inches. For multiple representations, enter a list in json format e.g. ["6'2\"", "188 cm"] or a single value like '188 cm', '188' or '1.88' (meters) without surrounding '), or enter to finish populating Appearance:
+Enter Appearance: Height (Height in centimeters and / or feet and inches. For multiple representations, enter a list in JSON format e.g. ["6'2\"", "188 cm"] or a single value like '188 cm', '188' or '1.88' (meters) without surrounding '), or enter to finish populating Appearance:
 150 cm
-Enter Appearance: Weight (Weight in kilograms and / or pounds. For multiple representations, enter a list in json format e.g. ["210 lb", "95 kg"] or a single value like '95 kg' or '95' (kilograms) without surrounding '), or enter to finish populating Appearance:
+Enter Appearance: Weight (Weight in kilograms and / or pounds. For multiple representations, enter a list in JSON format e.g. ["210 lb", "95 kg"] or a single value like '95 kg' or '95' (kilograms) without surrounding '), or enter to finish populating Appearance:
 250 kg
 Enter Appearance: Eye Colour (The character's eye color of the most recent appearance), or enter to finish populating Appearance:
 Brown
@@ -1064,14 +1065,70 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
+#### Search for a local _Hero_
+Invoke a _Local Search_ by entering a search term in plaintext or a _SHQL™_ on the main menu, or `S` to be prompted for the search term.
+
+```
+Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+[C]reate a new hero (will prompt for details)
+[L]ist all heroes
+List [T]op n heroes (will prompt for n)
+[S]earch matching heroes (will prompt for a search string)
+[A]mend a hero
+[D]elete a hero
+[E]rase database (delete all heroes)
+Go [O]nline to download heroes
+[Q]uit (exit the program)
+
+
+work.base ~ "cave"
+No command entered, using default search
+Using SHQL™ search for query: work.base ~ "cave"
+Found 1 heroes:
+
+=============
+id: 4bb182f5-104b-4f81-bef4-beb71bfe9a8d
+Version: 1
+Timestamp: 2025-10-21T10:45:06.300227Z
+Locked: false
+External ID: 70
+Name: Batman
+Powerstats: Intelligence: 100
+Powerstats: Strength: 26
+Powerstats: Speed: 27
+Powerstats: Durability: 50
+Powerstats: Power: 47
+Powerstats: Combat: 100
+Biography: Full Name: Bruce Wayne
+Biography: Alter Egos: null
+Biography: Aliases: [Insider, Matches Malone]
+Biography: Place of Birth: Crest Hill, Bristol Township; Gotham County
+Biography: First Appearance: Detective Comics #27
+Biography: Publisher: DC Comics
+Biography: Alignment: good
+Appearance: Gender: male
+Appearance: Race: Human
+Appearance: Height: 6'2"
+Appearance: Weight: 210 lb
+Appearance: Eye Colour: blue
+Appearance: Hair Colour: black
+Work: Occupation: Businessman
+Work: Base: Batcave, Stately Wayne Manor, Gotham City; Hall of Justice, Justice League Watchtower
+Connections: Group Affiliation: Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps
+Connections: Relatives: Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward)
+Martha Wayne (mother, deceased), Thomas Wayne (father, deceased), Alfred Pennyworth (former guardian), Roderick Kane (grandfather, deceased), Elizabeth Kane (grandmother, deceased), Nathan Kane (uncle, deceased), Simon Hurt (ancestor), Wayne Family
+Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/639.jpg
+=============
+```
+
 #### _Erase_ entire database
 The menu option `E` (for "erase") will prompt the user for _Deleting_ all the _Heroes_ and despite the popular notion, they don't live forever so be careful with this.
-`L` (for "list") displays all heroes unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
+`L` (for "list") displays all _Heroes_ unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
 
 ### Unit tests
-There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`.
+There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example JSON blob is parsed to a `HeroModel`.
 
-The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations.
+(NB: The editing done by the CLI was in fact using JSON as an intermediate format already in `v03` so the app was readily connected to the API with few adaptations.)
 
 `v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason author(s) don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
 
