@@ -95,12 +95,12 @@ Future<void> menu(
   Map<String, (Function, String)> commands, {
   Function(String)? defaultCommand,
 }) async {
-  var input = promptFor("").toLowerCase();
+  var input = promptFor("");
   if (input.isEmpty) {
     Terminal.println("Please enter a command");
     return;
   }
-  var command = commands[input]?.$1;
+  var command = commands[input.toLowerCase()]?.$1;
   if (command == null) {
     if (defaultCommand != null) {
       Terminal.println("No command entered, using default search");
