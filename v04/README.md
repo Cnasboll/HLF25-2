@@ -1172,7 +1172,7 @@ To find dumb _Villians_ with the letter `x` in their name, try out:
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`, respectively, one can type:
 
-`biography.gender != male` or `biography.gender in [female, non_binary]` to find female and / or non-binary _Heroes_.
+`appearance.gender != male` or `appearance.gender in [female, non_binary]` to find female and / or non-binary _Heroes_.
 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
