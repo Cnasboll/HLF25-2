@@ -1,3 +1,4 @@
+import 'package:cli_spin/cli_spin.dart';
 import 'package:v04/env/env.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/managers/hero_data_managing.dart';
@@ -8,6 +9,7 @@ import 'package:v04/terminal/prompt.dart';
 import 'package:v04/services/hero_service.dart';
 import 'package:v04/services/hero_servicing.dart';
 import 'package:v04/terminal/terminal.dart';
+import 'package:v04/utils/ascii_art.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
@@ -15,6 +17,9 @@ import 'package:v04/value_types/weight.dart';
 Future<void> main() async {
   // Clear screen and set green text
   Terminal.initialize();
+
+  // ASCII art banner
+  Terminal.println("\n${AsciiArt.createBanner("HERO MANAGER v04")}\n");
 
   Terminal.println("Welcome to the Hero Manager!");
   var heroDataManager = HeroDataManager(HeroRepository('v04.db'));
@@ -52,7 +57,7 @@ Future<void> main() async {
   void defaultCommand(String query) =>
       listMatchingHeroes(heroDataManager, query: query);
 
-  var prompt = generatePrompt(commands);
+  var prompt = generatePrompt(commands, defaultAction: " or enter a search string in SHQL™ or plain text,");
 
   while (doWOrk) {
     Terminal.println(prompt);
@@ -68,7 +73,7 @@ Future<void> main() async {
   Terminal.cleanup();
 }
 
-String generatePrompt(Map<String, (Function, String)> commands) {
+String generatePrompt(Map<String, (Function, String)> commands, {String defaultAction = ''}) {
   StringBuffer promptBuffer = StringBuffer();
   promptBuffer.write("""
 Enter a menu option (""");
@@ -82,7 +87,7 @@ Enter a menu option (""");
     }
     promptBuffer.write(commands.keys.elementAt(i).toUpperCase());
   }
-  promptBuffer.writeln(") and press enter:");
+  promptBuffer.writeln(")$defaultAction and press enter:");
 
   for (var entry in commands.entries) {
     promptBuffer.writeln(entry.value.$2);
@@ -172,7 +177,16 @@ Future<void> saveHeroes(
 Online search started at $timestamp
 
 ''');
+
+  final spinner = CliSpin(
+    text: 'Downloading heroes ...',
+    spinner: CliSpinners.dots,
+  ).start();
+
   var results = await heroService.search(query);
+
+  spinner.stop();
+
   String? error;
   if (results != null) {
     error = results["error"];
@@ -183,9 +197,7 @@ Online search started at $timestamp
   }
 
   if (results == null) {
-    Terminal.println(
-      "Server returned no data when searching for '$query'",
-    );
+    Terminal.println("Server returned no data when searching for '$query'");
     return;
   }
 
@@ -410,7 +422,7 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
   void defaultCommand(String query) =>
       saveHeroes(heroDataManager, query: query);
 
-  var prompt = generatePrompt(commands);
+  var prompt = generatePrompt(commands, defaultAction: " or enter an online search string for heroes to save,");
 
   while (!exit) {
     Terminal.println(prompt);
@@ -436,7 +448,14 @@ Reconciliation started at at $timestamp
   var reconciliationCount = 0;
   for (var hero in heroDataManager.heroes) {
     heroService ??= HeroService(Env());
+    final spinner = CliSpin(
+      text: 'Reconciling hero: ${hero.externalId} ("${hero.name}") ...',
+      spinner: CliSpinners.dots,
+    ).start();
+
     var onlineHeroJson = await heroService.getById(hero.externalId);
+
+    spinner.stop();
     String? error;
     if (onlineHeroJson != null) {
       error = onlineHeroJson["error"];

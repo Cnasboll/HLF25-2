@@ -133,7 +133,7 @@ Due to the lack of escaping (pun intended) any _Villain_ could present that exac
 
 ```
 Welcome to the Hero Manager!
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -150,7 +150,7 @@ To go _Online_ and _Search_ for _Heroes_ to download, type `O` and enter a searc
 
 ```
 > O
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -464,7 +464,7 @@ To _Reconcile_ locally saved _heroes_ against the _Online_ source, select `O` to
 
 ```
 > O
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -485,7 +485,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 09:47:01.497983Z: 0 heroes reconciled, 0 heroes deleted.
 
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -572,7 +572,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -597,7 +597,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 09:50:17.918565Z: 1 heroes reconciled, 0 heroes deleted.
 
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -755,7 +755,7 @@ As the new _Hero_ only exists locally and is created in _Locked_ state, the _Rec
 
 
 ```
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -767,7 +767,7 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 
 > O
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -870,7 +870,7 @@ Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, B
 Image: Url: null
 =============
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -1049,7 +1049,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -1065,7 +1065,7 @@ Go [O]nline to download heroes
 Invoke a _Local Search_ by entering a search term in plaintext or a _SHQL™_ on the main menu, or `S` to be prompted for the search term.
 
 ```
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -1273,9 +1273,9 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
 
-To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or above the magic cutoff of 25 kg per m<sup>2</sup>, type:
+To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or above the magic cutoff of 30 kg per m<sup>2</sup>, type:
 
-`appearance.weight.kg / pow(appearance.height.m, 2) >= 25`
+`appearance.weight.kg / pow(appearance.height.m, 2) >= 30`
 
 _NB: This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
 
