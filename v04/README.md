@@ -297,8 +297,9 @@ Any manual _Amendment_ sets the _Lock_ flag on the _Hero_ to `true` to exclude i
 
 ```
 A
-Enter a search string:
+Enter a search string in SHQL™ or plain text:
 Batman
+Using plain text search for query: Batman
 Found 3 heroes:
 
 Amend the following hero?
@@ -454,8 +455,9 @@ In this case no change occurred. _Hero_ `69` has a locally _Amended_ `Biograhy: 
 
 ```
 U
-Enter a search string:
+Enter a search string in SHQL™ or plain text:
 Batman
+Using plain text search for query: Batman
 Found 1 heroes:
 
 Unlock to enable reconciliation the following hero?
@@ -755,8 +757,9 @@ E[X]it and return to main menu
 
 
 U
-Enter a search string:
+Enter a search string in SHQL™ or plain text:
 Bamse
+Using plain text search for query: Bamse
 Found 1 heroes:
 
 Unlock to enable reconciliation the following hero?
@@ -898,8 +901,9 @@ abort the operation with `n`.
 
 ```
 D
-Enter a search string:
+Enter a search string in SHQL™ or plain text:
 Batman II
+Using plain text search for query: Batman II
 Found 2 heroes:
 
 Delete the following hero?
@@ -1058,8 +1062,9 @@ E[X]it and return to main menu
 
 
 S
-Enter a search string:
+Enter a search string in SHQL™ or plain text:
 Q
+Using plain text search for query: Q
 
 Online search started at 2025-10-21 21:50:50.682706Z
 
