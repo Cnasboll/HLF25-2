@@ -51,8 +51,8 @@ class HeroPredicate {
         return false;
       }
     } catch (e) {
-      // On any evaluation error, fall back to string matching against all fields
-      return hero.matches(query);
+      print('Error evaluating SHQL™ expression for hero with externalId: "${hero.externalId}" and name: "${hero.name}": $e');
+      return false;    
     }
   }
 
