@@ -23,6 +23,7 @@ class Field<T, V> implements FieldBase<T> {
     bool primary = false,
     bool? nullable,
     FormatField<T>? format,
+    FormatField<T>? formatEx,
     bool comparable = true,
     String? prompt,
     bool? assignedBySystem,
@@ -47,6 +48,7 @@ class Field<T, V> implements FieldBase<T> {
         (name.replaceAll(' ', '-').replaceAll('-', '_').toLowerCase());
     shqlName = shqlName ?? sqliteName;
     format = format ?? ((t) => getter(t).toString());
+    formatEx = formatEx ?? ((t) => '');
     children = children ?? <FieldBase>[];
     sqliteGetter = sqliteGetter ?? ((t) => getter(t));
     shqlGetter = shqlGetter ?? sqliteGetter;
@@ -59,6 +61,7 @@ class Field<T, V> implements FieldBase<T> {
       shqlName,
       description,
       format,
+      formatEx,
       sqliteGetter,
       shqlGetter,
       primary,
@@ -81,6 +84,7 @@ class Field<T, V> implements FieldBase<T> {
     this.shqlName,
     this.description,
     this.format,
+    this. formatEx,
     this.sqliteGetter,
     this.shqlGetter,
     this.primary,
@@ -102,6 +106,7 @@ class Field<T, V> implements FieldBase<T> {
     bool primary = false,
     bool? nullable,
     FormatField<T>? format,
+    FormatField<T>? formatEx,
     bool comparable = true,
     String? prompt,
     bool? assignedBySystem,
@@ -122,6 +127,7 @@ class Field<T, V> implements FieldBase<T> {
       primary: primary,
       nullable: nullable,
       format: format,
+      formatEx: formatEx,
       comparable: comparable,
       prompt: prompt,
       assignedBySystem: assignedBySystem,
@@ -244,7 +250,7 @@ class Field<T, V> implements FieldBase<T> {
   void formatField(T t, StringBuffer sb, {String? crumbtrail}) {
     var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty || childrenForDbOnly) {
-      sb.writeln("$fullPath: ${format(t)}");
+      sb.writeln("$fullPath: ${format(t)}${formatEx(t)}");
       return;
     }
 
@@ -744,6 +750,9 @@ class Field<T, V> implements FieldBase<T> {
 
   /// Function to format the field on an object as a presentable string
   FormatField<T> format;
+
+  /// Extra data then displaying the field as part of a formatted output of an entire object
+  FormatField<T> formatEx;
 
   /// Function to get the field from an object for SQLite inserts and updates
   SQLGetter<T> sqliteGetter;
