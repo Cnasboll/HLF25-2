@@ -1,6 +1,6 @@
 import 'package:v04/amendable/field_provider.dart';
 import 'package:v04/amendable/parsing_context.dart';
-import 'package:v04/prompts/prompt.dart';
+import 'package:v04/terminal/prompt.dart';
 import 'package:v04/amendable/field_base.dart';
 
 abstract class Amendable<T extends Amendable<T>> extends FieldProvider<T>

@@ -1,4 +1,4 @@
-import 'package:v04/prompts/prompt.dart';
+import 'package:v04/terminal/prompt.dart';
 import 'package:v04/value_types/value_type.dart';
 
 abstract class ConflictResolver<T extends ValueType<T>> {
