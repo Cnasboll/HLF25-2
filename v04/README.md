@@ -21,7 +21,7 @@ Manually generated README for v04
   - [Economical fallback example without utilizing SHQL™](#economical-fallback-example-without-utilizing-shql)
   - [Basic examples *with* SHQL™](#basic-examples-with-shql)
     - [Name-search and match](#name-search-and-match)
-    - [Villian (*Biography.Alignment*) search](#villian-biographyalignment-search)
+    - [Villian (*Biography.Alignment \> Good*) search](#villian-biographyalignment--good-search)
     - [Gender (*Appearance.Gender*) search](#gender-appearancegender-search)
     - [BMI (body-mass index) search:](#bmi-body-mass-index-search)
   - [Base search:](#base-search)
@@ -114,7 +114,7 @@ relations:
     relation: Mother
     qualifiers: [deceased]
 ```
-But we simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
+But we simply don't trust the API to consistently adhere to any parseable format for it to be worth that effort!
 
 Secondly, in the following example:
 ```
@@ -604,7 +604,7 @@ E[X]it and return to main menu
 ```
 
 #### _Create_ a local _Hero_
-To manally _Create_ a new local _Hero_ (mainly _known_, but not necesarily _recongnised_ around their immediate neighbourhood), press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
+To manally _Create_ a new local _Hero_ (mainly _known_, but not necessarily _recongnised_ around their immediate neighbourhood), press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
 User will be prompted if the new _Hero_ will be saved or not.
 
 ```
@@ -1089,7 +1089,7 @@ Also note that the parser will try to handle conflicting _Height_ or _Weight_ in
     ConflictResolver<T>? conflictResolver,
   )
 ``` 
-which really was the main focus of this assigment for me, roughly 95% of the time spent.
+which really was the main focus of this assigment for the author(s), roughly 95% of the time spent, and the bulk of the remaining time on _SHQL™_.
 
 Whenever the _Online_ _Search_ encounters _Heroes_ with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
 
@@ -1195,7 +1195,7 @@ to find all _Heroes_ where the `name` field is exactly `"Batman"` with an upper-
 
 Type: `lowercase(name) in ["batman", "robin"]` to find all _Heroes_ where the name in any letter case is either `"batman`" or `"robin"`.
 
-### Villian (*Biography.Alignment*) search
+### Villian (*Biography.Alignment > Good*) search
 As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOSTLY_GOOD` = `2`, `GOOD` = `3`, `REASONABLE` = `4`, `NOT_QUITE` = `5`, `BAD` = `6`, `UGLY` = `7`, `EVIL` = `8`, `USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT` = `9`, respectively, one can type:
 
 `biography.alignment = bad`
@@ -1222,7 +1222,7 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
 
-To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
+To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or above the magic cutoff of 25 kg per m<sup>2</sup>, type:
 
 `appearance.weight.kg / pow(appearance.height.m, 2) >= 25`
 
@@ -1296,7 +1296,7 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 `NULL`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
 
 A field can be checked for `null` thusly:
-`powerstats.intelligence = NULL`
+`powerstats.intelligence = NULL` is a valid query, hopefully mainly matching _Villains_.
 
 ### Mathematical constants
 Inherited from the calculator project, the following constants are mapped directly to constants in `math.dart`:

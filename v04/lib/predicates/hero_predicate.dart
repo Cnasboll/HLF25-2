@@ -1,7 +1,7 @@
 import 'package:v04/models/appearance_model.dart';
 import 'package:v04/models/biography_model.dart';
 import 'package:v04/models/hero_model.dart';
-import 'package:v04/shql/calculator/calculator.dart';
+import 'package:v04/shql/engine/engine.dart';
 import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/shql/parser/lookahead_iterator.dart';
 import 'package:v04/shql/parser/parse_tree.dart';
@@ -42,7 +42,7 @@ class HeroPredicate {
     hero.registerIdentifiers(heroScope);
 
     try {
-      var result = Calculator.evaluate(_parseTree, heroScope);
+      var result = Engine.evaluate(_parseTree, heroScope);
       if (result is bool) {
         return result;
       } else if (result is num) {
@@ -57,7 +57,7 @@ class HeroPredicate {
   }
 
   static ConstantsSet createConstantsSet() {
-    ConstantsSet constantsSet = Calculator.prepareConstantsSet();
+    ConstantsSet constantsSet = Engine.prepareConstantsSet();
     constantsSet.registerEnum<Alignment>(Alignment.values);
     constantsSet.registerEnum<Gender>(Gender.values);
     constantsSet.registerEnum<SystemOfUnits>(SystemOfUnits.values);
