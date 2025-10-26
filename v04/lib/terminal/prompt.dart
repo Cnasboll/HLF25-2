@@ -1,14 +1,8 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:v04/terminal/terminal.dart';
 
 String promptFor(String promptText, [String defaultValue = '']) {
-  print(promptText);
-  var input = readUtf8Line() ?? defaultValue;
+  var input = Terminal.readInput(promptText) ?? defaultValue;
   return input.isEmpty ? defaultValue : input;
-}
-
-String? readUtf8Line() {
-  return stdin.readLineSync(encoding: utf8);
 }
 
 bool promptForYesNo(String prompt) {
@@ -22,11 +16,12 @@ $prompt (y/n)''');
     if (input.startsWith("n")) {
       return false;
     }
-    print("Invalid answer, please enter y or n");
+    Terminal.println("Invalid answer, please enter y or n");
   }
 }
 
 enum YesNoAllQuit { yes, no, all, quit }
+
 YesNoAllQuit promptForYesNoAllQuit(String prompt) {
   for (;;) {
     var input = promptFor('''
@@ -44,7 +39,7 @@ $prompt (y = yes, n = no, a = all, q = quit)''').toLowerCase();
     if (input.startsWith("q")) {
       return YesNoAllQuit.quit;
     }
-    print("Invalid answer, please enter y or n");
+    Terminal.println("Invalid answer, please enter y or n");
   }
 }
 
@@ -74,6 +69,6 @@ YesNextCancel promptForYesNextCancel(String prompt) {
     if (input.startsWith("c")) {
       return YesNextCancel.cancel;
     }
-    print("Invalid answer, please enter y, n or c");
+    Terminal.println("Invalid answer, please enter y, n or c");
   }
 }
