@@ -1375,6 +1375,6 @@ The language has been extended with the following string functions:
 ##### Relational
 `=`, `<>` (alias `!=`), `>`, `<`, `<=`, `>=`
 ##### Matching
-`IN` (works for strings or lists),  `~`, `!~`
+`IN` (works for strings or lists),  `~`, `!~` (where the right hand side is an ordinary and most regular regular expression).
 ##### Arithmetic
 `*`, `/`, `%`, `+`, `-`
