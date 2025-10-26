@@ -69,7 +69,7 @@ Future<void> main() async {
     batman.registerIdentifiers(heroScope);
 
     // These are all identifiers registered for a HeroModel in SHQL™
-    expect([
+    expect(heroScope.identifiers.constants, [
       "ANSWER",
       "TRUE",
       "FALSE",
@@ -153,7 +153,7 @@ Future<void> main() async {
       "RELATIVES",
       "IMAGE",
       "URL",
-    ], heroScope.identifiers.constants);
+    ]);
 
     expect(Engine.calculate('UNKNOWN', constantsSet: heroScope), 0);
     expect(Engine.calculate('NEUTRAL', constantsSet: heroScope), 1);
@@ -212,10 +212,7 @@ Future<void> main() async {
       "Crest Hill, Bristol Township; Gotham County",
     );
     expect(
-      Engine.calculate(
-        'biography.first_appearance',
-        constantsSet: heroScope,
-      ),
+      Engine.calculate('biography.first_appearance', constantsSet: heroScope),
       "Detective Comics #27",
     );
     expect(
@@ -235,10 +232,7 @@ Future<void> main() async {
       Engine.calculate('powerstats.strength', constantsSet: heroScope),
       null,
     );
-    expect(
-      Engine.calculate('powerstats.speed', constantsSet: heroScope),
-      null,
-    );
+    expect(Engine.calculate('powerstats.speed', constantsSet: heroScope), null);
     expect(
       Engine.calculate('powerstats.durability', constantsSet: heroScope),
       null,
@@ -314,10 +308,7 @@ Future<void> main() async {
     expect(Engine.calculate('name = "Batman"', constantsSet: heroScope), 1);
 
     expect(
-      Engine.calculate(
-        'name in ["Batman", "Robin"]',
-        constantsSet: heroScope,
-      ),
+      Engine.calculate('name in ["Batman", "Robin"]', constantsSet: heroScope),
       1,
     );
 
@@ -330,26 +321,17 @@ Future<void> main() async {
     );
 
     expect(
-      Engine.calculate(
-        'biography.alignment = bad',
-        constantsSet: heroScope,
-      ),
+      Engine.calculate('biography.alignment = bad', constantsSet: heroScope),
       0,
     );
 
     expect(
-      Engine.calculate(
-        'biography.alignment > good',
-        constantsSet: heroScope,
-      ),
+      Engine.calculate('biography.alignment > good', constantsSet: heroScope),
       0,
     );
 
     expect(
-      Engine.calculate(
-        'biography.alignment = good',
-        constantsSet: heroScope,
-      ),
+      Engine.calculate('biography.alignment = good', constantsSet: heroScope),
       0,
     );
 
