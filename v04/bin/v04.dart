@@ -27,27 +27,27 @@ Future<void> main() async {
   var doWOrk = true;
   Map<String, (Function, String)> commands = {
     "c": (
-      () => createHero(heroDataManager),
+      (_) => createHero(heroDataManager),
       "[C]reate a new hero (will prompt for details)",
     ),
-    "l": (() => listHeroes(heroDataManager), "[L]ist all heroes"),
+    "l": ((_) => listHeroes(heroDataManager), "[L]ist all heroes"),
     "t": (
-      () => listTopNHeroes(heroDataManager),
+      (arg) => listTopNHeroes(heroDataManager, arg: arg),
       "List [T]op n heroes (will prompt for n)",
     ),
     "s": (
-      () => listMatchingHeroes(heroDataManager),
+      (arg) => listMatchingHeroes(heroDataManager, query: arg),
       "[S]earch matching heroes (will prompt for a search string)",
     ),
-    "a": (() => amendHero(heroDataManager), "[A]mend a hero"),
-    "d": (() => deleteHero(heroDataManager), "[D]elete a hero"),
+    "a": ((arg) => amendHero(heroDataManager, query: arg), "[A]mend a hero"),
+    "d": ((arg) => deleteHero(heroDataManager, query: arg), "[D]elete a hero"),
     "e": (
-      () => deleteAllHeroes(heroDataManager),
+      (_) => deleteAllHeroes(heroDataManager),
       "[E]rase database (delete all heroes)",
     ),
-    "o": (() => goOnline(heroDataManager), "Go [O]nline to download heroes"),
+    "o": ((_) => goOnline(heroDataManager), "Go [O]nline to download heroes"),
     "q": (
-      () => {
+      (_) => {
         if (promptQuit()) {doWOrk = false},
       },
       "[Q]uit (exit the program)",
@@ -57,12 +57,20 @@ Future<void> main() async {
   void defaultCommand(String query) =>
       listMatchingHeroes(heroDataManager, query: query);
 
-  var prompt = generatePrompt(commands, defaultAction: " or enter a search string in SHQL™ or plain text,");
+  var prompt = generatePrompt(
+    commands,
+    defaultAction: " or enter a search string in SHQL™ or plain text,",
+  );
 
   while (doWOrk) {
     Terminal.println(prompt);
     try {
-      await menu(heroDataManager, commands, defaultCommand: defaultCommand);
+      await menu(
+        heroDataManager,
+        commands,
+        defaultCommand: defaultCommand,
+        defaultAction: 'performing default search',
+      );
     } catch (e) {
       Terminal.println("Unexpected error: $e");
     }
@@ -73,7 +81,10 @@ Future<void> main() async {
   Terminal.cleanup();
 }
 
-String generatePrompt(Map<String, (Function, String)> commands, {String defaultAction = ''}) {
+String generatePrompt(
+  Map<String, (Function, String)> commands, {
+  String defaultAction = '',
+}) {
   StringBuffer promptBuffer = StringBuffer();
   promptBuffer.write("""
 Enter a menu option (""");
@@ -99,25 +110,29 @@ Future<void> menu(
   HeroDataManaging heroDataManager,
   Map<String, (Function, String)> commands, {
   Function(String)? defaultCommand,
+  String? defaultAction,
 }) async {
   var input = promptFor("");
   if (input.isEmpty) {
     Terminal.println("Please enter a command");
     return;
   }
-  var command = commands[input.toLowerCase()]?.$1;
+
+  var parts = input.split(' ');
+  var command = commands[parts[0].trim().toLowerCase()]?.$1;
+  var remainder = input.substring(parts[0].length).trim();
+
   if (command == null) {
     if (defaultCommand != null) {
-      Terminal.println("No command entered, using default search");
-      command = () => defaultCommand(input);
-    }
-
-    if (command == null) {
-      Terminal.println("Invalid command, please try again");
+      Terminal.println("No recognized command entered, $defaultAction");
+      await defaultCommand(input);
       return;
     }
+
+    Terminal.println("Invalid command, please try again");
+    return;
   }
-  await command();
+  await command(remainder.isEmpty ? null : remainder);
 }
 
 bool promptQuit() {
@@ -140,8 +155,9 @@ void listHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-void listTopNHeroes(HeroDataManaging heroDataManager) {
-  var n = int.tryParse(promptFor("Enter number of heroes to list:")) ?? 0;
+void listTopNHeroes(HeroDataManaging heroDataManager, {String? arg}) {
+  var n =
+      int.tryParse(arg ?? promptFor("Enter number of heroes to list:")) ?? 0;
   if (n <= 0) {
     Terminal.println("Invalid number");
     return;
@@ -212,11 +228,17 @@ Online search started at $timestamp
           ManualConflictResolver<Height>();
       var weightConflictResolver = Weight.conflictResolver =
           ManualConflictResolver<Weight>();
+      List<String> failures = [];
       searchResponseModel = SearchResponseModel.fromJson(
         heroDataManager,
         results,
         timestamp,
+        failures,
       );
+
+      for (var error in failures) {
+        Terminal.println(error);
+      }
 
       for (var error in heightConflictResolver.resolutionLog) {
         Terminal.println(error);
@@ -298,8 +320,8 @@ bool deleteHeroPrompted(HeroDataManaging heroDataManager, HeroModel hero) {
   return true;
 }
 
-void deleteHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = query(heroDataManager, "Delete");
+void deleteHero(HeroDataManaging heroDataManager, {String? query}) {
+  HeroModel? hero = queryForAction(heroDataManager, "Delete", query: query);
   if (hero == null) {
     return;
   }
@@ -323,8 +345,8 @@ void createHero(HeroDataManaging heroDataManager) {
 $hero''');
 }
 
-void amendHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = query(heroDataManager, "Amend");
+void amendHero(HeroDataManaging heroDataManager, {String? query}) {
+  HeroModel? hero = queryForAction(heroDataManager, "Amend", query: query);
   if (hero == null) {
     return;
   }
@@ -336,10 +358,11 @@ $amededHero''');
   }
 }
 
-void unlockHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = query(
+void unlockHero(HeroDataManaging heroDataManager, {String? query}) {
+  HeroModel? hero = queryForAction(
     heroDataManager,
     "Unlock to enable reconciliation",
+    query: query,
     filter: (h) => h.locked,
   );
   if (hero == null) {
@@ -377,12 +400,13 @@ List<HeroModel>? search(
   return results;
 }
 
-HeroModel? query(
+HeroModel? queryForAction(
   HeroDataManaging heroDataManager,
   String what, {
+  String? query,
   bool Function(HeroModel)? filter,
 }) {
-  var results = search(heroDataManager, filter: filter);
+  var results = search(heroDataManager, query: query, filter: filter);
   if (results == null) {
     return null;
   }
@@ -405,29 +429,37 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
   bool exit = false;
   Map<String, (Function, String)> commands = {
     "r": (
-      () async => await reconcileHeroes(heroDataManager),
+      (_) async => await reconcileHeroes(heroDataManager),
       "[R]econcile local heroes with online updates",
     ),
     "s": (
-      () async => await saveHeroes(heroDataManager),
+      (arg) async => await saveHeroes(heroDataManager, query: arg),
       "[S]earch online for new heroes to save",
     ),
     "u": (
-      () => unlockHero(heroDataManager),
+      (arg) => unlockHero(heroDataManager, query: arg),
       "[U]nlock manually amended heroes to enable reconciliation",
     ),
-    "x": (() => {exit = true}, "E[X]it and return to main menu"),
+    "x": ((_) => {exit = true}, "E[X]it and return to main menu"),
   };
 
   void defaultCommand(String query) =>
       saveHeroes(heroDataManager, query: query);
 
-  var prompt = generatePrompt(commands, defaultAction: " or enter an online search string for heroes to save,");
+  var prompt = generatePrompt(
+    commands,
+    defaultAction: " or enter an online search string for heroes to save,",
+  );
 
   while (!exit) {
     Terminal.println(prompt);
     try {
-      await menu(heroDataManager, commands, defaultCommand: defaultCommand);
+      await menu(
+        heroDataManager,
+        commands,
+        defaultCommand: defaultCommand,
+        defaultAction: 'performing online search',
+      );
     } catch (e) {
       Terminal.println("Unexpected error: $e");
     }
@@ -513,7 +545,15 @@ Reconciliation started at at $timestamp
       var weightConflictResolver = Weight.conflictResolver =
           AutoConflictResolver<Weight>(hero.appearance.weight.systemOfUnits);
 
-      var updatedHero = hero.apply(onlineHeroJson, timestamp, false);
+      HeroModel updatedHero;
+      try {
+        updatedHero = hero.apply(onlineHeroJson, timestamp, false);
+      } catch (e) {
+        Terminal.println(
+          'Failed to reconcile hero: ${hero.externalId} ("${hero.name}"): $e',
+        );
+        continue;
+      }
 
       for (var error in heightConflictResolver.resolutionLog) {
         Terminal.println(error);
