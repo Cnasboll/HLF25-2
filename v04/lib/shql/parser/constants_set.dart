@@ -90,22 +90,22 @@ class ConstantsSet {
   }
 
   String _camelCaseToScreamingSnakeCase(String camelCase) {
-    if (camelCase.isEmpty) return camelCase;
-    
+    if (camelCase.isEmpty) {
+      return camelCase;
+    }
+
     final buffer = StringBuffer();
-    
-    for (int i = 0; i < camelCase.length; i++) {
+
+    for (int i = 0; i < camelCase.length; ++i) {
       final char = camelCase[i];
-      
+
       if (char.toUpperCase() == char && char.toLowerCase() != char) {
         // This is an uppercase letter
         if (i > 0) {
           buffer.write('_');
         }
-        buffer.write(char.toUpperCase());
-      } else {
-        buffer.write(char.toUpperCase());
       }
+      buffer.write(char.toUpperCase());
     }
     
     return buffer.toString();

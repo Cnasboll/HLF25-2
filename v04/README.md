@@ -1116,7 +1116,7 @@ Reconciliation complete at 2025-10-21 22:15:23.644413Z: 0 heroes reconciled, 0 h
 ```
 
 ## SHQL - Super Hero Query Language ™
-Finally but not least, local searches uses the _SHQL™_, short for _Super Hero Query Language™_ that is adapted from the calculator developed in project in `v01` but extended to be useful as a predicate for `HeroModel`-instances.
+Local searches utilise the _SHQL™_, short for _Super Hero Query Language™_, adapted from the calculator developed in project in `v01` and extended for usefulness as predicates for `HeroModel`-instances.
 
 ## Economical fallback example without utilizing SHQL™
 To match Batman, type:
@@ -1125,7 +1125,7 @@ To match Batman, type:
 
 This locates all _Heroes_ where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level.
 
-_Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred due to unintentional _SHQL™_ engine utilization._
+_Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred due to unintentional _SHQL™_ engine invocation._
 
 ## Basic examples *with* SHQL™
 
@@ -1157,7 +1157,7 @@ As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as th
 
 or:
 
-`alignment > good`
+`biography.alignment > good`
 
 or whatever criterion meets the user's personal villain definition to filter on _Villains_.
 
@@ -1177,7 +1177,7 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
 
-To find _Heroes_ meeting WHOs definition of _obesity_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
+To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
 
 `appearance.weight.kg / pow(appearance.height.m, 2) >= 25`
 
@@ -1200,64 +1200,65 @@ From the `Alignment` enum in `Biography`: `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOS
 
 From the `SystemOfUnits` enum in `value_types\value_type.dart`: `METRIC` = `0`, `IMPERIAL` = `1`
 
-Four (4) string literals are accpted:
+Four (4) string literals are accepted:
 
-Ordinary (_garden variety_) double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
-
-Ordinary (_garden variety_) single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading.
-
-To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` and `r'hello\s+world'`, respectively to allow any amount of wordly space.
+- Ordinary (_garden variety_) double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
+- Ordinary (_garden variety_) single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading.
+- To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` and `r'hello\s+world'`, respectively to allow any amount of wordly space.
 
 As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
-`~` and `!~` stands for matches and doesn't match, respectively, so `"Super Man" ~ r"Super.*Man"` evaluates to  `TRUE` (`1`)
+`~` and `!~` means regular expression match and mismatch, respectively, so `"Super Man" ~ r"Super.*Man"` evaluates to  `TRUE` (`1`)
 
 ### All fields (_pseudoconstants_)
 The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the _SHQL™_ language, given the actual values for the current `HeroModel`.
 
-(They are not _variables_ as the _SHQL™_ has no means of _changing_ them):
+(They are not _variables_ per se as the _SHQL™_ has no means of _changing_ them - to update a `HeroModel` in the database use the `Amendment` functionality described above):
 
 - `id`  - a `string` representing the local `Uuid`.
 - `external_id` - as a `string`, corresponding to the `id` field in the API,
 - `version` - `integer`
-- `timestamp` - as a Iso8601 `string`
+- `timestamp` - as an ISO 8601 `string`
 - `locked` - as `0` or `1` (`TRUE` or `FALSE`)
 - `name` - `string`
-- `powerstats.intelligence` - `integer`
-- `powerstats.strength` - `integer`
-- `powerstats.speed` - `integer`
-- `powerstats.durability` - `integer`
-- `powerstats.power` - `integer`
-- `powerstats.combat` - `integer`
-- `biography.full_name` - `string`
-- `biography.alter_egos` - `string`
-- `biography.aliases` - `string` representation of the aliases list.
-- `biography.place_of_birth` - `string`
-- `biography.first_appearance` - `string`
-- `biography.publisher` - `string`
+- `powerstats.intelligence` - `integer` (nullable)
+- `powerstats.strength` - `integer`  (nullable)
+- `powerstats.speed` - `integer`  (nullable)
+- `powerstats.durability` - `integer`  (nullable)
+- `powerstats.power` - `integer`  (nullable)
+- `powerstats.combat` - `integer`  (nullable)
+- `biography.full_name` - `string`  (nullable)
+- `biography.alter_egos` - `string`  (nullable)
+- `biography.aliases` - `string` (list of strings)
+- `biography.place_of_birth` - `string`  (nullable)
+- `biography.first_appearance` - `string`  (nullable)
+- `biography.publisher` - `string`  (nullable)
 - `biography.alignment` - `integer` (see the `Alignment` enum above)
 - `appearance.gender` - `integer` (see the `Gender` enum above)
-- `appearance.race` - `string`
+- `appearance.race` - `string`  (nullable)
 - `appearance.height.m` - `double`
 - `appearance.height.system_of_units` - `integer` (see the `SystemOfUnits` enum above)
 - `appearance.weight.kg` - `double`
 - `appearance.weight.system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-- `appearance.eye_colour` - `string`
-- `appearance.hair_colour` - `string`
-- `work.occupation` - `string`
-- `work.base` - `string`
-- `connections.group_affiliation` - `string`
-- `connections.relatives` - `string`
-- `image.url` - `string`
+- `appearance.eye_colour` - `string`  (nullable)
+- `appearance.hair_colour` - `string`  (nullable)
+- `work.occupation` - `string`  (nullable)
+- `work.base` - `string`  (nullable)
+- `connections.group_affiliation` - `string`  (nullable)
+- `connections.relatives` - `string`  (nullable)
+- `image.url` - `string`  (nullable)
 
 ### General constants
 `NULL`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
+
+A field can be checked for `null` thusly:
+`powerstats.intelligence = NULL`
 
 ### Mathematical constants
 Inherited from the calculator project, the following constants are mapped directly to constants in `math.dart`:
 `E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`
 
 ### Mathematical functions
-Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy):
+Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy) when _Heroes_ are still around:
 
 `MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
 

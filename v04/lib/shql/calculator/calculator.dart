@@ -36,12 +36,6 @@ class Calculator {
   static ConstantsSet prepareConstantsSet() {
     var constantsSet = ConstantsSet();
 
-    // Register null constant
-    constantsSet.constants.register(
-      null,
-      constantsSet.identifiers.include("NULL"),
-    );
-
     // Register mathematical constants
     for (var entry in _int_constants.entries) {
       constantsSet.constants.register(
@@ -68,6 +62,10 @@ class Calculator {
   }
 
   static dynamic evaluate(ParseTree parseTree, ConstantsSet constantsSet) {
+    if (parseTree.symbol == Symbols.nullLiteral) {
+      return null;
+    }
+    
     var result = evaluateTerminal(parseTree, constantsSet);
     if (result != null) {
       return result;
@@ -279,21 +277,6 @@ class Calculator {
     throw RuntimeException(
       'Unidentified identifier "$identifier" used as a constant.',
     );
-  }
-
-  static num evaluateBinaryFunction(String name, num argument1, argument2) {
-    switch (name) {
-      case "MIN":
-        return min(argument1, argument2);
-      case "MAX":
-        return max(argument1, argument2);
-      case "ATAN2":
-        return atan2(argument1, argument2);
-      case "POW":
-        return pow(argument1, argument2);
-      default:
-        return double.nan;
-    }
   }
 
   static bool isUnary(Symbols symbol) {

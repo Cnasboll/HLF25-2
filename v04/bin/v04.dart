@@ -339,7 +339,7 @@ List<HeroModel>? search(
   HeroDataManaging heroDataManager, {
   bool Function(HeroModel)? filter,
 }) {
-  var query = promptFor("Enter a search string:");
+  var query = promptFor("Enter a search string in SHQL™ or plain text:");
   var results = heroDataManager.query(query, filter: filter);
   if (results.isEmpty) {
     print("No heroes found");

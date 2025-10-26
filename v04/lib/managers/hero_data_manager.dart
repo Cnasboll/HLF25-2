@@ -1,6 +1,7 @@
 import 'package:v04/managers/hero_data_managing.dart';
 import 'package:v04/models/hero_model.dart';
 import 'package:v04/persistence/hero_repositing.dart';
+import 'package:v04/predicates/hero_predicate.dart';
 
 class HeroDataManager implements HeroDataManaging {
   HeroDataManager(HeroRepositing repository)
@@ -29,10 +30,11 @@ class HeroDataManager implements HeroDataManaging {
 
   @override
   List<HeroModel> query(String query, {bool Function(HeroModel)? filter}) {
+    var predicate = HeroPredicate.parse(query);
     var result = _heroesByExternalId.values
         .where(
           (hero) =>
-              hero.matches(query.toLowerCase()) &&
+              predicate.evaluate(hero) &&
               (filter == null || filter(hero)),
         )
         .toList();
