@@ -1,6 +1,14 @@
 class ConstantsTable<T> {
     ConstantsTable({ConstantsTable<T>? parent}) : _parent = parent;
 
+  // Deep copy constructor
+  ConstantsTable.copy(ConstantsTable<T> other, {ConstantsTable<T>? parent}) : _parent = parent {
+    // Deep copy all the collections
+    _constants.addAll(other._constants);
+    _index.addAll(other._index);
+    _indexByIdentifier.addAll(other._indexByIdentifier);
+  }
+
   int include(T value) {
     var index = _index[value];
 
@@ -55,7 +63,7 @@ class ConstantsSet {
   ConstantsSet() : _constants = ConstantsTable(), _identifiers = ConstantsTable();
   
   ConstantsSet._child(ConstantsSet parent)
-    : _constants = ConstantsTable(parent: parent._constants),
+    : _constants = ConstantsTable<dynamic>.copy(parent._constants),
       _identifiers = parent._identifiers;
 
   ConstantsSet._subModel(ConstantsSet parent)
