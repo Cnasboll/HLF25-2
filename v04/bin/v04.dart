@@ -100,7 +100,7 @@ Future<void> menu(
     Terminal.println("Please enter a command");
     return;
   }
-  var command = commands[input.substring(0, 1)]?.$1;
+  var command = commands[input]?.$1;
   if (command == null) {
     if (defaultCommand != null) {
       Terminal.println("No command entered, using default search");

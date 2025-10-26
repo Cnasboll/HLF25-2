@@ -96,7 +96,6 @@ class Engine {
     argument2,
   ) {
     final oneIsNull = [argument1, argument2].contains(null);
-    final bothAreNull = argument1 == null && argument2 == null;
     switch (symbol) {
       case Symbols.inOp:
         {
@@ -152,7 +151,7 @@ class Engine {
       case Symbols.gt:
         {
           if (oneIsNull) {
-            return bothAreNull ? 1 : 0;
+            return 0;
           }
           return argument1 > argument2 ? 1 : 0;
         }
@@ -160,7 +159,7 @@ class Engine {
       case Symbols.gtEq:
         {
           if (oneIsNull) {
-            return bothAreNull ? 1 : 0;
+            return 0;
           }
           return argument1 >= argument2 ? 1 : 0;
         }
@@ -174,7 +173,7 @@ class Engine {
       case Symbols.ltEq:
         {
           if (oneIsNull) {
-            return bothAreNull ? 1 : 0;
+            return 0;
           }
           return argument1 <= argument2 ? 1 : 0;
         }

@@ -1263,7 +1263,7 @@ To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_
 
 To find dumb _Villians_ with the letter `x` in their name, try out:
 
-`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined standard criteria.
+`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence <= 50`, assuming these adhere to well-defined standard criteria.
 
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`, respectively, one can type:
