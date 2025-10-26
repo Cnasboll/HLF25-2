@@ -6,7 +6,7 @@ import 'package:v04/models/image_model.dart';
 import 'package:v04/models/power_stats_model.dart';
 import 'package:v04/models/work_model.dart';
 import 'package:test/test.dart';
-import 'package:v04/shql/calculator/calculator.dart';
+import 'package:v04/shql/engine/engine.dart';
 import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/percentage.dart';
@@ -57,7 +57,7 @@ Future<void> main() async {
       ),
     );
 
-    ConstantsSet constantsSet = Calculator.prepareConstantsSet();
+    ConstantsSet constantsSet = Engine.prepareConstantsSet();
     constantsSet.registerEnum<Alignment>(Alignment.values);
     constantsSet.registerEnum<Gender>(Gender.values);
     constantsSet.registerEnum<SystemOfUnits>(SystemOfUnits.values);
@@ -155,166 +155,166 @@ Future<void> main() async {
       "URL",
     ], heroScope.identifiers.constants);
 
-    expect(Calculator.calculate('UNKNOWN', constantsSet: heroScope), 0);
-    expect(Calculator.calculate('NEUTRAL', constantsSet: heroScope), 1);
-    expect(Calculator.calculate('MOSTLY_GOOD', constantsSet: heroScope), 2);
-    expect(Calculator.calculate('GOOD', constantsSet: heroScope), 3);
-    expect(Calculator.calculate('REASONABLE', constantsSet: heroScope), 4);
-    expect(Calculator.calculate('NOT_QUITE', constantsSet: heroScope), 5);
-    expect(Calculator.calculate('BAD', constantsSet: heroScope), 6);
-    expect(Calculator.calculate('UGLY', constantsSet: heroScope), 7);
-    expect(Calculator.calculate('EVIL', constantsSet: heroScope), 8);
+    expect(Engine.calculate('UNKNOWN', constantsSet: heroScope), 0);
+    expect(Engine.calculate('NEUTRAL', constantsSet: heroScope), 1);
+    expect(Engine.calculate('MOSTLY_GOOD', constantsSet: heroScope), 2);
+    expect(Engine.calculate('GOOD', constantsSet: heroScope), 3);
+    expect(Engine.calculate('REASONABLE', constantsSet: heroScope), 4);
+    expect(Engine.calculate('NOT_QUITE', constantsSet: heroScope), 5);
+    expect(Engine.calculate('BAD', constantsSet: heroScope), 6);
+    expect(Engine.calculate('UGLY', constantsSet: heroScope), 7);
+    expect(Engine.calculate('EVIL', constantsSet: heroScope), 8);
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT',
         constantsSet: heroScope,
       ),
       9,
     );
 
-    expect(Calculator.calculate('UNKNOWN', constantsSet: heroScope), 0);
-    expect(Calculator.calculate('AMBIGUOUS', constantsSet: heroScope), 1);
-    expect(Calculator.calculate('MALE', constantsSet: heroScope), 2);
-    expect(Calculator.calculate('FEMALE', constantsSet: heroScope), 3);
-    expect(Calculator.calculate('NON_BINARY', constantsSet: heroScope), 4);
-    expect(Calculator.calculate('WONT_SAY', constantsSet: heroScope), 5);
+    expect(Engine.calculate('UNKNOWN', constantsSet: heroScope), 0);
+    expect(Engine.calculate('AMBIGUOUS', constantsSet: heroScope), 1);
+    expect(Engine.calculate('MALE', constantsSet: heroScope), 2);
+    expect(Engine.calculate('FEMALE', constantsSet: heroScope), 3);
+    expect(Engine.calculate('NON_BINARY', constantsSet: heroScope), 4);
+    expect(Engine.calculate('WONT_SAY', constantsSet: heroScope), 5);
 
-    expect(Calculator.calculate('METRIC', constantsSet: heroScope), 0);
-    expect(Calculator.calculate('IMPERIAL', constantsSet: heroScope), 1);
+    expect(Engine.calculate('METRIC', constantsSet: heroScope), 0);
+    expect(Engine.calculate('IMPERIAL', constantsSet: heroScope), 1);
 
     expect(
-      Calculator.calculate('id', constantsSet: heroScope),
+      Engine.calculate('id', constantsSet: heroScope),
       "02ffbb60-762b-4552-8f41-be8aa86869c6",
     );
-    expect(Calculator.calculate('version', constantsSet: heroScope), 1);
+    expect(Engine.calculate('version', constantsSet: heroScope), 1);
     expect(
-      Calculator.calculate('timestamp', constantsSet: heroScope),
+      Engine.calculate('timestamp', constantsSet: heroScope),
       "2025-10-28T18:00:00.000Z",
     );
-    expect(Calculator.calculate("locked", constantsSet: heroScope), 0);
-    expect(Calculator.calculate('external_id', constantsSet: heroScope), "70");
-    expect(Calculator.calculate('name', constantsSet: heroScope), "Batman");
+    expect(Engine.calculate("locked", constantsSet: heroScope), 0);
+    expect(Engine.calculate('external_id', constantsSet: heroScope), "70");
+    expect(Engine.calculate('name', constantsSet: heroScope), "Batman");
 
     expect(
-      Calculator.calculate('biography.full_name', constantsSet: heroScope),
+      Engine.calculate('biography.full_name', constantsSet: heroScope),
       "Bruce Wayne",
     );
     expect(
-      Calculator.calculate('biography.alter_egos', constantsSet: heroScope),
+      Engine.calculate('biography.alter_egos', constantsSet: heroScope),
       null,
     );
-    expect(Calculator.calculate('biography.aliases', constantsSet: heroScope), [
+    expect(Engine.calculate('biography.aliases', constantsSet: heroScope), [
       "Insider",
       "Matches Malone",
     ]);
     expect(
-      Calculator.calculate('biography.place_of_birth', constantsSet: heroScope),
+      Engine.calculate('biography.place_of_birth', constantsSet: heroScope),
       "Crest Hill, Bristol Township; Gotham County",
     );
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'biography.first_appearance',
         constantsSet: heroScope,
       ),
       "Detective Comics #27",
     );
     expect(
-      Calculator.calculate('biography.publisher', constantsSet: heroScope),
+      Engine.calculate('biography.publisher', constantsSet: heroScope),
       "DC Comics",
     );
     expect(
-      Calculator.calculate('biography.alignment', constantsSet: heroScope),
+      Engine.calculate('biography.alignment', constantsSet: heroScope),
       Alignment.mostlyGood.index,
     );
 
     expect(
-      Calculator.calculate('powerstats.intelligence', constantsSet: heroScope),
+      Engine.calculate('powerstats.intelligence', constantsSet: heroScope),
       5,
     );
     expect(
-      Calculator.calculate('powerstats.strength', constantsSet: heroScope),
+      Engine.calculate('powerstats.strength', constantsSet: heroScope),
       null,
     );
     expect(
-      Calculator.calculate('powerstats.speed', constantsSet: heroScope),
+      Engine.calculate('powerstats.speed', constantsSet: heroScope),
       null,
     );
     expect(
-      Calculator.calculate('powerstats.durability', constantsSet: heroScope),
+      Engine.calculate('powerstats.durability', constantsSet: heroScope),
       null,
     );
 
     expect(
-      Calculator.calculate('appearance.race', constantsSet: heroScope),
+      Engine.calculate('appearance.race', constantsSet: heroScope),
       "Human",
     );
     expect(
-      Calculator.calculate('appearance.gender', constantsSet: heroScope),
+      Engine.calculate('appearance.gender', constantsSet: heroScope),
       Gender.male.index,
     );
     expect(
-      Calculator.calculate('appearance.height.m', constantsSet: heroScope),
+      Engine.calculate('appearance.height.m', constantsSet: heroScope),
       1.8796,
     );
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'appearance.height.system_of_units',
         constantsSet: heroScope,
       ),
       SystemOfUnits.imperial.index,
     );
     expect(
-      Calculator.calculate('appearance.weight.kg', constantsSet: heroScope),
+      Engine.calculate('appearance.weight.kg', constantsSet: heroScope),
       94.80080533,
     );
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'appearance.weight.system_of_units',
         constantsSet: heroScope,
       ),
       SystemOfUnits.imperial.index,
     );
     expect(
-      Calculator.calculate('appearance.eye_colour', constantsSet: heroScope),
+      Engine.calculate('appearance.eye_colour', constantsSet: heroScope),
       "blue",
     );
     expect(
-      Calculator.calculate('appearance.hair_colour', constantsSet: heroScope),
+      Engine.calculate('appearance.hair_colour', constantsSet: heroScope),
       "black",
     );
 
     expect(
-      Calculator.calculate('work.occupation', constantsSet: heroScope),
+      Engine.calculate('work.occupation', constantsSet: heroScope),
       "CEO of Wayne Enterprises",
     );
     expect(
-      Calculator.calculate('work.base', constantsSet: heroScope),
+      Engine.calculate('work.base', constantsSet: heroScope),
       "Gotham City",
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'connections.group_affiliation',
         constantsSet: heroScope,
       ),
       "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
     );
     expect(
-      Calculator.calculate('connections.relatives', constantsSet: heroScope),
+      Engine.calculate('connections.relatives', constantsSet: heroScope),
       "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)",
     );
 
     expect(
-      Calculator.calculate('image.url', constantsSet: heroScope),
+      Engine.calculate('image.url', constantsSet: heroScope),
       "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
     );
 
-    expect(Calculator.calculate('name ~ "Batman"', constantsSet: heroScope), 1);
+    expect(Engine.calculate('name ~ "Batman"', constantsSet: heroScope), 1);
 
-    expect(Calculator.calculate('name = "Batman"', constantsSet: heroScope), 1);
+    expect(Engine.calculate('name = "Batman"', constantsSet: heroScope), 1);
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'name in ["Batman", "Robin"]',
         constantsSet: heroScope,
       ),
@@ -322,7 +322,7 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'lowercase(name) in ["batman", "robin"]',
         constantsSet: heroScope,
       ),
@@ -330,7 +330,7 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'biography.alignment = bad',
         constantsSet: heroScope,
       ),
@@ -338,7 +338,7 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'biography.alignment > good',
         constantsSet: heroScope,
       ),
@@ -346,7 +346,7 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'biography.alignment = good',
         constantsSet: heroScope,
       ),
@@ -354,7 +354,7 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'appearance.weight.kg / pow(appearance.height.m, 2)',
         constantsSet: heroScope,
       ),
@@ -362,7 +362,7 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate(
+      Engine.calculate(
         'appearance.weight.kg / pow(appearance.height.m, 2) >= 25',
         constantsSet: heroScope,
       ),
@@ -370,12 +370,12 @@ Future<void> main() async {
     );
 
     expect(
-      Calculator.calculate('work.base ~ "cave"', constantsSet: heroScope),
+      Engine.calculate('work.base ~ "cave"', constantsSet: heroScope),
       0, // False, no mentionon of Batcave, batman is no troglodyte
     );
 
     expect(
-      Calculator.calculate('"cave" in work.base', constantsSet: heroScope),
+      Engine.calculate('"cave" in work.base', constantsSet: heroScope),
       0, // False, no mentionon of Batcave, batman is no troglodyte
     );
   });
