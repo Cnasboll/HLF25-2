@@ -12,6 +12,7 @@ class SearchResponseModel {
     HeroDataManaging heroDataManaging,
     Map<String, dynamic> json,
     DateTime timestamp,
+    List<String> failures,
   ) {
     var response = json['response'] as String;
 
@@ -20,7 +21,11 @@ class SearchResponseModel {
     if (response == "success") {
       for (var h in (json['results'] as List<dynamic>)) {
         var heroJson = h as Map<String, dynamic>;
-        results.add(heroDataManaging.heroFromJson(heroJson, timestamp));        
+        try {
+          results.add(heroDataManaging.heroFromJson(heroJson, timestamp));
+        } catch (e) {
+          failures.add(e.toString());
+        }
       }
     }
 

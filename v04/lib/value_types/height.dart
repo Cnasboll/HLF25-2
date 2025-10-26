@@ -69,7 +69,7 @@ class Height extends ValueType<Height> {
       return (Height.fromFeetAndInches(0, 0), null);
     }
 
-    // Try imperial shorthand: 6'2" or 6'2 or 6' 2" or even 5'10' which is the height of  White Queen in api!
+    // Try imperial shorthand: 6'2" or 6'2 or 6' 2" or even 5'10' which is the height of White Queen in api!
     final imperialRegex = RegExp(
       r'''^\s*(\d+)\s*'\s*(\d+)?\s*(?:"|'|in)?\s*$''',
     );
@@ -227,8 +227,6 @@ class Height extends ValueType<Height> {
 
   static double withThreeSignificantDigits(double d) {
     return d;
-    /*String s = d.toStringAsPrecision(3);
-    return double.parse(s);*/
   }
 
   @override
