@@ -17,7 +17,7 @@ class RuntimeException implements Exception {
   String toString() => 'RunitmeException: $message';
 }
 
-class Calculator {
+class Engine {
   static dynamic calculate(String expression, {ConstantsSet? constantsSet}) {
     var v = Tokenizer.tokenize(expression).toList();
     constantsSet ??= prepareConstantsSet();
@@ -35,12 +35,6 @@ class Calculator {
 
   static ConstantsSet prepareConstantsSet() {
     var constantsSet = ConstantsSet();
-
-    // Register null constant
-    constantsSet.constants.register(
-      null,
-      constantsSet.identifiers.include("NULL"),
-    );
 
     // Register mathematical constants
     for (var entry in _int_constants.entries) {
@@ -68,6 +62,10 @@ class Calculator {
   }
 
   static dynamic evaluate(ParseTree parseTree, ConstantsSet constantsSet) {
+    if (parseTree.symbol == Symbols.nullLiteral) {
+      return null;
+    }
+    
     var result = evaluateTerminal(parseTree, constantsSet);
     if (result != null) {
       return result;
@@ -92,11 +90,13 @@ class Calculator {
     );
   }
 
-  static num evaluateBinaryOperator(
+  static dynamic evaluateBinaryOperator(
     Symbols symbol,
     dynamic argument1,
     argument2,
   ) {
+    final oneIsNull = [argument1, argument2].contains(null);
+    final bothAreNull = argument1 == null && argument2 == null;
     switch (symbol) {
       case Symbols.inOp:
         {
@@ -109,24 +109,24 @@ class Calculator {
         }
       case Symbols.add:
         {
-          if ([argument1, argument2].contains(null)) {
-            return double.nan;
+          if (oneIsNull) {
+            return null;
           }
           return argument1 + argument2;
         }
 
       case Symbols.sub:
         {
-          if ([argument1, argument2].contains(null)) {
-            return double.nan;
+          if (oneIsNull) {
+            return null;
           }
           return argument1 - argument2;
         }
 
       case Symbols.div:
         {
-          if ([argument1, argument2].contains(null)) {
-            return double.nan;
+          if (oneIsNull) {
+            return null;
           }
           return argument1 / argument2;
         }
@@ -139,7 +139,7 @@ class Calculator {
       case Symbols.match:
       case Symbols.notMatch:
         {
-          if ([argument1, argument2].contains(null)) {
+          if (oneIsNull) {
             return 0;
           }
 
@@ -151,44 +151,44 @@ class Calculator {
 
       case Symbols.gt:
         {
-          if ([argument1, argument2].contains(null)) {
-            return 0;
+          if (oneIsNull) {
+            return bothAreNull ? 1 : 0;
           }
           return argument1 > argument2 ? 1 : 0;
         }
 
       case Symbols.gtEq:
         {
-          if ([argument1, argument2].contains(null)) {
-            return 0;
+          if (oneIsNull) {
+            return bothAreNull ? 1 : 0;
           }
           return argument1 >= argument2 ? 1 : 0;
         }
       case Symbols.lt:
         {
-          if ([argument1, argument2].contains(null)) {
+          if (oneIsNull) {
             return 0;
           }
           return argument1 < argument2 ? 1 : 0;
         }
       case Symbols.ltEq:
         {
-          if ([argument1, argument2].contains(null)) {
-            return 0;
+          if (oneIsNull) {
+            return bothAreNull ? 1 : 0;
           }
           return argument1 <= argument2 ? 1 : 0;
         }
       case Symbols.mod:
         {
-          if ([argument1, argument2].contains(null)) {
-            return double.nan;
+          if (oneIsNull) {
+            return null;
           }
           return argument1 % argument2;
         }
       case Symbols.mul:
         {
-          if ([argument1, argument2].contains(null)) {
-            return double.nan;
+          if (oneIsNull) {
+            return null;
           }
           return argument1 * argument2;
         }
@@ -277,23 +277,12 @@ class Calculator {
       );
     }
     throw RuntimeException(
-      'Unidentified identifier "$identifier" used as a constant.',
-    );
-  }
+      '''Unidentified identifier "$identifier" used as a constant.
 
-  static num evaluateBinaryFunction(String name, num argument1, argument2) {
-    switch (name) {
-      case "MIN":
-        return min(argument1, argument2);
-      case "MAX":
-        return max(argument1, argument2);
-      case "ATAN2":
-        return atan2(argument1, argument2);
-      case "POW":
-        return pow(argument1, argument2);
-      default:
-        return double.nan;
-    }
+Hint: enclose strings in quotes, e.g.          name ~ "Batman"       rather than:     name ~ Batman
+
+''',
+    );
   }
 
   static bool isUnary(Symbols symbol) {

@@ -27,6 +27,7 @@ enum Symbols {
   integerLiteral,
   floatLiteral,
   stringLiteral,
+  nullLiteral,
 }
 
 enum LiteralTypes {
@@ -69,7 +70,15 @@ enum TokenTypes {
   dot,
 }
 
-enum Keywords { none, inKeyword, notKeyword, andKeyword, orKeyword, xorKeyword }
+enum Keywords {
+  none,
+  inKeyword,
+  notKeyword,
+  andKeyword,
+  orKeyword,
+  xorKeyword,
+  nullKeyword,
+}
 
 class Token {
   String get lexeme {
@@ -207,6 +216,7 @@ class Token {
       "AND": Keywords.andKeyword,
       "OR": Keywords.orKeyword,
       "XOR": Keywords.xorKeyword,
+      "NULL": Keywords.nullKeyword,
     };
   }
 
@@ -249,6 +259,8 @@ class Token {
       // Disjunctions
       Symbols.or: precedence,
       Symbols.xor: precedence++,
+
+      Symbols.nullLiteral: precedence,
     };
   }
 
@@ -279,6 +291,7 @@ class Token {
       Keywords.andKeyword: Symbols.and,
       Keywords.orKeyword: Symbols.or,
       Keywords.xorKeyword: Symbols.xor,
+      Keywords.nullKeyword: Symbols.nullLiteral,
     };
   }
 

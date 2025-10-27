@@ -80,6 +80,11 @@ class Parser {
     ConstantsSet constantsSet, [
     bool allowSign = true,
   ]) {
+
+    if (tokenEnumerator.current.symbol == Symbols.nullLiteral) {
+      return ParseTree(Symbols.nullLiteral, []);
+    }
+
     // If we find a plus or minus sign here, consider that a sign for the operand, then we recurse
     if (tokenEnumerator.current.symbol == Symbols.add) {
       tokenEnumerator.next();

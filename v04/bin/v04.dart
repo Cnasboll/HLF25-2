@@ -51,12 +51,14 @@ Future<void> main() async {
     ),
   };
 
+  void defaultCommand(String query) => listMatchingHeroes(heroDataManager, query: query);
+
   var prompt = generatePrompt(commands);
 
   while (doWOrk) {
     print(prompt);
     try {
-      await menu(heroDataManager, commands);
+      await menu(heroDataManager, commands, defaultCommand: defaultCommand);
     } catch (e) {
       print("Unexpected error: $e");
     }
@@ -90,8 +92,9 @@ Enter a menu option (""");
 
 Future<void> menu(
   HeroDataManaging heroDataManager,
-  Map<String, (Function, String)> commands,
-) async {
+  Map<String, (Function, String)> commands, {
+  Function(String)? defaultCommand,
+}) async {
   var input = promptFor("").toLowerCase();
   if (input.isEmpty) {
     print("Please enter a command");
@@ -99,8 +102,15 @@ Future<void> menu(
   }
   var command = commands[input.substring(0, 1)]?.$1;
   if (command == null) {
-    print("Invalid command, please try again");
-    return;
+    if (defaultCommand != null) {
+      print("No command entered, using default search");
+      command = () => defaultCommand(input);
+    }
+
+    if (command == null) {
+      print("Invalid command, please try again");
+      return;
+    }
   }
   await command();
 }
@@ -140,8 +150,8 @@ void listTopNHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-void listMatchingHeroes(HeroDataManaging heroDataManager) {
-  var result = search(heroDataManager);
+void listMatchingHeroes(HeroDataManaging heroDataManager, {String? query}) {
+  var result = search(heroDataManager, query: query);
   if (result == null) {
     return;
   }
@@ -150,8 +160,8 @@ void listMatchingHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-Future<void> saveHeroes(HeroDataManaging heroDataManager) async {
-  var query = promptFor("Enter a search string:");
+Future<void> saveHeroes(HeroDataManaging heroDataManager, {String? query}) async {
+  query ??= promptFor("Enter a search string:");
   var heroService = HeroService(Env());
   var timestamp = DateTime.timestamp();
   print(''' 
@@ -337,9 +347,10 @@ $unlockedHero''');
 
 List<HeroModel>? search(
   HeroDataManaging heroDataManager, {
+  String? query,
   bool Function(HeroModel)? filter,
 }) {
-  var query = promptFor("Enter a search string:");
+  query ??= promptFor("Enter a search string in SHQL™ or plain text:");
   var results = heroDataManager.query(query, filter: filter);
   if (results.isEmpty) {
     print("No heroes found");
@@ -391,12 +402,14 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
     "x": (() => {exit = true}, "E[X]it and return to main menu"),
   };
 
+  void defaultCommand(String query) => saveHeroes(heroDataManager, query: query);
+
   var prompt = generatePrompt(commands);
 
   while (!exit) {
     print(prompt);
     try {
-      await menu(heroDataManager, commands);
+      await menu(heroDataManager, commands, defaultCommand: defaultCommand);
     } catch (e) {
       print("Unexpected error: $e");
     }

@@ -1,5 +1,14 @@
 class ConstantsTable<T> {
-    ConstantsTable({ConstantsTable<T>? parent}) : _parent = parent;
+  ConstantsTable({ConstantsTable<T>? parent}) : _parent = parent;
+
+  // Deep copy constructor
+  ConstantsTable.copy(ConstantsTable<T> other, {ConstantsTable<T>? parent})
+    : _parent = parent {
+    // Deep copy all the collections
+    _constants.addAll(other._constants);
+    _index.addAll(other._index);
+    _indexByIdentifier.addAll(other._indexByIdentifier);
+  }
 
   int include(T value) {
     var index = _index[value];
@@ -41,7 +50,7 @@ class ConstantsTable<T> {
     if (_parent == null) {
       return this;
     }
-  
+
     return _parent.root();
   }
 
@@ -52,10 +61,12 @@ class ConstantsTable<T> {
 }
 
 class ConstantsSet {
-  ConstantsSet() : _constants = ConstantsTable(), _identifiers = ConstantsTable();
-  
+  ConstantsSet()
+    : _constants = ConstantsTable(),
+      _identifiers = ConstantsTable();
+
   ConstantsSet._child(ConstantsSet parent)
-    : _constants = ConstantsTable(parent: parent._constants),
+    : _constants = ConstantsTable<dynamic>.copy(parent._constants),
       _identifiers = parent._identifiers;
 
   ConstantsSet._subModel(ConstantsSet parent)
@@ -84,30 +95,37 @@ class ConstantsSet {
     for (var value in values) {
       constants.register(
         value.index,
-        identifiers.include(_camelCaseToScreamingSnakeCase(value.name)),
+        identifiers.include(camelCaseToSnakeCase(value.name)),
       );
     }
   }
 
-  String _camelCaseToScreamingSnakeCase(String camelCase) {
-    if (camelCase.isEmpty) return camelCase;
-    
+  String camelCaseToSnakeCase(String camelCase) {
+    if (camelCase.isEmpty) {
+      return camelCase;
+    }
+
     final buffer = StringBuffer();
-    
-    for (int i = 0; i < camelCase.length; i++) {
-      final char = camelCase[i];
-      
+
+    bool? upperCase;
+    for (var char in camelCase.runes.map((r) => String.fromCharCode(r))) {
+      bool? wasUpperCase = upperCase;
       if (char.toUpperCase() == char && char.toLowerCase() != char) {
-        // This is an uppercase letter
-        if (i > 0) {
+        // Encountered an uppercase letter
+        upperCase = true;
+      } else {
+        upperCase = false;
+      }
+
+      if (wasUpperCase == false && upperCase) {
+        // Transition from lower to upper case
+        if (buffer.isNotEmpty) {
           buffer.write('_');
         }
-        buffer.write(char.toUpperCase());
-      } else {
-        buffer.write(char.toUpperCase());
       }
+      buffer.write(char.toUpperCase());
     }
-    
+
     return buffer.toString();
   }
 

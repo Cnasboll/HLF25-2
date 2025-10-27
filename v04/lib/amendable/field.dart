@@ -619,27 +619,17 @@ class Field<T, V> implements FieldBase<T> {
     return '${qualifier}NULL';
   }
 
+  static final Map<Type, String> _sqliteColumnTypes = {
+    int: 'INTEGER',
+    String: 'TEXT',
+    bool: 'BOOLEAN',
+    double: 'REAL',
+    Enum: 'TEXT',
+  };
+
   @override
   String generateSqliteColumnType() {
-    String columnType;
-
-    // My only nested if statement in this project and hopefully the entire course
-
-    if (V == int) {
-      columnType = "INTEGER";
-    } else if (V == String) {
-      columnType = "TEXT";
-    } else if (V == bool) {
-      columnType = "BOOLEAN";
-    } else if (V == double) {
-      columnType = "REAL";
-    } else if (V == Enum) {
-      columnType = "TEXT";
-    } else {
-      // Fallback to TEXT for complex types
-      columnType = "TEXT";
-    }
-
+    String columnType = _sqliteColumnTypes[V] ?? 'TEXT';
     return "$columnType ${sqliteQualifier()}";
   }
 
