@@ -16,7 +16,7 @@ import 'package:v04/value_types/weight.dart';
 final DateTime deadline = DateTime.parse("2025-10-28T18:00:00.000000Z");
 
 Future<void> main() async {
-  test('Can reason about Batman', () {
+  test('Can reason about Batman', () async {
     var batman = HeroModel(
       id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
       version: 1,
@@ -37,8 +37,8 @@ Future<void> main() async {
       appearance: AppearanceModel(
         gender: Gender.male,
         race: "Human",
-        height: Height.parseList(["6'2", "188 cm"]),
-        weight: Weight.parseList(["209 lb", "95 kg"]),
+        height: await Height.parseList(["6'2", "188 cm"]),
+        weight: await Weight.parseList(["209 lb", "95 kg"]),
         eyeColor: 'blue',
         hairColor: 'black',
       ),

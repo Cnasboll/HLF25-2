@@ -70,33 +70,33 @@ void main() {
     expect(w.toString(), "90,000 tons");
   });
 
-  test('parse list with corresponding values in different systems', () {
-    final imp = Weight.parseList(['209 lb', '95 kg']);
+  test('parse list with corresponding values in different systems', () async {
+    final imp = await Weight.parseList(['209 lb', '95 kg']);
     expect(imp.wholePounds, 209);
     expect(imp.toString(), "209 lb");
 
-    final imp2 = Weight.parseList(['210 lb', '95 kg']);
+    final imp2 = await Weight.parseList(['210 lb', '95 kg']);
     expect(imp2.wholePounds, 210);
     expect(imp2.toString(), "210 lb");
 
     // Note that 95 kgs can correspond to both 209 or 210 pounds
-    final metric = Weight.parseList(['95 kg', '209 lb']);
+    final metric = await Weight.parseList(['95 kg', '209 lb']);
     expect(metric.wholeKilograms, 95);
     expect(metric.toString(), "95 kg");
 
-    final metric2 = Weight.parseList(['95 kg', '210 lb']);
+    final metric2 = await Weight.parseList(['95 kg', '210 lb']);
     expect(metric2.wholeKilograms, 95);
     expect(metric2.toString(), "95 kg");
 
-    final metric3 = Weight.parseList(['95 kg', '210 lb', '209 lb']);
+    final metric3 = await Weight.parseList(['95 kg', '210 lb', '209 lb']);
     expect(metric3.wholeKilograms, 95);
     expect(metric3.toString(), "95 kg");
 
-    final redundantMetric = Weight.parseList(['95 kg', '209 lb', "95"]);
+    final redundantMetric = await Weight.parseList(['95 kg', '209 lb', "95"]);
     expect(redundantMetric.wholeKilograms, 95);
     expect(redundantMetric.toString(), "95 kg");
 
-    final moreImperial = Weight.parseList(["155 lb", "70 kg"]);
+    final moreImperial = await Weight.parseList(["155 lb", "70 kg"]);
     expect(moreImperial.wholePounds, 155);
     expect(moreImperial.toString(), "155 lb");
   });

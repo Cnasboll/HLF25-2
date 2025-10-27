@@ -65,10 +65,10 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   }
 
   @override
-  PowerStatsModel amendWith(
+  Future<PowerStatsModel> amendWith(
     Map<String, dynamic>? amendment, {
     ParsingContext? parsingContext,
-  }) {
+  }) async {
     return PowerStatsModel(
       intelligence: _intelligenceField.getPercentageForAmendment(
         this,
@@ -156,8 +156,8 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   final Percentage? power;
   final Percentage? combat;
 
-  static PowerStatsModel? fromPrompt() {
-    var json = Amendable.promptForJson(staticFields);
+  static Future<PowerStatsModel?> fromPrompt() async {
+    var json = await Amendable.promptForJson(staticFields);
     if (json == null) {
       return null;
     }

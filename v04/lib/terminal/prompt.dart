@@ -1,13 +1,13 @@
 import 'package:v04/terminal/terminal.dart';
 
-String promptFor(String promptText, [String defaultValue = '']) {
-  var input = Terminal.readInput(promptText) ?? defaultValue;
+Future<String> promptFor(String promptText, [String defaultValue = '']) async {
+  var input = (await Terminal.readInput(promptText)) ?? defaultValue;
   return input.isEmpty ? defaultValue : input;
 }
 
-bool promptForYesNo(String prompt) {
+Future<bool> promptForYesNo(String prompt) async {
   for (;;) {
-    var input = promptFor('''
+    var input = await promptFor('''
 
 $prompt (y/n)''');
     if (input.startsWith("y")) {
@@ -22,11 +22,14 @@ $prompt (y/n)''');
 
 enum YesNoAllQuit { yes, no, all, quit }
 
-YesNoAllQuit promptForYesNoAllQuit(String prompt) {
+Future<YesNoAllQuit> promptForYesNoAllQuit(String prompt) async {
   for (;;) {
-    var input = promptFor('''
+    // Add a small delay to ensure any spinner output is complete
+    await Future.delayed(Duration(milliseconds: 100));
+    
+    var input = (await promptFor('''
 
-$prompt (y = yes, n = no, a = all, q = quit)''').toLowerCase();
+$prompt (y = yes, n = no, a = all, q = quit)''')).toLowerCase();
     if (input.startsWith("y")) {
       return YesNoAllQuit.yes;
     }
@@ -39,27 +42,27 @@ $prompt (y = yes, n = no, a = all, q = quit)''').toLowerCase();
     if (input.startsWith("q")) {
       return YesNoAllQuit.quit;
     }
-    Terminal.println("Invalid answer, please enter y or n");
+    Terminal.println("Invalid answer, please enter y = yes, n = no, a = all, or q = quit");
   }
 }
 
-bool promptForYes(String prompt) {
-  return promptFor('''
+Future<bool> promptForYes(String prompt) async {
+  return (await promptFor('''
 
-$prompt (y/N)''', 'N').toLowerCase().startsWith('y');
+$prompt (y/N)''', 'N')).toLowerCase().startsWith('y');
 }
 
-bool promptForNo(String prompt) {
-  return !(promptFor('''
+Future<bool> promptForNo(String prompt) async {
+  return !((await promptFor('''
 
-$prompt (Y/n)''', 'Y').toLowerCase()).startsWith('n');
+$prompt (Y/n)''', 'Y')).toLowerCase()).startsWith('n');
 }
 
 enum YesNextCancel { yes, next, cancel }
 
-YesNextCancel promptForYesNextCancel(String prompt) {
+Future<YesNextCancel> promptForYesNextCancel(String prompt) async {
   for (;;) {
-    var input = promptFor("$prompt (y = yes, n = next, c = cancel)");
+    var input = await promptFor("$prompt (y = yes, n = next, c = cancel)");
     if (input.startsWith("y")) {
       return YesNextCancel.yes;
     }

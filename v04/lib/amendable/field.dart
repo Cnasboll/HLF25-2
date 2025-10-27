@@ -84,7 +84,7 @@ class Field<T, V> implements FieldBase<T> {
     this.shqlName,
     this.description,
     this.format,
-    this. formatEx,
+    this.formatEx,
     this.sqliteGetter,
     this.shqlGetter,
     this.primary,
@@ -149,7 +149,7 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  bool promptForJson(Map<String, dynamic> json, {String? crumbtrail}) {
+  Future<bool> promptForJson(Map<String, dynamic> json, {String? crumbtrail}) async {
     if (assignedBySystem) {
       return true;
     }
@@ -159,7 +159,7 @@ class Field<T, V> implements FieldBase<T> {
           ? "finish populating $crumbtrail"
           : "abort";
       var promptSuffix = prompt != null ? '$prompt' : '';
-      var input = promptFor(
+      var input = await promptFor(
         "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:",
       );
       if (input.isEmpty) {
@@ -169,10 +169,10 @@ class Field<T, V> implements FieldBase<T> {
       return true;
     }
 
-    if (promptForYesNo('Populate $fullPath ($description)?')) {
+    if (await promptForYesNo('Populate $fullPath ($description)?')) {
       var childJson = json[jsonName] = <String, dynamic>{};
       for (var child in _children) {
-        if (!child.promptForJson(childJson, crumbtrail: fullPath)) {
+        if (!await child.promptForJson(childJson, crumbtrail: fullPath)) {
           return true;
         }
       }
@@ -181,11 +181,11 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  void promptForAmendmentJson(
+  Future<void> promptForAmendmentJson(
     T t,
     Map<String, dynamic> amendment, {
     String? crumbtrail,
-  }) {
+  }) async {
     if (!mutable || assignedBySystem) {
       return;
     }
@@ -193,7 +193,7 @@ class Field<T, V> implements FieldBase<T> {
     if (_children.isEmpty || childrenForDbOnly) {
       var promptSuffix = prompt != null ? '$prompt' : '';
       var current = format(t);
-      var input = promptFor(
+      var input = await promptFor(
         "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
       );
       if (input.isNotEmpty) {
@@ -202,10 +202,10 @@ class Field<T, V> implements FieldBase<T> {
       return;
     }
 
-    if (promptForYes('Amend $fullPath ($description)?')) {
+    if (await promptForYes('Amend $fullPath ($description)?')) {
       var childAmendment = amendment[jsonName] = <String, dynamic>{};
       for (var child in _children) {
-        child.promptForAmendmentJson(
+        await child.promptForAmendmentJson(
           getter(t),
           childAmendment,
           crumbtrail: fullPath,
@@ -247,7 +247,7 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  void formatField(T t, StringBuffer sb, {String? crumbtrail}) {
+  void formatField(T t, StringBuffer sb, {String? crumbtrail}) {   
     var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty || childrenForDbOnly) {
       sb.writeln("$fullPath: ${format(t)}${formatEx(t)}");

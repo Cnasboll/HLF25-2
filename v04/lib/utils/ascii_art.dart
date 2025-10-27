@@ -2,62 +2,6 @@ import 'dart:math';
 
 /// Simple ASCII art converter for hero images
 class AsciiArt {
-  static const String _grayScale = ' .:-=+*#%@';
-
-  /// Creates ASCII art from hero image URL (simulated for demo)
-  static String createHeroPortrait(String heroName) {
-    final random = Random(heroName.hashCode);
-    final lines = <String>[];
-
-    // Create a simple 20x10 ASCII portrait based on hero name
-    for (int y = 0; y < 10; y++) {
-      String line = '';
-      for (int x = 0; x < 20; x++) {
-        // Create a simple pattern based on position and hero name
-        final intensity = _calculateIntensity(x, y, heroName, random);
-        final charIndex = (intensity * (_grayScale.length - 1)).round();
-        line += _grayScale[charIndex];
-      }
-      lines.add(line);
-    }
-
-    return lines.join('\n');
-  }
-
-  /// Calculate intensity for ASCII character selection
-  static double _calculateIntensity(
-    int x,
-    int y,
-    String heroName,
-    Random random,
-  ) {
-    // Create a face-like pattern
-    final centerX = 10;
-    final centerY = 5;
-    final distanceFromCenter = sqrt(pow(x - centerX, 2) + pow(y - centerY, 2));
-
-    // Eyes
-    if ((x == 7 || x == 13) && y == 3) return 1.0;
-
-    // Nose
-    if (x == 10 && y == 5) return 0.8;
-
-    // Mouth
-    if ((x >= 8 && x <= 12) && y == 7) return 0.9;
-
-    // Face outline
-    if (distanceFromCenter > 6 && distanceFromCenter < 8) return 0.6;
-
-    // Hair (top)
-    if (y <= 2 && distanceFromCenter < 7)
-      return 0.7 + random.nextDouble() * 0.3;
-
-    // Face interior
-    if (distanceFromCenter < 6) return 0.2 + random.nextDouble() * 0.3;
-
-    // Background
-    return random.nextDouble() * 0.2;
-  }
 
   /// Create ASCII banner text
   static String createBanner(String text) {

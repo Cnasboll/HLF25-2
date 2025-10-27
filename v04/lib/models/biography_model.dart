@@ -67,7 +67,10 @@ class BiographyModel extends Amendable<BiographyModel> {
   }
 
   @override
-  BiographyModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
+  Future<BiographyModel> amendWith(
+    Map<String, dynamic>? amendment, {
+    ParsingContext? parsingContext,
+  }) async {
     return BiographyModel(
       fullName: _fullNameField.getNullableStringForAmendment(this, amendment),
       alterEgos: _alterEgosField.getNullableStringForAmendment(this, amendment),
@@ -92,7 +95,10 @@ class BiographyModel extends Amendable<BiographyModel> {
     );
   }
 
-  static BiographyModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
+  static BiographyModel fromJson(
+    Map<String, dynamic>? json, {
+    ParsingContext? parsingContext,
+  }) {
     if (json == null) {
       return BiographyModel();
     }
@@ -135,8 +141,8 @@ class BiographyModel extends Amendable<BiographyModel> {
   final String? publisher;
   final Alignment alignment;
 
-  static BiographyModel fromPrompt() {
-    var json = Amendable.promptForJson(staticFields);
+  static Future<BiographyModel> fromPrompt() async {
+    var json = await Amendable.promptForJson(staticFields);
     if (json == null) {
       return BiographyModel();
     }
@@ -151,11 +157,8 @@ class BiographyModel extends Amendable<BiographyModel> {
   @override
   List<FieldBase<BiographyModel>> get fields => staticFields;
 
-  static FieldBase<BiographyModel> get _fullNameField => Field.infer(
-    (m) => m.fullName,
-    "Full Name",
-    "Also applies when hungry"
-  );
+  static FieldBase<BiographyModel> get _fullNameField =>
+      Field.infer((m) => m.fullName, "Full Name", "Also applies when hungry");
 
   /// Special string literal used in the API to indicate no alter egos exist -- treat as null.
   /// Do not use as an actual alter ego, as villains may exploit this loophole to evade detection systems!
@@ -166,7 +169,8 @@ class BiographyModel extends Amendable<BiographyModel> {
     "Alter Egos",
     "Alter egos of the character",
     extraNullLiterals: [noAlterEgosFound],
-    shqlGetter: (m) => specialNullCoalesce(m.alterEgos, extraNullLiterals: [noAlterEgosFound])
+    shqlGetter: (m) =>
+        specialNullCoalesce(m.alterEgos, extraNullLiterals: [noAlterEgosFound]),
   );
 
   static final FieldBase<BiographyModel> _aliasesField = Field.infer(

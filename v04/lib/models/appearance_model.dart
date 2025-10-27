@@ -50,10 +50,10 @@ class AppearanceModel extends Amendable<AppearanceModel> {
   }
 
   @override
-  AppearanceModel amendWith(
+  Future<AppearanceModel> amendWith(
     Map<String, dynamic>? amendment, {
     ParsingContext? parsingContext,
-  }) {
+  }) async {
     return AppearanceModel(
       gender: _genderField.getEnumForAmendment<Gender>(
         this,
@@ -61,11 +61,11 @@ class AppearanceModel extends Amendable<AppearanceModel> {
         amendment,
       ),
       race: _raceField.getNullableStringForAmendment(this, amendment),
-      height: Height.parseList(
+      height: await Height.parseList(
         _heightField.getNullableStringListFromJsonForAmendment(this, amendment),
         parsingContext: parsingContext?.next(_heightField.name),
       ),
-      weight: Weight.parseList(
+      weight: await Weight.parseList(
         _weightField.getNullableStringListFromJsonForAmendment(this, amendment),
         parsingContext: parsingContext?.next(_weightField.name),
       ),
@@ -74,21 +74,21 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     );
   }
 
-  static AppearanceModel fromJson(
+  static Future<AppearanceModel> fromJson(
     Map<String, dynamic>? json, {
     ParsingContext? parsingContext,
-  }) {
+  }) async {
     if (json == null) {
       return AppearanceModel(gender: Gender.unknown);
     }
     return AppearanceModel(
       gender: _genderField.getEnum<Gender>(Gender.values, json, Gender.unknown),
       race: _raceField.getNullableString(json),
-      height: Height.parseList(
+      height: await Height.parseList(
         _heightField.getNullableStringList(json),
         parsingContext: parsingContext?.next(_heightField.name),
       ),
-      weight: Weight.parseList(
+      weight: await Weight.parseList(
         _weightField.getNullableStringList(json),
         parsingContext: parsingContext?.next(_weightField.name),
       ),
@@ -115,8 +115,8 @@ class AppearanceModel extends Amendable<AppearanceModel> {
   final String? eyeColor;
   final String? hairColor;
 
-  static AppearanceModel fromPrompt() {
-    var json = Amendable.promptForJson(staticFields);
+  static Future<AppearanceModel> fromPrompt() async {
+    var json = await Amendable.promptForJson(staticFields);
     if (json == null) {
       return AppearanceModel();
     }

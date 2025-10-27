@@ -143,11 +143,14 @@ class Height extends ValueType<Height> {
     return (null, 'Could not parse height: $input');
   }
 
-  static Height parseList(
+  static Future parseList(
     List<String>? valueInVariousUnits, {
     ParsingContext? parsingContext,
-  }) {
-    var (value, error) = tryParseList(valueInVariousUnits, parsingContext);
+  }) async {
+    var (value, error) = await tryParseList(
+      valueInVariousUnits,
+      parsingContext,
+    );
     if (error != null) {
       throw FormatException(error);
     }
@@ -155,10 +158,10 @@ class Height extends ValueType<Height> {
   }
 
   static ConflictResolver<Height>? conflictResolver;
-  static (Height?, String?) tryParseList(
+  static Future<(Height?, String?)> tryParseList(
     List<String>? valueVariousUnits,
     ParsingContext? parsingContext,
-  ) {
+  ) async {
     return ValueType.tryParseList(
       valueVariousUnits,
       "height",

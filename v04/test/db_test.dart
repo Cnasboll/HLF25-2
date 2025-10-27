@@ -65,11 +65,11 @@ Future<void> main() async {
         appearance: AppearanceModel(
           gender: Gender.male,
           race: "Human",
-          height: Height.parseList([
+          height: await Height.parseList([
             "6'2",
             "188 cm",
           ], parsingContext: parsingContext),
-          weight: Weight.parseList([
+          weight: await Weight.parseList([
             "210 lb",
             "95 kg",
           ], parsingContext: parsingContext),
@@ -126,11 +126,11 @@ Future<void> main() async {
         appearance: AppearanceModel(
           gender: Gender.unknown,
           race: "Human",
-          height: Height.parseList([
+          height: await Height.parseList([
             "5'10",
             "178 cm",
           ], parsingContext: parsingContext),
-          weight: Weight.parseList([
+          weight: await Weight.parseList([
             "159 lb",
             "72 kg",
           ], parsingContext: parsingContext),
@@ -199,11 +199,11 @@ Future<void> main() async {
       appearance: AppearanceModel(
         gender: Gender.wontSay,
         race: "Human",
-        height: Height.parseList([
+        height: await Height.parseList([
           "5'9",
           "175 cm",
         ], parsingContext: parsingContext),
-        weight: Weight.parseList([
+        weight: await Weight.parseList([
           "155 lb",
           "70 kg",
         ], parsingContext: parsingContext),

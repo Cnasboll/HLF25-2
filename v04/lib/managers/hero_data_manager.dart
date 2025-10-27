@@ -66,7 +66,7 @@ class HeroDataManager implements HeroDataManaging {
   }
 
   @override
-  HeroModel heroFromJson(Map<String, dynamic> json, DateTime timestamp) {
+  Future<HeroModel> heroFromJson(Map<String, dynamic> json, DateTime timestamp) async {
     var externalId = json['id'] as String;
     var currentVersion = getByExternalId(externalId);
     if (currentVersion != null) {

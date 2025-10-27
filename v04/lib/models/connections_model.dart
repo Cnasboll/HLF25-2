@@ -23,7 +23,7 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
   }
 
   @override
-  ConnectionsModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
+  Future<ConnectionsModel> amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) async {
     return ConnectionsModel(
       groupAffiliation: _groupAffiliationField.getNullableStringForAmendment(
         this,
@@ -53,8 +53,8 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
   final String? groupAffiliation;
   final String? relatives;
 
-  static ConnectionsModel fromPrompt() {
-    var json = Amendable.promptForJson(staticFields);
+  static Future<ConnectionsModel> fromPrompt() async {
+    var json = await Amendable.promptForJson(staticFields);
     if (json == null) {
       return ConnectionsModel();
     }

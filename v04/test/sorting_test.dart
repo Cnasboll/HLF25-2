@@ -13,7 +13,7 @@ import 'package:v04/value_types/weight.dart';
 final DateTime deadline = DateTime.parse("2025-10-28T18:00:00.000000Z");
 
 Future<void> main() async {
-  test('Sorting test', () {
+  test('Sorting test', () async {
     var batman = HeroModel(
       id: "02ffbb60-762b-4552-8f41-be8aa86869c6",
       version: 1,
@@ -34,8 +34,8 @@ Future<void> main() async {
       appearance: AppearanceModel(
         gender: Gender.male,
         race: "Human",
-        height: Height.parseList(["6'2", "188 cm"]),
-        weight: Weight.parseList(["209 lb", "95 kg"]),
+        height: await Height.parseList(["6'2", "188 cm"]),
+        weight: await Weight.parseList(["209 lb", "95 kg"]),
         eyeColor: 'blue',
         hairColor: 'black',
       ),
@@ -74,8 +74,8 @@ Future<void> main() async {
       appearance: AppearanceModel(
         gender: Gender.unknown,
         race: "Human",
-        height: Height.parseList(["5'10", "178 cm"]),
-        weight: Weight.parseList(["159 lb", "72 kg"]),
+        height: await Height.parseList(["5'10", "178 cm"]),
+        weight: await Weight.parseList(["159 lb", "72 kg"]),
         eyeColor: 'blue',
         hairColor: 'black',
       ),
@@ -106,8 +106,8 @@ Future<void> main() async {
       appearance: AppearanceModel(
         gender: Gender.wontSay,
         race: "Human",
-        height: Height.parseList(["5'9", "175 cm"]),
-        weight: Weight.parseList(["155 lb", "70 kg"]),
+        height: await Height.parseList(["5'9", "175 cm"]),
+        weight: await Weight.parseList(["155 lb", "70 kg"]),
       ),
       work: WorkModel(occupation: "Butler", base: "Wayne Manor"),
       connections: ConnectionsModel(

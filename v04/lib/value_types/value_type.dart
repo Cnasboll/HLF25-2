@@ -27,7 +27,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     return (value, unitOfMeasurement);
   }
 
-  static (T?, String?) checkConsistency<T extends ValueType<T>>(
+  static Future<(T?, String?)> checkConsistency<T extends ValueType<T>>(
     String valueTypeName,
     ValueType<T> value,
     String valueSource,
@@ -35,7 +35,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     String input,
     ParsingContext? parsingContext,
     ConflictResolver<T>? conflictResolver,
-  ) {
+  ) async {
     var valueSystemOfUnits = value.systemOfUnits;
     var parsedSystemOfUnits = parsedValue.systemOfUnits;
     if (parsedSystemOfUnits != valueSystemOfUnits) {
@@ -103,7 +103,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     var integralSecond = int.tryParse(input);
     if (integralFirst != null && integralSecond == null) {
       // First value is integral only, so recurse but change value to the integer interpreted in other unit
-      var (newValue, error) = checkConsistency<T>(
+      var (newValue, error) = await checkConsistency<T>(
         valueTypeName,
         value.integralFromOtherSystem(integralFirst),
         valueSource,
@@ -122,7 +122,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
       // this handles the case of Height: ["304.8 meters", "1000"] for Ymir where "1000" means 1000 feet and not 1000 cm
       // as our code doesn't care about the order of values in the list even though the api always seems to put imperial first
       // but that is not a specified contract!
-      var (newValue, error) = checkConsistency<T>(
+      var (newValue, error) = await checkConsistency<T>(
         valueTypeName,
         value,
         valueSource,
@@ -146,13 +146,13 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     );
   }
 
-  static (T?, String?) tryParseList<T extends ValueType<T>>(
+  static Future<(T?, String?)> tryParseList<T extends ValueType<T>>(
     List<String>? valueInVariousUnits,
     String valueTypeName,
     (T?, String?) Function(String) tryParse, {
     ParsingContext? parsingContext,
     ConflictResolver<T>? conflictResolver,
-  }) {
+  }) async {
     // Null is also accepted and means no information provided (i.e. keep current for amendments), but an *empty* list is an error
     if (valueInVariousUnits == null) {
       return (null, null);
@@ -188,7 +188,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
       }
 
       String? error;
-      (value, error) = checkConsistency<T>(
+      (value, error) = await checkConsistency<T>(
         valueTypeName,
         value,
         valueSource!,
