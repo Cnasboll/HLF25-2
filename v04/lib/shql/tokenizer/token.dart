@@ -15,6 +15,8 @@ enum Symbols {
   gtEq,
   eq,
   neq,
+  match,
+  notMatch,
   and,
   or,
   xor,
@@ -27,7 +29,15 @@ enum Symbols {
   stringLiteral,
 }
 
-enum LiteralTypes { none, integerLiteral, floatLiteral, stringLiteral }
+enum LiteralTypes {
+  none,
+  integerLiteral,
+  floatLiteral,
+  doubleQuotedStringLiteral,
+  doubleQuotedRawStringLiteral,
+  singleQuotedStringLiteral,
+  singleQuotedRawStringLiteral,
+}
 
 enum TokenTypes {
   mul,
@@ -41,9 +51,15 @@ enum TokenTypes {
   neq,
   gt,
   gtEq,
+  match,
+  not,
+  notMatch,
   integerLiteral,
   floatLiteral,
-  stringLiteral,
+  doubleQuotedStringLiteral,
+  doubleQuotedRawStringLiteral,
+  singleQuotedStringLiteral,
+  singleQuotedRawStringLiteral,
   lPar,
   rPar,
   lBrack,
@@ -107,13 +123,22 @@ class Token {
       case TokenTypes.floatLiteral:
         literalType = LiteralTypes.floatLiteral;
         break;
-      case TokenTypes.stringLiteral:
-        literalType = LiteralTypes.stringLiteral;
+      case TokenTypes.doubleQuotedStringLiteral:
+        literalType = LiteralTypes.doubleQuotedStringLiteral;
+        break;
+      case TokenTypes.singleQuotedStringLiteral:
+        literalType = LiteralTypes.singleQuotedStringLiteral;
+        break;
+      case TokenTypes.singleQuotedRawStringLiteral:
+        literalType = LiteralTypes.singleQuotedRawStringLiteral;
+        break;
+      case TokenTypes.doubleQuotedRawStringLiteral:
+        literalType = LiteralTypes.doubleQuotedRawStringLiteral;
         break;
       default:
         break;
     }
-    var operatorSymbol = _boolOpTable[keyword] ?? _symbolTable[tokenType];
+    var operatorSymbol = _keywordOpTable[keyword] ?? _symbolTable[tokenType];
     if (operatorSymbol != null) {
       symbol = operatorSymbol;
       operatorPrecedence = _operatorPrecendences[symbol]!;
@@ -189,7 +214,7 @@ class Token {
     var precedence = 0;
     return {
       // Member access
-      Symbols.memberAccess: precedence,
+      Symbols.memberAccess: precedence++,
       // In [array]
       Symbols.inOp: precedence,
       // Not
@@ -212,7 +237,11 @@ class Token {
 
       // Equalities
       Symbols.eq: precedence,
-      Symbols.neq: precedence++,
+      Symbols.neq: precedence,
+
+      // Pattern matching
+      Symbols.match: precedence,
+      Symbols.notMatch: precedence++,
 
       // Conjunctions
       Symbols.and: precedence++,
@@ -231,16 +260,19 @@ class Token {
       TokenTypes.mod: Symbols.mod,
       TokenTypes.add: Symbols.add,
       TokenTypes.sub: Symbols.sub,
+      TokenTypes.not: Symbols.not,
       TokenTypes.lt: Symbols.lt,
       TokenTypes.ltEq: Symbols.ltEq,
       TokenTypes.eq: Symbols.eq,
       TokenTypes.neq: Symbols.neq,
       TokenTypes.gt: Symbols.gt,
       TokenTypes.gtEq: Symbols.gtEq,
+      TokenTypes.match: Symbols.match,
+      TokenTypes.notMatch: Symbols.notMatch,
     };
   }
 
-  static Map<Keywords, Symbols> getBoolOpTable() {
+  static Map<Keywords, Symbols> getKeywordOpTable() {
     return {
       Keywords.inKeyword: Symbols.inOp,
       Keywords.notKeyword: Symbols.not,
@@ -256,7 +288,7 @@ class Token {
   static final Map<Symbols, int> _operatorPrecendences =
       getOperatorPrecendences();
   static final Map<TokenTypes, Symbols> _symbolTable = getSymbolTable();
-  static final Map<Keywords, Symbols> _boolOpTable = getBoolOpTable();
+  static final Map<Keywords, Symbols> _keywordOpTable = getKeywordOpTable();
   final Keywords _keyword;
   final LiteralTypes _literalType;
   final int _operatorPrecedence;

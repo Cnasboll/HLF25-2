@@ -1,5 +1,6 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/parsing_context.dart';
+import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/value_types/percentage.dart';
 
 abstract class FieldBase<T> {
@@ -76,6 +77,9 @@ abstract class FieldBase<T> {
   String generateSqliteColumnDefinition();
   String generateSqliteUpdateClause(String indent);
   Object? Function(T) get getter;
+
+  void declareIdentifiers(ConstantsSet constantsSet);
+  void registerIdentifiers(T t, ConstantsSet constantsSet);
 
 /// Descriptive name of a field
   String get name;

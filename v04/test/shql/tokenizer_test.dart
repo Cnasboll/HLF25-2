@@ -27,33 +27,81 @@ void main() {
     expect(Symbols.none, v[2].symbol);
   });
 
-  test('Tokenize minimal string', () {
+  test('Tokenize minimal double quoted string', () {
     var v = Tokenizer.tokenize('"h"').toList();
 
     expect(1, v.length);
-    expect(TokenTypes.stringLiteral, v[0].tokenType);
+    expect(TokenTypes.doubleQuotedStringLiteral, v[0].tokenType);
     expect(v[0].lexeme, '"h"');
     expect(Symbols.none, v[0].symbol);
   });
 
-  test('Tokenize strings', () {
+  test('Tokenize minimal single quoted string', () {
+    var v = Tokenizer.tokenize("'h'").toList();
+
+    expect(1, v.length);
+    expect(TokenTypes.singleQuotedStringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, "'h'");
+    expect(Symbols.none, v[0].symbol);
+  });
+
+  test('Tokenize double quoted strings', () {
     var v = Tokenizer.tokenize('"hello world" "good bye"').toList();
 
     expect(2, v.length);
-    expect(TokenTypes.stringLiteral, v[0].tokenType);
+    expect(TokenTypes.doubleQuotedStringLiteral, v[0].tokenType);
     expect(v[0].lexeme, '"hello world"');
     expect(Symbols.none, v[0].symbol);
-    expect(TokenTypes.stringLiteral, v[1].tokenType);
+    expect(TokenTypes.doubleQuotedStringLiteral, v[1].tokenType);
     expect(v[1].lexeme, '"good bye"');
     expect(Symbols.none, v[1].symbol);
   });
 
-  test('Tokenize escaped string', () {
-    var v = Tokenizer.tokenize('"5\\"11\'"').toList();
+  test('Tokenize single quoted strings', () {
+    var v = Tokenizer.tokenize("'hello world' 'good bye'").toList();
+
+    expect(2, v.length);
+    expect(TokenTypes.singleQuotedStringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, "'hello world'");
+    expect(Symbols.none, v[0].symbol);
+    expect(TokenTypes.singleQuotedStringLiteral, v[1].tokenType);
+    expect(v[1].lexeme, "'good bye'");
+    expect(Symbols.none, v[1].symbol);
+  });
+
+  test('Tokenize escaped double quoted string', () {
+    var v = Tokenizer.tokenize('''"5'11\\""''').toList();
 
     expect(1, v.length);
-    expect(TokenTypes.stringLiteral, v[0].tokenType);
-    expect(v[0].lexeme, '"5\\"11\'"');
+    expect(TokenTypes.doubleQuotedStringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, '''"5'11\\""''');
+    expect(Symbols.none, v[0].symbol);
+  });
+
+  test('Tokenize raw double quoted string', () {
+    var v = Tokenizer.tokenize('r"hello\\s+world"').toList();
+
+    expect(1, v.length);
+    expect(TokenTypes.doubleQuotedRawStringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, 'r"hello\\s+world"');
+    expect(Symbols.none, v[0].symbol);
+  });
+
+  test('Tokenize escaped single quoted string', () {
+    var v = Tokenizer.tokenize("""'5\\'11"'""").toList();
+
+    expect(1, v.length);
+    expect(TokenTypes.singleQuotedStringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, """'5\\'11"'""");
+    expect(Symbols.none, v[0].symbol);
+  });
+
+  test('Tokenize raw single quoted string', () {
+    var v = Tokenizer.tokenize("r'hello\\s+world'").toList();
+
+    expect(1, v.length);
+    expect(TokenTypes.singleQuotedRawStringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, "r'hello\\s+world'");
     expect(Symbols.none, v[0].symbol);
   });
 
@@ -110,9 +158,9 @@ void main() {
   });
 
   test('Tokenize various characters', () {
-    var v = Tokenizer.tokenize(', . [ ] ( )').toList();
+    var v = Tokenizer.tokenize(', . [ ] ( ) !').toList();
 
-    expect(6, v.length);
+    expect(7, v.length);
     expect(TokenTypes.comma, v[0].tokenType);
     expect(TokenTypes.dot, v[1].tokenType);
     expect(Symbols.memberAccess, v[1].symbol);
@@ -120,5 +168,7 @@ void main() {
     expect(TokenTypes.rBrack, v[3].tokenType);
     expect(TokenTypes.lPar, v[4].tokenType);
     expect(TokenTypes.rPar, v[5].tokenType);
+    expect(TokenTypes.not, v[6].tokenType);
+    expect(Symbols.not, v[6].symbol);
   });
 }

@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field_base.dart';
 import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/prompts/prompt.dart';
+import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/utils/enum_parsing.dart';
 import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/percentage.dart';
@@ -12,6 +13,7 @@ import 'package:v04/value_types/percentage.dart';
 typedef LookupField<T, V> = V? Function(T);
 typedef FormatField<T> = String Function(T);
 typedef SQLGetter<T> = Object? Function(T);
+typedef SHQLGetter<T> = Object? Function(T);
 
 class Field<T, V> implements FieldBase<T> {
   factory Field(
@@ -27,8 +29,10 @@ class Field<T, V> implements FieldBase<T> {
     bool? mutable,
     String? jsonName,
     String? sqliteName,
+    String? shqlName,
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
+    SHQLGetter<T>? shqlGetter,
     bool childrenForDbOnly = false,
     List<String> extraNullLiterals = const [],
   }) {
@@ -41,18 +45,22 @@ class Field<T, V> implements FieldBase<T> {
     sqliteName =
         sqliteName ??
         (name.replaceAll(' ', '-').replaceAll('-', '_').toLowerCase());
+    shqlName = shqlName ?? sqliteName;
     format = format ?? ((t) => getter(t).toString());
     children = children ?? <FieldBase>[];
     sqliteGetter = sqliteGetter ?? ((t) => getter(t));
+    shqlGetter = shqlGetter ?? sqliteGetter;
 
     return Field._internal(
       getter,
       name,
       jsonName,
       sqliteName,
+      shqlName,
       description,
       format,
       sqliteGetter,
+      shqlGetter,
       primary,
       nullable,
       mutable,
@@ -70,9 +78,11 @@ class Field<T, V> implements FieldBase<T> {
     this._name,
     this.jsonName,
     this.sqliteName,
+    this.shqlName,
     this.description,
     this.format,
     this.sqliteGetter,
+    this.shqlGetter,
     this.primary,
     this.nullable,
     this._mutable,
@@ -98,8 +108,10 @@ class Field<T, V> implements FieldBase<T> {
     bool? mutable,
     String? jsonName,
     String? sqliteName,
+    String? shqlName,
     List<FieldBase>? children,
     SQLGetter<T>? sqliteGetter,
+    SHQLGetter<T>? shqlGetter,
     bool childrenForDbOnly = false,
     List<String> extraNullLiterals = const [],
   }) {
@@ -116,8 +128,10 @@ class Field<T, V> implements FieldBase<T> {
       mutable: mutable,
       jsonName: jsonName,
       sqliteName: sqliteName,
+      shqlName: shqlName,
       children: children,
       sqliteGetter: sqliteGetter,
+      shqlGetter: shqlGetter,
       childrenForDbOnly: childrenForDbOnly,
       extraNullLiterals: extraNullLiterals,
     );
@@ -379,7 +393,11 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
+  Percentage? getPercentageForAmendment(
+    T t,
+    Map<String, dynamic>? amendment, {
+    ParsingContext? parsingContext,
+  }) {
     var value = getIntForAmendment(t, amendment);
     if (value == null) {
       return null;
@@ -390,13 +408,20 @@ class Field<T, V> implements FieldBase<T> {
   @override
   Percentage getPercentageFromJson(
     Map<String, dynamic>? json,
-    int defaultValue, {ParsingContext? parsingContext}
-  ) {
-    return Percentage(getIntFromJson(json, defaultValue), parsingContext: parsingContext);
+    int defaultValue, {
+    ParsingContext? parsingContext,
+  }) {
+    return Percentage(
+      getIntFromJson(json, defaultValue),
+      parsingContext: parsingContext,
+    );
   }
 
   @override
-  Percentage? getNullablePercentage(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
+  Percentage? getNullablePercentage(
+    Map<String, dynamic>? json, {
+    ParsingContext? parsingContext,
+  }) {
     var value = getNullableInt(json);
     if (value == null) {
       return null;
@@ -675,6 +700,34 @@ class Field<T, V> implements FieldBase<T> {
         .join(',\n$indent');
   }
 
+  @override
+  void declareIdentifiers(ConstantsSet constantsSet) {
+    constantsSet.identifiers.include(shqlName.toUpperCase());
+
+    for (var child in _children) {
+      child.declareIdentifiers(constantsSet);
+    }
+  }
+
+  @override
+  void registerIdentifiers(T t, ConstantsSet constantsSet) {
+    if (_children.isEmpty) {
+      constantsSet.constants.register(
+        shqlGetter(t),
+        constantsSet.identifiers.include(shqlName.toUpperCase()),
+      );
+      return;
+    }
+
+    var subModelScope = constantsSet.getSubModelScope(
+      constantsSet.identifiers.include(shqlName.toUpperCase()),
+    );
+
+    for (var child in _children) {
+      child.registerIdentifiers(getter(t), subModelScope);
+    }
+  }
+
   /// Function to get the field from an object
   @override
   LookupField<T, Object?> get getter => _getter;
@@ -693,6 +746,9 @@ class Field<T, V> implements FieldBase<T> {
   /// Name of the corresponding column in SQLite
   String sqliteName;
 
+  /// Name of the corresponding field in SHQL
+  String shqlName;
+
   /// Description of a field
   String description;
 
@@ -701,6 +757,9 @@ class Field<T, V> implements FieldBase<T> {
 
   /// Function to get the field from an object for SQLite inserts and updates
   SQLGetter<T> sqliteGetter;
+
+  /// Function to expose the fields as SHQL (Super Hero Query Language™)
+  SHQLGetter<T> shqlGetter;
 
   /// True if field is part of the primary key
   bool primary;

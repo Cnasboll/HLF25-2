@@ -1,3 +1,5 @@
+import 'package:v04/models/appearance_model.dart';
+import 'package:v04/models/biography_model.dart';
 import 'package:v04/shql/calculator/calculator.dart';
 import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/shql/parser/lookahead_iterator.dart';
@@ -5,6 +7,7 @@ import 'package:v04/shql/parser/parser.dart';
 import 'package:v04/shql/tokenizer/token.dart';
 import 'package:v04/shql/tokenizer/tokenizer.dart';
 import 'package:test/test.dart';
+import 'package:v04/value_types/value_type.dart';
 
 void main() {
     test('Parse addition', () {
@@ -13,9 +16,9 @@ void main() {
     var p = Parser.parse(v.lookahead(), constantsSet);
     expect(Symbols.add, p.symbol);
     expect(Symbols.integerLiteral, p.children[0].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(10, constantsSet.constants.constants[p.children[0].qualifier!]);
     expect(Symbols.integerLiteral, p.children[1].symbol);
-    expect(10, constantsSet.integers.constants[p.children[0].qualifier!]);
+    expect(10, constantsSet.constants.constants[p.children[0].qualifier!]);
   });
 
   test('Calculate addition', () {
@@ -53,8 +56,58 @@ void main() {
     expect(1, Calculator.calculate('5*2 <> 1+8'));
   });
 
+  test('Calculate not equal true with exclamation equals', () {
+    expect(1, Calculator.calculate('5*2 != 1+8'));
+  });
+
+  test('Evaluate match true', () {
+    expect(1, Calculator.calculate('"Super Man" ~  r"Super\\s*Man"'));
+    expect(1, Calculator.calculate('"Superman" ~  r"Super\\s*Man"'));
+    expect(1, Calculator.calculate('"Batman" ~  "batman"'));
+  });
+
+  test('Evaluate match false', () {
+    expect(0, Calculator.calculate('"Bat Man" ~  r"Super\\s*Man"'));
+    expect(0, Calculator.calculate('"Batman" ~  r"Super\\s*Man"'));
+  });
+
+  test('Evaluate mismatch true', () {
+    expect(1, Calculator.calculate('"Bat Man" !~  r"Super\\s*Man"'));
+    expect(1, Calculator.calculate('"Batman" !~  r"Super\\s*Man"'));
+
+  });
+
+  test('Evaluate mismatch false', () {
+    expect(0, Calculator.calculate('"Super Man" !~  r"Super\\s*Man"'));
+    expect(0, Calculator.calculate('"Superman" !~  r"Super\\s*Man"'));
+  });
+
+  test('Evaluate in list true', () {
+    expect(1, Calculator.calculate('"Super Man" in ["Super Man", "Batman"]'));
+    expect(1, Calculator.calculate('"Batman" in  ["Super Man", "Batman"]'));
+  });
+
+  test('Evaluate lower case in list true', () {
+    expect(1, Calculator.calculate('lowercase("Robin") in  ["batman", "robin"]'));
+    expect(1, Calculator.calculate('lowercase("Batman") in  ["batman", "robin"]'));
+  });
+
+  test('Evaluate in list false', () {
+    expect(0, Calculator.calculate('"Robin" in  ["Super Man", "Batman"]'));
+    expect(0, Calculator.calculate('"Superman" in ["Super Man", "Batman"]'));
+  });
+
+  test('Evaluate lower case in list false', () {
+    expect(0, Calculator.calculate('lowercase("robin") in  ["super man", "batman"]'));
+    expect(0, Calculator.calculate('lowercase("superman") in  ["super man", "batman"]'));
+  });
+
   test('Calculate not equal false', () {
     expect(0, Calculator.calculate('5*2 <> 2+8'));
+  });
+
+  test('Calculate not equal false with exclamation equals', () {
+    expect(0, Calculator.calculate('5*2 != 2+8'));
   });
 
   test('Calculate less than false', () {
@@ -113,6 +166,10 @@ void main() {
     expect(0, Calculator.calculate('NOT 11'));
   });
 
+  test('calculate_negation with exclamation', () {
+    expect(0, Calculator.calculate('!11'));
+  });
+
   test('Calculate unary minus', () {
     expect(6, Calculator.calculate('-5+11'));
   });
@@ -123,6 +180,10 @@ void main() {
 
   test('Calculate with constants', () {
     expect(3.1415926535897932 * 2, Calculator.calculate('PI * 2'));
+  });
+
+  test('Calculate with lowercase constants', () {
+    expect(3.1415926535897932 * 2, Calculator.calculate('pi * 2'));
   });
 
   test('Calculate with functions', () {
@@ -141,4 +202,30 @@ void main() {
     expect(3.7416573867739413, Calculator.calculate('SQRT(POW(2,2)+10)'));
   });
 
+  test('Export enums', () {
+    ConstantsSet constantsSet = Calculator.prepareConstantsSet();
+    constantsSet.registerEnum<Alignment>(Alignment.values);
+    constantsSet.registerEnum<Gender>(Gender.values);
+    constantsSet.registerEnum<SystemOfUnits>(SystemOfUnits.values);
+    expect(Calculator.calculate('UNKNOWN', constantsSet: constantsSet), 0);
+    expect(Calculator.calculate('NEUTRAL', constantsSet: constantsSet), 1);
+    expect(Calculator.calculate('MOSTLY_GOOD', constantsSet: constantsSet), 2);
+    expect(Calculator.calculate('GOOD', constantsSet: constantsSet), 3);
+    expect(Calculator.calculate('REASONABLE', constantsSet: constantsSet), 4);
+    expect(Calculator.calculate('NOT_QUITE', constantsSet: constantsSet), 5);
+    expect(Calculator.calculate('BAD', constantsSet: constantsSet), 6);
+    expect(Calculator.calculate('UGLY', constantsSet: constantsSet), 7);
+    expect(Calculator.calculate('EVIL', constantsSet: constantsSet), 8);
+    expect(Calculator.calculate('USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT', constantsSet: constantsSet), 9);
+
+    expect(Calculator.calculate('UNKNOWN', constantsSet: constantsSet), 0);
+    expect(Calculator.calculate('AMBIGUOUS', constantsSet: constantsSet), 1);
+    expect(Calculator.calculate('MALE', constantsSet: constantsSet), 2);
+    expect(Calculator.calculate('FEMALE', constantsSet: constantsSet), 3);
+    expect(Calculator.calculate('NON_BINARY', constantsSet: constantsSet), 4);
+    expect(Calculator.calculate('WONT_SAY', constantsSet: constantsSet), 5);
+
+    expect(Calculator.calculate('METRIC', constantsSet: constantsSet), 0);
+    expect(Calculator.calculate('IMPERIAL', constantsSet: constantsSet), 1);
+  });
 }

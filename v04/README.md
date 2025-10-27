@@ -1,8 +1,12 @@
 # v04
 Manually generated README for v04
 
+# Hero Manager
+
+## Usage
 Stand in `HLF25-2\v04` and type `dart run`
 
+### DB structure
 This creates a little sqlite db (`v04.db`) that contains a simple table `heroes` with the following structure:
 
   ```
@@ -39,29 +43,38 @@ This creates a little sqlite db (`v04.db`) that contains a simple table `heroes`
   relatives TEXT NULL,
   image_url TEXT NULL
 ```
+#### Fields
 
-The `id` is a `Uuid`, `gender` and `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source). When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`. The column `aliases` stores an encoded JSON-array as I couldn't be bothered to create another table and pray to the SQL gods for forgiveness. `locked` indicates that the hero has been manually _Created_ or _Amended_, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
+`id` is a `Uuid`.
 
-NB: I don't know how to parse
+ `gender`, `alignment`, `height_system_of_units` and `weight_system_of_units` are mapped from enums (the system of units `imperial` or `metric` are saved for scalars to direct the preferred formatting to match the data source).
+ 
+ When synching with the external source, `external_id` is mapped from the field `id` in the `Hero` api spec in `superheroapi.com`.
+ 
+ The column `aliases` stores an encoded JSON-array as author(s) couldn't be bothered to create another table and pray to the SQL gods for forgiveness.
+ 
+ A `locked` field of nozero indicates that the _Hero_ has been manually _Created_ or _Amended_, and should therfore not be _Reconciled_ with the API until it's first explicitly _Unlocked_.
+
+NB: We don't know how to parse
 ```
 "connections": {
     "group-affiliation": "Batman Family, Batman Incorporated, Justice League, Outsiders, Wayne Enterprises, Club of Heroes, formerly White Lantern Corps, Sinestro Corps",
     "relatives": "Damian Wayne (son), Dick Grayson (adopted son), Tim Drake (adopted son), Jason Todd (adopted son), Cassandra Cain (adopted ward), Martha Wayne (mother, deceased)"
   }
 ```
-as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so I gave up and store it as a raw `TEXT`.
+as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so author(s) gave up and store it as a raw `TEXT`.
+
 One could relatively easy construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
-```
-relation:
-  name: Damian Wayne
-  relation: Son
+```yaml
+relations:
+  - name: Damian Wayne
+    relation: Son
     qualifiers: []
-relation:
-  name: Martha Wayne
-  relation: Mother
+  - name: Martha Wayne
+    relation: Mother
     qualifiers: [deceased]
 ```
-But I simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
+But we simply don't trust the API to consitently adhere to any parseable format for it to be worth that effort!
 
 Secondly, in the following example:
 ```
@@ -70,9 +83,12 @@ Secondly, in the following example:
   },
 ```
 
-The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers. Due to the lack of escaping (pun intended) any villain could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the villain not having any alter ago at all! I assume this loophole is planted here to test our attention.
+The string literal `"No alter egos found."` is apparently used here as a special value representing `null` or the absence of data in the API, and expected to be treated as such by consumers.
 
-Usage:
+Due to the lack of escaping (pun intended) any _Villain_ could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the _Villain_ not having any alter ago at all! I assume this loophole is planted here to test our attention.
+
+### Basic usage
+#### _Main_ menu
 
 ```
 Welcome to the Hero Manager!
@@ -88,7 +104,8 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
-To go _Online_ and _Search_ for heroes to download, type `O` and `S` and enter the _Search_ string as prompted:
+#### _Online Search_
+To go _Online_ and _Search_ for _Heroes_ to download, type `O` and `S` and enter the _Search_ string as prompted:
 
 ```
 O
@@ -106,7 +123,7 @@ Batman
 
 If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
 
-When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the hero to die, or `a` to try to be a hero oneself or the most reasonably `q` to give up.
+When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the _Hero_ to die, or `a` to try to be a hero oneself, or -- the most reasonably, `q` to give up.
 
 ```
 Enter your API key: 
@@ -266,10 +283,17 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/1496.jpg
 Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in turn save 90 people, or more, depending on their abilities).
 ```
 
-To _Amend_ an existing hero, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the hero to _Amend_. Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed hero or `n` to review the next one, or `c` to cancel.
+#### _Amendment_ of locally saved _Hero_
+To _Amend_ an existing _Hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the _Hero_ to _Amend_. 
+
+The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
+
+Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed _Hero_ or `n` to review the next one, or `c` to cancel.
+
 Pressing `y` will give the user the chance of _Amendning_ every value and keep current one with pressing enter.
+
 Upon completion, the _Amended_ fields will be reivewed and allow the user to accept them with `y` or abort them with `n`.
-Any manual _Amendment_ sets the _Lock_ flag on the hero to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
+Any manual _Amendment_ sets the _Lock_ flag on the _Hero_ to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
 
 ```
 A
@@ -390,7 +414,8 @@ Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 ```
 
-To _Reconcile_ heroes with the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
+#### _Reconiliation_ of locally saved heros against _Online_ source
+To _Reconcile_ locally saved _heroes_ a gainst the _Online_ source, select `O` to enter the _Online_ menu and type `R`:
 
 
 ```
@@ -424,7 +449,8 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-In this case no change occurred. Hero `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this hero, type `U` to _Unlock_ it and then re-run _Reconciliation_:
+##### _Unlock_ to allow reconciliation
+In this case no change occurred. _Hero_ `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this _Hero_, type `U` to _Unlock_ it and then re-run _Reconciliation_:
 
 ```
 U
@@ -535,8 +561,9 @@ Enter a menu option (R, S, U or X) and press enter:
 E[X]it and return to main menu
 ```
 
-To manally _Create_ a new hero, press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
-User will be prompted if the new hero will be saved or not.
+#### _Create_ a local _Hero_
+To manally _Create_ a new local _Hero_ (mainly _known_, but not necesarily _recongnised_ around their immediate neighbourhood), press `C` in the _Main_ menu and enter values as prompted. An empty string is treated as abort.
+User will be prompted if the new _Hero_ will be saved or not.
 
 ```
 C
@@ -680,7 +707,8 @@ Image: Url: null
 =============
 ```
 
-As the new hero only exists locally but is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
+#### _Auto-delete_ a local _Hero_
+As the new _Hero_ only exists locally and is created in _Locked_ state, the _Reconciliation_ job will not consider it for _Deletion_:
 
 
 ```
@@ -717,7 +745,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 10:58:32.802370Z: 0 heroes reconciled, 0 heroes deleted.
 ```
 
-To auto-_Delete_ it, first _Unlock_ the hero and run the _Reconciliation_ job again:
+To auto-_Delete_ it, first _Unlock_ the _Hero_ and run the _Reconciliation_ job again:
 ```
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
@@ -858,8 +886,14 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 heroes deleted.
 ```
 
-To (manually) _Delete_ a locally saved hero, return to the _Main_ menu and press `D` and enter a search string. Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the hero or `n` to review the next one or `c` to cancel.
-Typing `y` will give the user the chance of of revewing the hero to be _Deleted_ and confirm _Deletion_ with `y` or
+#### _Manually delete_ a local _Hero_
+To (manually) _Delete_ a locally saved _Hero_, return to the _Main_ menu and press `D` and enter a search string.
+
+The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
+
+Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the _Hero_ or `n` to review the next one or `c` to cancel.
+
+Typing `y` will give the user the chance of of revewing the _Hero_ to be _Deleted_ and confirm _Deletion_ with `y` or
 abort the operation with `n`.
 
 ```
@@ -986,11 +1020,18 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
-The menu option `E` (for "erase") will prompt the user for _Deleting_ all the heroes and despite the popular notion, they don't live forever so be careful with this.
+#### _Erase_ entire database
+The menu option `E` (for "erase") will prompt the user for _Deleting_ all the _Heroes_ and despite the popular notion, they don't live forever so be careful with this.
 `L` (for "list") displays all heroes unfiltered by descending order of strength, but `T` (for "top") filters out only the `n` best and `S` (for "search") filters by the given search term.
 
-There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`. The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations. `v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason I don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
+### Unit tests
+There are plenty of unit tests. `v04\tests\json_mapping_test.dart` shows how the entire example json blob is parsed to a `HeroModel`.
 
+The editing done by the CLI was in fact using json as an intermediate format  already in `v03` so the app was readily connected to the API with few adaptations.
+
+`v04\tests\sql_generation_test.dart` shows the expected SQL that is generated, but the reason author(s) don't type it directly but generate it from metadata in the `Field<T,V>`-definitions is simply to be able to prevent bugs when changing something in the structure. Code generation *always* saves time in the end.
+
+### Conflict resolution
 Also note that the parser will try to handle conflicting _Height_ or _Weight_ information, see  `v04\tests\weight_test.dart` and `v04\tests\height_test.dart` respecively, and `test('Can parse most heros')` in `v04\tests\hero_service_test.dart`, and in particular the consistency checking logic in `v04\value_types\value_type.dart`:
 
 ```
@@ -1006,7 +1047,7 @@ Also note that the parser will try to handle conflicting _Height_ or _Weight_ in
 ``` 
 which really was the main focus of this assigment for me, roughly 95% of the time spent.
 
-Whenever the _Online_ _Search_ encounters heroes with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
+Whenever the _Online_ _Search_ encounters _Heroes_ with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
 
 ```
 Enter a menu option (R, S, U or X) and press enter:
@@ -1039,7 +1080,7 @@ y
 (...)
 ```
 
-When _Reconciling_ an already saved hero with the API, any conflicting _Weight_ or _Height_ information is resolved to the _current_ system of units for the hero, i.e. the system initally selected when _Searching_ for the hero _Online_:
+When _Reconciling_ an already saved _Hero_ with the API, any conflicting _Weight_ or _Height_ information is resolved to the _current_ system of units for the _Hero_, i.e. the system initally selected when _Searching_ for the _Hero_ _Online_:
 
 
 ```
@@ -1074,64 +1115,169 @@ Hero: 19 ("Allan Quatermain") is already up to date
 Reconciliation complete at 2025-10-21 22:15:23.644413Z: 0 heroes reconciled, 0 heroes deleted.
 ```
 
-Finally but not least, local searches using the `SHQL`, short for `Super Hero Query Language` that is adapted from the calculator developed in project in `v01` but extended to be useful as a predicate for `HeroModel`-instances.
+## SHQL - Super Hero Query Language ™
+Finally but not least, local searches uses the _SHQL™_, short for _Super Hero Query Language™_ that is adapted from the calculator developed in project in `v01` but extended to be useful as a predicate for `HeroModel`-instances.
 
-The following enumns are mapped to integer constants:
-From the `Gender` enum in `Appearance`: `unknown` = `0`, `ambiguous` = `1`, `male` = `2`, `female` = `3`, `nonBinary` = `4`, `wontSay` = `5`
+## Economical fallback example without utilizing SHQL™
+To match Batman, type:
 
-From the `Alignment` enum in `Biography`: `unknown` = `0`, `neutral` = `1`, `mostlyGood` = `2`, `good` = `3`, `reasonable` = `4`, `notQuite` = `5`, `notQuite` = `6`, `bad` = `7`, `ugly` = `8`, `evil` = `9`, `usingMobileSpeakerOnPublicTransport` = `10`
+`Batman`
 
-From the `SystemOfUnits` enum in `value_types\value_type.dart`: `metric` = `0`, `imperial` = `1`
+This locates all _Heroes_ where any field contains the string `Batman` in any letter-case whitout involving the _SHQL™_ engine to keep the instance pricing at a minimal level.
 
-As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
+_Note that the parser assumes that usage of SHQL™ is intentional if a search term is a valid _SHQL™_ expression. The author(s) of this project will not claim responsibiliy for any costs incurred due to unintentional _SHQL™_ engine utilization._
 
-The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the language, given the actual values for the current `HeroModel`. They are not _variables_ as the _SHQL_ has no means of _changing_ them:
-`id`  - a `string` representing the local `Uuid`.
-`version` - `integer`
-`timestamp` - as a `string`
-`locked` - as `0` or `1` (`TRUE` or `FALSE`)
-`external_id` - as a `string`, corresponding to the `id` field in the API,
-`name` - `string`
-`intelligence` - `integer`
-`strength` - `integer`
-`speed` - `integer`
-`durability` - `integer`
-`power` - `integer`
-`combat` - `integer`
-`full_name` - `string`
-`alter_egos` - `string`
-`aliases` - `string` representation of the aliases list.
-`place_of_birth` - `string`
-`first_appearance` - `string`
-`alignment` - `integer` (see the `Alignment` enum above)
-`gender` - `integer` (see the `Gender` enum above)
-`race` - `string`
-`height_m` - `double`
-`height_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-`weight_kg` - `double`
-`weight_system_of_units` - `integer` (see the `SystemOfUnits` enum above)
-`eye_colour` - `string`
-`hair_colour` - `string`
-`occupation` - `string`
-`base` - `string`
-`group_affiliation` - `string`
-`relatives` - `string`
-`image_url` - `string`
+## Basic examples *with* SHQL™
 
-Inherited from the calculator project, the following constants are still defined and in most cases mapped directly to constants in `math.dart`:
-`E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
+### Name-search and match
+To actually enjoy the capapabilites of _SHQL™_, type:
 
-Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches. This is considered ground research as an application of using these functions on `HeroModel` predicates is yet to be found -- but it works:
-`MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
+`name ~ "Batman"`
 
-Ergo, to list only _Villians_ go to the _Main_ menu, type `S` for _Search_ and enter the query:
-`alignment = bad` or `alignment > good` or whatever criterion meets your personal villain definition!
+which finds all _Heroes_ where only the `name` field contains the string `"Batman"` in any letter-case.
+
+Type:
+
+`name = "Batman"`
+
+to find all the _Heroes_ where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman`.
+
+Type
+
+`name in ["Batman", "Robin"]`
+
+to find all _Heroes_ where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
+
+Type: `lowercase(name) in ["batman", "robin"]` to find all _Heroes_ where the name in any letter case is either `"batman`" or `"robin"`.
+
+### Villian (*Biography.Alignment*) search
+As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOSTLY_GOOD` = `2`, `GOOD` = `3`, `REASONABLE` = `4`, `NOT_QUITE` = `5`, `BAD` = `6`, `UGLY` = `7`, `EVIL` = `8`, `USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT` = `9`, respectively, one can type:
+
+`biography.alignment = bad`
+
+or:
+
+`alignment > good`
+
+or whatever criterion meets the user's personal villain definition to filter on _Villains_.
 
 To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_, try:
-`alignment > reasonable AND strength >= intelligence*1.1`
+
+`biography.alignment > reasonable AND powerstats.strength >= powerstats.intelligence*1.1`.
 
 To find dumb _Villians_ with the letter `x` in their name, try out:
-`"x" in name AND alignment >= bad AND intelligence < 50`
 
-To find troglodytes, try:
-`"cave" in base`
+`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined standard criteria.
+
+### Gender (*Appearance.Gender*) search
+As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`, respectively, one can type:
+
+`biography.gender != male` or `biography.gender in [female, non_binary]` to find female and / or non-binary _Heroes_.
+
+### BMI (body-mass index) search:
+As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
+
+To find _Heroes_ meeting WHOs definition of _obesity_ who sport a BMI (body-mass-index) at or aboove the magic cutoff of 25 kg per m<sup>2</sup>, type:
+
+`appearance.weight.kg / pow(appearance.height.m, 2) >= 25`
+
+_NB: This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
+
+## Base search:
+To find _troglodytes_, try:
+
+`work.base ~ "cave"`
+
+or
+
+`"cave" in work.base` for a case sensitive match.
+
+## General
+The following enums are mapped to integer constants:
+From the `Gender` enum in `Appearance`:  `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`
+
+From the `Alignment` enum in `Biography`: `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOSTLY_GOOD` = `2`, `GOOD` = `3`, `REASONABLE` = `4`, `NOT_QUITE` = `5`, `BAD` = `6`, `UGLY` = `7`, `EVIL` = `8`, `USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT` = `9`
+
+From the `SystemOfUnits` enum in `value_types\value_type.dart`: `METRIC` = `0`, `IMPERIAL` = `1`
+
+Four (4) string literals are accpted:
+
+Ordinary (_garden variety_) double quoted string literal enclosed in `"` e.g. `"hello world"`. This uses `\` (backslash) as an unsurprising escape  character i.e. `"hello \"world\""` to enclose `world` in double quotes if one is not sure what the `world` is or where it's heading.
+
+Ordinary (_garden variety_) single quoted string literal enclosed in `'`, e.g. `'hello world'`. This also uses `\` (backslash) as an unsurprising escape character i.e. `'hello \'world\''` to enclose `world` in single quotes if none is almost but not *quite* shre what the `world` is or where it's heading.
+
+To work with regular expressions in matching, raw double- and single-quoted strings are also supported, i.e. `r"hello\s+world"` and `r'hello\s+world'`, respectively to allow any amount of wordly space.
+
+As relational operators work as expected, an expression like `good < reasonable` evaluates to `3 < 4` which is `TRUE` (`1`).
+`~` and `!~` stands for matches and doesn't match, respectively, so `"Super Man" ~ r"Super.*Man"` evaluates to  `TRUE` (`1`)
+
+### All fields (_pseudoconstants_)
+The fields on the actual `HeroModel` object being evaluated with a predicate are mapped to the following _pseudo-constants_ in the _SHQL™_ language, given the actual values for the current `HeroModel`.
+
+(They are not _variables_ as the _SHQL™_ has no means of _changing_ them):
+
+- `id`  - a `string` representing the local `Uuid`.
+- `external_id` - as a `string`, corresponding to the `id` field in the API,
+- `version` - `integer`
+- `timestamp` - as a Iso8601 `string`
+- `locked` - as `0` or `1` (`TRUE` or `FALSE`)
+- `name` - `string`
+- `powerstats.intelligence` - `integer`
+- `powerstats.strength` - `integer`
+- `powerstats.speed` - `integer`
+- `powerstats.durability` - `integer`
+- `powerstats.power` - `integer`
+- `powerstats.combat` - `integer`
+- `biography.full_name` - `string`
+- `biography.alter_egos` - `string`
+- `biography.aliases` - `string` representation of the aliases list.
+- `biography.place_of_birth` - `string`
+- `biography.first_appearance` - `string`
+- `biography.publisher` - `string`
+- `biography.alignment` - `integer` (see the `Alignment` enum above)
+- `appearance.gender` - `integer` (see the `Gender` enum above)
+- `appearance.race` - `string`
+- `appearance.height.m` - `double`
+- `appearance.height.system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+- `appearance.weight.kg` - `double`
+- `appearance.weight.system_of_units` - `integer` (see the `SystemOfUnits` enum above)
+- `appearance.eye_colour` - `string`
+- `appearance.hair_colour` - `string`
+- `work.occupation` - `string`
+- `work.base` - `string`
+- `connections.group_affiliation` - `string`
+- `connections.relatives` - `string`
+- `image.url` - `string`
+
+### General constants
+`NULL`, `AVOGADRO`, `ANSWER`, `TRUE`, `FALSE`
+
+### Mathematical constants
+Inherited from the calculator project, the following constants are mapped directly to constants in `math.dart`:
+`E`, `LN10`, `LN2`, `LOG2E`, `LOG10E`, `PI`, `SQRT1_2`, `SQRT2`
+
+### Mathematical functions
+Inherited from the calculator project, the following functions(arities), are still defined and mapped directly to functions in `math.dart` to be used in `HeroModel` searches (see the BMI-example above for a practical application using `POW(2)` so the author(s) remain conviced the rest will come in handy):
+
+`MIN(2)`, `MAX(2)`, `ATAN2(2)`, `POW(2)`, `SIN(1)`, `COS(1)`, `TAN(1)`, `ACOS(1)`, `ASIN(1)`, `ATAN(1)`, `SQRT(1)`, `EXP(1)`, `LOG(1)`
+
+### String functions
+The language has been extended with the following string functions:
+
+`LOWERCASE(1)`, `UPPERCASE(1)`
+
+### Operators
+#### Unary
+##### Boolean
+ `NOT` (alias `!`)
+##### Arithmentic
+ `-`, `+`
+#### Binary
+#### Boolean
+`AND`, `OR`, `XOR`
+##### Relational
+`=`, `<>` (alias `!=`), `>`, `<`, `<=`, `>=`
+##### Matching
+`IN` (works for strings or lists),  `~`, `!~`
+##### Arithmetic
+`*`, `/`, `%`, `+`, `-`

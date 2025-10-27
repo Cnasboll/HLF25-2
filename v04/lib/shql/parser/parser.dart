@@ -81,21 +81,21 @@ class Parser {
     bool allowSign = true,
   ]) {
     // If we find a plus or minus sign here, consider that a sign for the operand, then we recurse
-    if (tokenEnumerator.current.tokenType == TokenTypes.add) {
+    if (tokenEnumerator.current.symbol == Symbols.add) {
       tokenEnumerator.next();
       return ParseTree.withChildren(Symbols.unaryPlus, [
         parseOperand(tokenEnumerator, constantsSet, false),
       ]);
     }
 
-    if (tokenEnumerator.current.tokenType == TokenTypes.sub) {
+    if (tokenEnumerator.current.symbol == Symbols.sub) {
       tokenEnumerator.next();
       return ParseTree.withChildren(Symbols.unaryMinus, [
         parseOperand(tokenEnumerator, constantsSet, false),
       ]);
     }
 
-    if (tokenEnumerator.current.keyword == Keywords.notKeyword) {
+    if (tokenEnumerator.current.symbol == Symbols.not) {
       tokenEnumerator.next();
       return ParseTree.withChildren(Symbols.not, [
         parseOperand(tokenEnumerator, constantsSet),
@@ -132,21 +132,28 @@ class Parser {
       case LiteralTypes.integerLiteral:
         return ParseTree.withQualifier(
           Symbols.integerLiteral,
-          constantsSet.integers.include(
+          constantsSet.constants.include(
             int.parse(tokenEnumerator.current.lexeme),
           ),
         );
       case LiteralTypes.floatLiteral:
         return ParseTree.withQualifier(
           Symbols.floatLiteral,
-          constantsSet.doubles.include(
+          constantsSet.constants.include(
             double.parse(tokenEnumerator.current.lexeme),
           ),
         );
-      case LiteralTypes.stringLiteral:
+      case LiteralTypes.doubleQuotedStringLiteral:
+      case LiteralTypes.singleQuotedStringLiteral:
         return ParseTree.withQualifier(
           Symbols.stringLiteral,
-          constantsSet.strings.include(StringEscaper.unescape(tokenEnumerator.current.lexeme)),
+          constantsSet.constants.include(StringEscaper.unescape(tokenEnumerator.current.lexeme)),
+        );
+      case LiteralTypes.doubleQuotedRawStringLiteral:
+      case LiteralTypes.singleQuotedRawStringLiteral:
+        return ParseTree.withQualifier(
+          Symbols.stringLiteral,
+          constantsSet.constants.include(tokenEnumerator.current.lexeme.substring( 2, tokenEnumerator.current.lexeme.length - 1)),
         );
       default:
     }

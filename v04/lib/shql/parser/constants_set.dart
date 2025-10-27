@@ -1,5 +1,6 @@
-
 class ConstantsTable<T> {
+    ConstantsTable({ConstantsTable<T>? parent}) : _parent = parent;
+
   int include(T value) {
     var index = _index[value];
 
@@ -10,33 +11,107 @@ class ConstantsTable<T> {
     return index;
   }
 
+  int register(T value, int identifier) {
+    var index = _index[value];
+
+    if (index == null) {
+      index = _index[value] = _constants.length;
+      _constants.add(value);
+    }
+    _indexByIdentifier[identifier] = index;
+    return index;
+  }
+
+  (T?, int?) getByIdentifier(int identifier) {
+    var index = _indexByIdentifier[identifier];
+    if (index == null) {
+      if (_parent != null) {
+        return _parent.getByIdentifier(identifier);
+      }
+      return (null, null);
+    }
+    return (_constants[index], index);
+  }
+
   List<T> get constants {
     return _constants;
   }
 
+  ConstantsTable<T>? root() {
+    if (_parent == null) {
+      return this;
+    }
+  
+    return _parent.root();
+  }
+
   final List<T> _constants = [];
   final Map<T, int> _index = {};
+  final Map<int, int> _indexByIdentifier = {};
+  final ConstantsTable<T>? _parent;
 }
 
 class ConstantsSet {
-  ConstantsTable<int> get integers {
-    return _integers;
-  }
+  ConstantsSet() : _constants = ConstantsTable(), _identifiers = ConstantsTable();
+  
+  ConstantsSet._child(ConstantsSet parent)
+    : _constants = ConstantsTable(parent: parent._constants),
+      _identifiers = parent._identifiers;
 
-  ConstantsTable<double> get doubles {
-    return _doubles;
-  }
+  ConstantsSet._subModel(ConstantsSet parent)
+    : _constants = ConstantsTable(parent: parent._constants.root()),
+      _identifiers = parent._identifiers;
 
-  ConstantsTable<String> get strings {
-    return _strings;
+  ConstantsTable<dynamic> get constants {
+    return _constants;
   }
 
   ConstantsTable<String> get identifiers {
     return _identifiers;
   }
 
-  final ConstantsTable<int> _integers = ConstantsTable();
-  final ConstantsTable<double> _doubles = ConstantsTable();
-  final ConstantsTable<String> _strings = ConstantsTable();
-  final ConstantsTable<String> _identifiers = ConstantsTable();
+  ConstantsSet createChild() {
+    return ConstantsSet._child(this);
+  }
+
+  ConstantsSet getSubModelScope(int identifier) {
+    var scope = _subModelScopes[identifier];
+    scope ??= _subModelScopes[identifier] = ConstantsSet._subModel(this);
+    return scope;
+  }
+
+  void registerEnum<T extends Enum>(Iterable<T> values) {
+    for (var value in values) {
+      constants.register(
+        value.index,
+        identifiers.include(_camelCaseToScreamingSnakeCase(value.name)),
+      );
+    }
+  }
+
+  String _camelCaseToScreamingSnakeCase(String camelCase) {
+    if (camelCase.isEmpty) return camelCase;
+    
+    final buffer = StringBuffer();
+    
+    for (int i = 0; i < camelCase.length; i++) {
+      final char = camelCase[i];
+      
+      if (char.toUpperCase() == char && char.toLowerCase() != char) {
+        // This is an uppercase letter
+        if (i > 0) {
+          buffer.write('_');
+        }
+        buffer.write(char.toUpperCase());
+      } else {
+        buffer.write(char.toUpperCase());
+      }
+    }
+    
+    return buffer.toString();
+  }
+
+  final ConstantsTable<dynamic> _constants;
+  final ConstantsTable<String> _identifiers;
+  final Map<int, ConstantsSet> _subModelScopes = {};
 }
