@@ -7,6 +7,7 @@ import 'package:v04/shql/parser/lookahead_iterator.dart';
 import 'package:v04/shql/parser/parse_tree.dart';
 import 'package:v04/shql/parser/parser.dart';
 import 'package:v04/shql/tokenizer/tokenizer.dart';
+import 'package:v04/terminal/terminal.dart';
 import 'package:v04/value_types/value_type.dart';
 
 class HeroPredicate {
@@ -23,10 +24,12 @@ class HeroPredicate {
       // ignore: empty_catches
     } catch (e) {}
     if (parseTree == null || parseTree.children.isEmpty) {
-      print("Using plain text search for query: $shqlExpression");
+      Terminal.println(
+        "Using plain text search for query: $shqlExpression",
+      );
       return null;
     }
-    print("Using SHQL™ search for query: $shqlExpression");
+    Terminal.println("Using SHQL™ search for query: $shqlExpression");
     return parseTree;
   }
 
@@ -51,8 +54,10 @@ class HeroPredicate {
         return false;
       }
     } catch (e) {
-      print('Error evaluating SHQL™ expression for hero with externalId: "${hero.externalId}" and name: "${hero.name}": $e');
-      return false;    
+      Terminal.println(
+        'Error evaluating SHQL™ expression for hero with externalId: "${hero.externalId}" and name: "${hero.name}": $e',
+      );
+      return false;
     }
   }
 

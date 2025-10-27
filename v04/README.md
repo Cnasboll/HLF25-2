@@ -149,18 +149,19 @@ Go [O]nline to download heroes
 To go _Online_ and _Search_ for _Heroes_ to download, type `O` and enter a search term in plaintext, or type `S` to be prompted for the _Search_ string as prompted:
 
 ```
-O
+> O
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-NB! For less advanced users, typing a _Search_ string followed by enter directly under the _Online_ menu, i.e. Batman is a shortcut for _Searching Online_ for Batman whithout the extra step of typing _S_ followed by the _Search_ string. Please use this feature sparingly, especially if on a metered connection or if an adult needs to dial a phone call.
-S
+> S
 Enter a search string:
-Batman
+> Batman
 ```
+
+NB! For less advanced users, typing a _Search_ string followed by enter directly under the _Online_ menu, i.e. Batman is a shortcut for _Searching Online_ for Batman whithout the extra step of typing _S_ followed by the _Search_ string. Please use this feature sparingly, especially if on a metered connection or if an adult needs to dial a phone call.
 
 If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
 
@@ -168,9 +169,9 @@ When prompted for `Save the following hero locally?` one can answer `y` to save,
 
 ```
 Enter your API key: 
-extremely_secret_api_key
+> extremely_secret_api_key
 Enter API host or press enter to accept default ("www.superheroapi.com)": 
-
+> 
 
 Online search started at 2025-10-21 06:06:25.667157Z
 
@@ -213,7 +214,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y = yes, n = no, a = all, q = quit)
-a
+> a
 Saved hero 69 ("Batman") so it can save you:
 
 =============
@@ -337,9 +338,9 @@ Upon completion, the _Amended_ fields will be reivewed and allow the user to acc
 Any manual _Amendment_ sets the _Lock_ flag on the _Hero_ to `true` to exclude it from any automated _Reconciliaton_ with it's _Online_ version that would otherwise undo the user's creative efforts.
 
 ```
-A
+> A
 Enter a search string in SHQL™ or plain text:
-Batman
+> Batman
 Using plain text search for query: Batman
 Found 3 heroes:
 
@@ -377,40 +378,41 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y = yes, n = next, c = cancel)
-y
+> y
 Enter Name (Most commonly used name), or enter to keep current value (Batman):
-
+>
 
 Amend Powerstats (Power statistics which is mostly misused)? (y/N)
-
+> 
 
 Amend Biography (Hero's quite biased biography)? (y/N)
-y
+> y
 Enter Biography: Full Name (Also applies when hungry), or enter to keep current value (Terry McGinnis):
-
+> 
 Enter Biography: Alter Egos (Alter egos of the character), or enter to keep current value (null):
-
+> 
 Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in JSON format e.g. ["Insider", "Matches Malone"]), or enter to keep current value ([Batman II, The Tomorrow Knight, The second Dark Knight, The Dark Knight of Tomorrow, Batman Beyond]):
-
+> 
 Enter Biography: Place of Birth (Where the character was born), or enter to keep current value (Gotham City, 25th Century):
-
+> 
 Enter Biography: First Appearance (When the character first appeared in print or in court), or enter to keep current value (Batman Beyond #1):
-
+> 
 Enter Biography: Publisher (The publisher of the character's stories or documentary evidence), or enter to keep current value (DC Comics):
-
+> 
 Enter Biography: Alignment (The character's moral alignment (unknown, neutral, mostlyGood, good, reasonable, notQuite, bad, ugly, evil, usingMobileSpeakerOnPublicTransport)), or enter to keep current value (good):
-bad
+> bad
 
 Amend Appearance (Hero's appearance)? (y/N)
-
+> 
 
 Amend Work (Hero's work)? (y/N)
-
+> 
 
 Amend Connections (Hero's connections)? (y/N)
-
+> 
 
 Amend Image (Hero's image)? (y/N)
+> 
 
 
 Save the following amendments?
@@ -419,7 +421,7 @@ Save the following amendments?
 Biography: Alignment: good -> bad
 =============
  (y/n)
-y
+> y
 Amended hero:
 
 =============
@@ -461,15 +463,14 @@ To _Reconcile_ locally saved _heroes_ against the _Online_ source, select `O` to
 
 
 ```
-O
+> O
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
-R
+> R
 
 Reconciliation started at at 2025-10-21 09:46:59.687391Z
 
@@ -495,9 +496,9 @@ E[X]it and return to main menu
 In this case no change occurred. _Hero_ `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this _Hero_, type `U` to _Unlock_ it and then re-run _Reconciliation_:
 
 ```
-U
+> U
 Enter a search string in SHQL™ or plain text:
-Batman
+> Batman
 Using plain text search for query: Batman
 Found 1 heroes:
 
@@ -535,7 +536,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y = yes, n = next, c = cancel)
-y
+> y
 Hero was unlocked:
 
 =============
@@ -577,8 +578,7 @@ Enter a menu option (R, S, U or X) and press enter:
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
-R
+> R
 
 Reconciliation started at at 2025-10-21 09:50:14.778669Z
 
@@ -587,7 +587,7 @@ Reconciliation started at at 2025-10-21 09:50:14.778669Z
 Reconcile hero: 69 ("Batman") with the following online changes?
   Biography: Alignment: bad -> good
  (y = yes, n = no, a = all, q = quit)
-a
+> a
 Reconciled hero: 69 ("Batman") with the following online changes:
 Biography: Alignment: bad -> good
 
@@ -609,75 +609,75 @@ To manally _Create_ a new local _Hero_ (mainly _known_, but not necessarily _rec
 User will be prompted if the new _Hero_ will be saved or not.
 
 ```
-C
+> C
 Enter External ID (Server assigned string ID), or enter to abort:
-this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
+> this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide
 Enter Name (Most commonly used name), or enter to abort:
-Bamse
+> Bamse
 
 Populate Powerstats (Power statistics which is mostly misused)? (y/n)
-y
+> y
 Enter Powerstats: Intelligence (%), or enter to finish populating Powerstats:
-30
+> 30
 Enter Powerstats: Strength (%), or enter to finish populating Powerstats:
-99
+> 99
 Enter Powerstats: Speed (%), or enter to finish populating Powerstats:
-7
+> 7
 Enter Powerstats: Durability (%), or enter to finish populating Powerstats:
-30
+> 30
 Enter Powerstats: Power (%), or enter to finish populating Powerstats:
-2
+> 2
 Enter Powerstats: Combat (%), or enter to finish populating Powerstats:
-2
+> 2
 
 Populate Biography (Hero's quite biased biography)? (y/n)
-y
+> y
 Enter Biography: Full Name (Also applies when hungry), or enter to finish populating Biography:
-Bamse Brunberg
+> Bamse Brunberg
 Enter Biography: Alter Egos (Alter egos of the character), or enter to finish populating Biography:
-Kapten Buster. Ingen har sett honom och Bamse samtidigt.
+> Kapten Buster. Ingen har sett honom och Bamse samtidigt.
 Enter Biography: Aliases (Other names the character is known by as a single value ('Insider') without surrounding ' or a list in JSON format e.g. ["Insider", "Matches Malone"]), or enter to finish populating Biography:
-Världens starkaste björn
+> Världens starkaste björn
 Enter Biography: Place of Birth (Where the character was born), or enter to finish populating Biography:
-Vargön
+> Vargön
 Enter Biography: First Appearance (When the character first appeared in print or in court), or enter to finish populating Biography:
-Allers, 1966-1970, egen serietidning från 1973
+> Allers, 1966-1970, egen serietidning från 1973
 Enter Biography: Publisher (The publisher of the character's stories or documentary evidence), or enter to finish populating Biography:
-Egmont Publishing
+> Egmont Publishing
 Enter Biography: Alignment (The character's moral alignment (unknown, neutral, mostlyGood, good, reasonable, notQuite, bad, ugly, evil, usingMobileSpeakerOnPublicTransport)), or enter to finish populating Biography:
-mostlyGood
+> mostlyGood
 
 Populate Appearance (Hero's appearance)? (y/n)
-y
+> y
 Enter Appearance: Gender (unknown, ambiguous, male, female, nonBinary, wontSay), or enter to finish populating Appearance:
-m
+> m
 Enter Appearance: Race (Species in Latin or English), or enter to finish populating Appearance:
-Usrus arctos
+> Usrus arctos
 Enter Appearance: Height (Height in centimeters and / or feet and inches. For multiple representations, enter a list in JSON format e.g. ["6'2\"", "188 cm"] or a single value like '188 cm', '188' or '1.88' (meters) without surrounding '), or enter to finish populating Appearance:
-150 cm
+> 150 cm
 Enter Appearance: Weight (Weight in kilograms and / or pounds. For multiple representations, enter a list in JSON format e.g. ["210 lb", "95 kg"] or a single value like '95 kg' or '95' (kilograms) without surrounding '), or enter to finish populating Appearance:
-250 kg
+> 250 kg
 Enter Appearance: Eye Colour (The character's eye color of the most recent appearance), or enter to finish populating Appearance:
-Brown
+> Brown
 Enter Appearance: Hair Colour (The character's hair color of the most recent appearance), or enter to finish populating Appearance:
-Brown
+> Brown
 
 Populate Work (Hero's work)? (y/n)
-y
+> y
 Enter Work: Occupation (Occupation of the character), or enter to finish populating Work:
-Law enforcement
+> Law enforcement
 Enter Work: Base (A place where the character works or lives or hides rather frequently), or enter to finish populating Work:
-Tre Kullar
+> Tre Kullar
 
 Populate Connections (Hero's connections)? (y/n)
-y
+> y
 Enter Connections: Group Affiliation (Groups the character is affiliated with wether currently or in the past and if addmittedly or not), or enter to finish populating Connections:
-Bamse, Lille Skutt och Skalman (tm)
+> Bamse, Lille Skutt och Skalman ™
 Enter Connections: Relatives (A list of the character's relatives by blood, marriage, adoption, or pure association), or enter to finish populating Connections:
-Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
+> Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 
 Populate Image (Hero's image)? (y/n)
-n
+> n
 
 Save new hero with the following details?
 =============
@@ -708,12 +708,12 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
 =============
  (y/n)
-y
+> y
 Created hero:
 
 =============
@@ -744,7 +744,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
 =============
@@ -766,16 +766,14 @@ List [T]op n heroes (will prompt for n)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
 
-
-O
+> O
 Enter a menu option (R, S, U or X) and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
-R
+> R
 
 Reconciliation started at at 2025-10-21 10:58:24.409875Z
 
@@ -796,10 +794,9 @@ Enter a menu option (R, S, U or X) and press enter:
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
-U
+> U
 Enter a search string in SHQL™ or plain text:
-Bamse
+> Bamse
 Using plain text search for query: Bamse
 Found 1 heroes:
 
@@ -832,12 +829,12 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
 =============
  (y = yes, n = next, c = cancel)
-y
+> y
 Hero was unlocked:
 
 =============
@@ -868,7 +865,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
 =============
@@ -879,15 +876,14 @@ Enter a menu option (R, S, U or X) and press enter:
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
-R
+> R
 
 Reconciliation started at at 2025-10-21 11:04:09.880651Z
 
 
 
 Hero: this-is-internally-a-string-that-happens-to-be-integers-in-the-api-so-hopefully-this-wont-collide ("Bamse") does not exist online: invalid id - delete it from local database? (y = yes, n = no, a = all, q = quit)
-a
+> a
 Deleted hero:
 
 =============
@@ -918,7 +914,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman (tm)
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: null
 =============
@@ -941,9 +937,9 @@ Typing `y` will give the user the chance of of revewing the _Hero_ to be _Delete
 abort the operation with `n`.
 
 ```
-D
+> D
 Enter a search string in SHQL™ or plain text:
-Batman II
+> Batman II
 Using plain text search for query: Batman II
 Found 2 heroes:
 
@@ -981,7 +977,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y = yes, n = next, c = cancel)
-y
+> y
 
 Do you really want to delete hero with the following details?
 =============
@@ -1017,7 +1013,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
  (y/n)
-y
+> y
 Deleted hero:
 
 =============
@@ -1080,8 +1076,7 @@ List [T]op n heroes (will prompt for n)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
 
-
-work.base ~ "cave"
+> work.base ~ "cave"
 No command entered, using default search
 Using SHQL™ search for query: work.base ~ "cave"
 Found 1 heroes:
@@ -1157,10 +1152,9 @@ Enter a menu option (R, S, U or X) and press enter:
 [U]nlock manually amended heroes to enable reconciliation
 E[X]it and return to main menu
 
-
-S
+> S
 Enter a search string in SHQL™ or plain text:
-Q
+> Q
 Using plain text search for query: Q
 
 Online search started at 2025-10-21 21:50:50.682706Z
@@ -1168,17 +1162,17 @@ Online search started at 2025-10-21 21:50:50.682706Z
 
 When parsing Appearance -> Weight for new hero with externalId: "38" and name: "Aquaman": Conflicting weight information: metric '146 kg' (parsed from '146 kg') corresponds to '322 lb' after converting back to imperial -- expecting '147 kg' in order to match first value of '325 lb' (parsed from '325 lb').
 Type 'i' to use the imperial weight '325 lb' or 'm' to use the metric weight '146 kg' value to resolve this conflict or enter to abort:
-m
+> m
 
 Resolve further weight conflicts by selecting the metric value for weight? (Y/n)
-y
+> y
 When parsing Appearance -> Weight for new hero with externalId: "38" and name: "Aquaman": Conflicting weight information: metric '146 kg' (parsed from '146 kg') corresponds to '322 lb' after converting back to imperial -- expecting '147 kg' in order to match first value of '325 lb' (parsed from '325 lb'). Resolving by using value in previously decided system of units (metric) for weight: '146 kg'.
 
 Found 18 heroes online:
 
 Save the following hero locally?
 
-y
+> y
 (...)
 ```
 
@@ -1186,7 +1180,7 @@ When _Reconciling_ an already saved _Hero_ with the API, any conflicting _Weight
 
 
 ```
-R
+> R
 
 Reconciliation started at at 2025-10-21 22:15:13.530387Z
 
@@ -1269,7 +1263,7 @@ To find _Villians_ that are significantly (10%) _stronger_ than they are _smart_
 
 To find dumb _Villians_ with the letter `x` in their name, try out:
 
-`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence < 50`, assuming these adhere to well-defined standard criteria.
+`name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence <= 50`, assuming these adhere to well-defined standard criteria.
 
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`, respectively, one can type:
@@ -1381,6 +1375,6 @@ The language has been extended with the following string functions:
 ##### Relational
 `=`, `<>` (alias `!=`), `>`, `<`, `<=`, `>=`
 ##### Matching
-`IN` (works for strings or lists),  `~`, `!~`
+`IN` (works for strings or lists),  `~`, `!~` (where the right hand side is an ordinary and most regular regular expression).
 ##### Arithmetic
 `*`, `/`, `%`, `+`, `-`

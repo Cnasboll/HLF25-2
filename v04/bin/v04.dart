@@ -1,24 +1,22 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:v04/env/env.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/managers/hero_data_managing.dart';
 import 'package:v04/models/hero_model.dart';
 import 'package:v04/models/search_response_model.dart';
 import 'package:v04/persistence/hero_repository.dart';
-import 'package:v04/prompts/prompt.dart';
+import 'package:v04/terminal/prompt.dart';
 import 'package:v04/services/hero_service.dart';
 import 'package:v04/services/hero_servicing.dart';
+import 'package:v04/terminal/terminal.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
 
 Future<void> main() async {
-  stdout.encoding = utf8;
-  stderr.encoding = utf8;
+  // Clear screen and set green text
+  Terminal.initialize();
 
-  print("Welcome to the Hero Manager!");
+  Terminal.println("Welcome to the Hero Manager!");
   var heroDataManager = HeroDataManager(HeroRepository('v04.db'));
 
   var doWOrk = true;
@@ -51,21 +49,23 @@ Future<void> main() async {
     ),
   };
 
-  void defaultCommand(String query) => listMatchingHeroes(heroDataManager, query: query);
+  void defaultCommand(String query) =>
+      listMatchingHeroes(heroDataManager, query: query);
 
   var prompt = generatePrompt(commands);
 
   while (doWOrk) {
-    print(prompt);
+    Terminal.println(prompt);
     try {
       await menu(heroDataManager, commands, defaultCommand: defaultCommand);
     } catch (e) {
-      print("Unexpected error: $e");
+      Terminal.println("Unexpected error: $e");
     }
 
     // allow any pending async operations to complete to save changes
     await Future.delayed(Duration.zero);
   }
+  Terminal.cleanup();
 }
 
 String generatePrompt(Map<String, (Function, String)> commands) {
@@ -95,20 +95,20 @@ Future<void> menu(
   Map<String, (Function, String)> commands, {
   Function(String)? defaultCommand,
 }) async {
-  var input = promptFor("").toLowerCase();
+  var input = promptFor("");
   if (input.isEmpty) {
-    print("Please enter a command");
+    Terminal.println("Please enter a command");
     return;
   }
-  var command = commands[input.substring(0, 1)]?.$1;
+  var command = commands[input.toLowerCase()]?.$1;
   if (command == null) {
     if (defaultCommand != null) {
-      print("No command entered, using default search");
+      Terminal.println("No command entered, using default search");
       command = () => defaultCommand(input);
     }
 
     if (command == null) {
-      print("Invalid command, please try again");
+      Terminal.println("Invalid command, please try again");
       return;
     }
   }
@@ -119,18 +119,18 @@ bool promptQuit() {
   if (!promptForYesNo("Do you really want to exit?")) {
     return false;
   }
-  print("Exiting...");
+  Terminal.println("Exiting...");
   return true;
 }
 
 void listHeroes(HeroDataManaging heroDataManager) {
   var heroes = heroDataManager.heroes;
   if (heroes.isEmpty) {
-    print("No heroes found");
+    Terminal.println("No heroes found");
   } else {
-    print("Found ${heroes.length} heroes:");
+    Terminal.println("Found ${heroes.length} heroes:");
     for (var hero in heroes) {
-      print(hero);
+      Terminal.println(hero.toString());
     }
   }
 }
@@ -138,7 +138,7 @@ void listHeroes(HeroDataManaging heroDataManager) {
 void listTopNHeroes(HeroDataManaging heroDataManager) {
   var n = int.tryParse(promptFor("Enter number of heroes to list:")) ?? 0;
   if (n <= 0) {
-    print("Invalid number");
+    Terminal.println("Invalid number");
     return;
   }
   var snapshot = heroDataManager.heroes;
@@ -146,7 +146,7 @@ void listTopNHeroes(HeroDataManaging heroDataManager) {
     if (i >= snapshot.length) {
       break;
     }
-    print(snapshot[i]);
+    Terminal.println(snapshot[i].toString());
   }
 }
 
@@ -156,15 +156,18 @@ void listMatchingHeroes(HeroDataManaging heroDataManager, {String? query}) {
     return;
   }
   for (var hero in result) {
-    print(hero);
+    Terminal.println(hero.toString());
   }
 }
 
-Future<void> saveHeroes(HeroDataManaging heroDataManager, {String? query}) async {
+Future<void> saveHeroes(
+  HeroDataManaging heroDataManager, {
+  String? query,
+}) async {
   query ??= promptFor("Enter a search string:");
   var heroService = HeroService(Env());
   var timestamp = DateTime.timestamp();
-  print(''' 
+  Terminal.println('''
 
 Online search started at $timestamp
 
@@ -175,12 +178,14 @@ Online search started at $timestamp
     error = results["error"];
   }
   if (error != null) {
-    print("Failed to search online heroes: $error");
+    Terminal.println("Failed to search online heroes: $error");
     return;
   }
 
   if (results == null) {
-    print("Server returned no data when searching for '$query'");
+    Terminal.println(
+      "Server returned no data when searching for '$query'",
+    );
     return;
   }
 
@@ -202,10 +207,10 @@ Online search started at $timestamp
       );
 
       for (var error in heightConflictResolver.resolutionLog) {
-        print(error);
+        Terminal.println(error);
       }
       for (var error in weightConflictResolver.resolutionLog) {
-        print(error);
+        Terminal.println(error);
       }
     } finally {
       // Restore previous conflict resolvers
@@ -213,12 +218,12 @@ Online search started at $timestamp
       Weight.conflictResolver = previousWeightConflictResolver;
     }
 
-    print('''
+    Terminal.println('''
 
 Found ${searchResponseModel.results.length} heroes online:''');
     for (var hero in searchResponseModel.results) {
       if (heroDataManager.getByExternalId(hero.externalId) != null) {
-        print(
+        Terminal.println(
           'Hero  ${hero.externalId} ("${hero.name}") already exists locally - skipping (run reconciliation to update existing heroes with online data)',
         );
         continue;
@@ -228,7 +233,7 @@ Found ${searchResponseModel.results.length} heroes online:''');
         var yesNoAll = promptForYesNoAllQuit('''Save the following hero locally?
 $hero''');
         if (yesNoAll == YesNoAllQuit.quit) {
-          print("Aborting saving of further heroes");
+          Terminal.println("Aborting saving of further heroes");
           break;
         }
         if (yesNoAll == YesNoAllQuit.no) {
@@ -239,17 +244,17 @@ $hero''');
         }
       }
       heroDataManager.persist(hero);
-      print(
+      Terminal.println(
         '''Saved hero ${hero.externalId} ("${hero.name}") so it can save you:
 $hero''',
       );
       ++saveCount;
     }
   } catch (e) {
-    print("Failed to parse online heroes: $e");
+    Terminal.println("Failed to parse online heroes: $e");
   }
 
-  print(''' 
+  Terminal.println('''
 
 Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they can in turn save ${saveCount * saveCount * 10} people, or more, depending on their abilities).
 
@@ -261,12 +266,12 @@ void deleteAllHeroes(HeroDataManaging heroDataManager) {
     return;
   }
   heroDataManager.clear();
-  print("Deleted all heroes");
+  Terminal.println("Deleted all heroes");
 }
 
 void deleteHeroUnprompted(HeroDataManaging heroDataManager, HeroModel hero) {
   heroDataManager.delete(hero);
-  print('''Deleted hero:
+  Terminal.println('''Deleted hero:
 $hero''');
 }
 
@@ -293,7 +298,7 @@ void deleteHero(HeroDataManaging heroDataManager) {
 void createHero(HeroDataManaging heroDataManager) {
   HeroModel? hero = HeroModel.fromPrompt();
   if (hero == null) {
-    print("Aborted");
+    Terminal.println("Aborted");
     return;
   }
 
@@ -302,7 +307,7 @@ void createHero(HeroDataManaging heroDataManager) {
   }
 
   heroDataManager.persist(hero);
-  print('''Created hero:
+  Terminal.println('''Created hero:
 $hero''');
 }
 
@@ -314,7 +319,7 @@ void amendHero(HeroDataManaging heroDataManager) {
   var amededHero = hero.promptForAmendment();
   if (amededHero != null) {
     heroDataManager.persist(amededHero);
-    print('''Amended hero:
+    Terminal.println('''Amended hero:
 $amededHero''');
   }
 }
@@ -331,17 +336,17 @@ void unlockHero(HeroDataManaging heroDataManager) {
   var unlockedHero = hero.unlock();
 
   if (!hero.locked) {
-    print("Hero is already unlocked");
+    Terminal.println("Hero is already unlocked");
     return;
   }
 
   if (unlockedHero.locked) {
-    print("Hero could not be unlocked");
+    Terminal.println("Hero could not be unlocked");
     return;
   }
 
   heroDataManager.persist(unlockedHero);
-  print('''Hero was unlocked:
+  Terminal.println('''Hero was unlocked:
 $unlockedHero''');
 }
 
@@ -353,10 +358,10 @@ List<HeroModel>? search(
   query ??= promptFor("Enter a search string in SHQL™ or plain text:");
   var results = heroDataManager.query(query, filter: filter);
   if (results.isEmpty) {
-    print("No heroes found");
+    Terminal.println("No heroes found");
     return null;
   }
-  print("Found ${results.length} heroes:");
+  Terminal.println("Found ${results.length} heroes:");
   return results;
 }
 
@@ -402,23 +407,24 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
     "x": (() => {exit = true}, "E[X]it and return to main menu"),
   };
 
-  void defaultCommand(String query) => saveHeroes(heroDataManager, query: query);
+  void defaultCommand(String query) =>
+      saveHeroes(heroDataManager, query: query);
 
   var prompt = generatePrompt(commands);
 
   while (!exit) {
-    print(prompt);
+    Terminal.println(prompt);
     try {
       await menu(heroDataManager, commands, defaultCommand: defaultCommand);
     } catch (e) {
-      print("Unexpected error: $e");
+      Terminal.println("Unexpected error: $e");
     }
   }
 }
 
 Future<void> reconcileHeroes(HeroDataManaging heroDataManager) async {
   var timestamp = DateTime.timestamp();
-  print(''' 
+  Terminal.println(''' 
 
 Reconciliation started at at $timestamp
 
@@ -438,14 +444,14 @@ Reconciliation started at at $timestamp
 
     if (onlineHeroJson == null || error != null) {
       if (hero.locked) {
-        print(
+        Terminal.println(
           '''Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" but is locked by prior manual amendment - skipping deletion''',
         );
         continue;
       }
 
       if (deleteAll) {
-        print(
+        Terminal.println(
           'Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" - deleting from local database',
         );
         deleteHeroUnprompted(heroDataManager, hero);
@@ -472,7 +478,7 @@ Reconciliation started at at $timestamp
           break;
         case YesNoAllQuit.quit:
           {
-            print("Aborting reconciliation of further heroes");
+            Terminal.println("Aborting reconciliation of further heroes");
             return;
           }
       }
@@ -491,23 +497,23 @@ Reconciliation started at at $timestamp
       var updatedHero = hero.apply(onlineHeroJson, timestamp, false);
 
       for (var error in heightConflictResolver.resolutionLog) {
-        print(error);
+        Terminal.println(error);
       }
       for (var error in weightConflictResolver.resolutionLog) {
-        print(error);
+        Terminal.println(error);
       }
 
       var sb = StringBuffer();
       var diff = hero.diff(updatedHero, sb);
       if (!diff) {
-        print(
+        Terminal.println(
           'Hero: ${hero.externalId} ("${hero.name}") is already up to date',
         );
         continue;
       }
 
       if (hero.locked) {
-        print(
+        Terminal.println(
           '''Hero: ${hero.externalId} ("${hero.name}") is locked by prior manual amendment, skipping reconciliation changes:
 
 ${sb.toString()}''',
@@ -518,7 +524,7 @@ ${sb.toString()}''',
       if (updateAll) {
         heroDataManager.persist(updatedHero);
         ++reconciliationCount;
-        print(
+        Terminal.println(
           '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
 ${sb.toString()}''',
         );
@@ -543,19 +549,19 @@ ${sb.toString()}''',
           break;
         case YesNoAllQuit.quit:
           {
-            print("Aborting reconciliation of further heroes");
+            Terminal.println("Aborting reconciliation of further heroes");
             return;
           }
       }
 
       heroDataManager.persist(updatedHero);
       ++reconciliationCount;
-      print(
+      Terminal.println(
         '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
 ${sb.toString()}''',
       );
     } catch (e) {
-      print(
+      Terminal.println(
         'Failed to reconcile hero: ${hero.externalId} ("${hero.name}"): $e',
       );
     } finally {
@@ -564,7 +570,7 @@ ${sb.toString()}''',
     }
   }
 
-  print(''' 
+  Terminal.println('''
 
 Reconciliation complete at ${DateTime.timestamp()}: $reconciliationCount heroes reconciled, $deletionCount heroes deleted.
 

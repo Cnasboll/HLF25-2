@@ -1,4 +1,4 @@
-import 'package:v04/prompts/prompt.dart';
+import 'package:v04/terminal/prompt.dart';
 import 'package:dart_dotenv/dart_dotenv.dart';
 
 class Env {

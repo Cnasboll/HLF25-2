@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field_base.dart';
 import 'package:v04/amendable/parsing_context.dart';
-import 'package:v04/prompts/prompt.dart';
+import 'package:v04/terminal/prompt.dart';
 import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/utils/enum_parsing.dart';
 import 'package:v04/utils/json_parsing.dart';
