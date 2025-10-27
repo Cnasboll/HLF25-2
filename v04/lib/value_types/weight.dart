@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/value_type.dart';
@@ -73,8 +74,11 @@ class Weight extends ValueType<Weight> {
     return (null, 'Could not parse weight: $input');
   }
 
-  static Weight parseList(List<String>? valueInVariousUnits) {
-    var (value, error) = tryParseList(valueInVariousUnits);
+  static Weight parseList(
+    List<String>? valueInVariousUnits, {
+    ParsingContext? parsingContext,
+  }) {
+    var (value, error) = tryParseList(valueInVariousUnits, parsingContext);
     if (error != null) {
       throw FormatException(error);
     }
@@ -82,23 +86,28 @@ class Weight extends ValueType<Weight> {
   }
 
   static ConflictResolver<Weight>? conflictResolver;
-  static (Weight?, String?) tryParseList(List<String>? valueVariousUnits) {
+  static (Weight?, String?) tryParseList(
+    List<String>? valueVariousUnits,
+    ParsingContext? parsingContext,
+  ) {
     return ValueType.tryParseList(
       valueVariousUnits,
       "weight",
       tryParse,
       conflictResolver: conflictResolver,
+      parsingContext: parsingContext,
     );
   }
 
-  static final RegExp largeIntegerFormatRegexp = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+  static final RegExp largeIntegerFormatRegexp = RegExp(
+    r'(\d{1,3})(?=(\d{3})+(?!\d))',
+  );
   String largeIntegerToString(int value) {
     return value.toString().replaceAllMapped(
       largeIntegerFormatRegexp,
       (Match match) => '${match[1]},',
     );
   }
-  
 
   @override
   String toString() {

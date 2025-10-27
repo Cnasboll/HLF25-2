@@ -10,8 +10,8 @@ import 'package:v04/persistence/hero_repository.dart';
 import 'package:v04/prompts/prompt.dart';
 import 'package:v04/services/hero_service.dart';
 import 'package:v04/services/hero_servicing.dart';
+import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/height.dart';
-import 'package:v04/value_types/manual_conflict_resolver.dart';
 import 'package:v04/value_types/weight.dart';
 
 Future<void> main() async {
@@ -150,16 +150,20 @@ void listMatchingHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-Future<void> downloadHeroes(HeroDataManaging heroDataManager) async {
+Future<void> saveHeroes(HeroDataManaging heroDataManager) async {
   var query = promptFor("Enter a search string:");
   var heroService = HeroService(Env());
-    var timestamp = DateTime.timestamp();
-  print (''' 
+  var timestamp = DateTime.timestamp();
+  print(''' 
 
 Online search started at $timestamp
 
 ''');
-  var (results, error) = await heroService.search(query);
+  var results = await heroService.search(query);
+  String? error;
+  if (results != null) {
+    error = results["error"];
+  }
   if (error != null) {
     print("Failed to search online heroes: $error");
     return;
@@ -171,21 +175,41 @@ Online search started at $timestamp
   }
 
   bool saveAll = false;
-  var saveCount  = 0;
+  var saveCount = 0;
   try {
-    Height.conflictResolver = ManualConflictResolver();
-    Weight.conflictResolver = ManualConflictResolver();
-    var searchResponseModel = SearchResponseModel.fromJson(
-      heroDataManager,
-      results,
-      timestamp
-    );
+    var previousHeightConflictResolver = Height.conflictResolver;
+    var previousWeightConflictResolver = Weight.conflictResolver;
+    SearchResponseModel searchResponseModel;
+    try {
+      var heightConflictResolver = Height.conflictResolver =
+          ManualConflictResolver<Height>();
+      var weightConflictResolver = Weight.conflictResolver =
+          ManualConflictResolver<Weight>();
+      searchResponseModel = SearchResponseModel.fromJson(
+        heroDataManager,
+        results,
+        timestamp,
+      );
 
-    print("Found ${searchResponseModel.results.length} heroes online:");
+      for (var error in heightConflictResolver.resolutionLog) {
+        print(error);
+      }
+      for (var error in weightConflictResolver.resolutionLog) {
+        print(error);
+      }
+    } finally {
+      // Restore previous conflict resolvers
+      Height.conflictResolver = previousHeightConflictResolver;
+      Weight.conflictResolver = previousWeightConflictResolver;
+    }
+
+    print('''
+
+Found ${searchResponseModel.results.length} heroes online:''');
     for (var hero in searchResponseModel.results) {
       if (heroDataManager.getByExternalId(hero.externalId) != null) {
         print(
-          "Hero ${hero.name} already exists locally - skipping (run reconciliation to update existing heroes with online data)",
+          'Hero  ${hero.externalId} ("${hero.name}") already exists locally - skipping (run reconciliation to update existing heroes with online data)',
         );
         continue;
       }
@@ -194,7 +218,7 @@ Online search started at $timestamp
         var yesNoAll = promptForYesNoAllQuit('''Save the following hero locally?
 $hero''');
         if (yesNoAll == YesNoAllQuit.quit) {
-          print("Aborting download of further heroes");
+          print("Aborting saving of further heroes");
           break;
         }
         if (yesNoAll == YesNoAllQuit.no) {
@@ -205,20 +229,19 @@ $hero''');
         }
       }
       heroDataManager.persist(hero);
-      print('''Saved hero:
-$hero''');
+      print(
+        '''Saved hero ${hero.externalId} ("${hero.name}") so it can save you:
+$hero''',
+      );
       ++saveCount;
     }
   } catch (e) {
     print("Failed to parse online heroes: $e");
-  } finally {
-    Height.conflictResolver = null;
-    Weight.conflictResolver = null;
   }
 
-    print (''' 
+  print(''' 
 
-Download complete at ${DateTime.timestamp()}: $saveCount heroes saved.
+Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they can in turn save ${saveCount * saveCount * 10} people, or more, depending on their abilities).
 
 ''');
 }
@@ -286,7 +309,7 @@ $amededHero''');
   }
 }
 
-void unlockHeroe(HeroDataManaging heroDataManager) {
+void unlockHero(HeroDataManaging heroDataManager) {
   HeroModel? hero = query(
     heroDataManager,
     "Unlock to enable reconciliation",
@@ -358,11 +381,11 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
       "[R]econcile local heroes with online updates",
     ),
     "s": (
-      () async => await downloadHeroes(heroDataManager),
-      "[S]earch online for new heroes to download",
+      () async => await saveHeroes(heroDataManager),
+      "[S]earch online for new heroes to save",
     ),
     "u": (
-      () => unlockHeroe(heroDataManager),
+      () => unlockHero(heroDataManager),
       "[U]nlock manually amended heroes to enable reconciliation",
     ),
     "x": (() => {exit = true}, "E[X]it and return to main menu"),
@@ -382,7 +405,7 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
 
 Future<void> reconcileHeroes(HeroDataManaging heroDataManager) async {
   var timestamp = DateTime.timestamp();
-  print (''' 
+  print(''' 
 
 Reconciliation started at at $timestamp
 
@@ -391,123 +414,144 @@ Reconciliation started at at $timestamp
   bool deleteAll = false;
   bool updateAll = false;
   var deletionCount = 0;
-  var reconciliationCount  = 0;
-  try {
-    Weight.conflictResolver = ManualConflictResolver();
-    Height.conflictResolver = ManualConflictResolver();
-    for (var hero in heroDataManager.heroes) {
-      heroService ??= HeroService(Env());
-      var (onlineHeroJson, error) = await heroService.getById(hero.externalId);
-      if (onlineHeroJson == null) {
-        if (hero.locked) {
-          print(
-            '''Hero: ${hero.externalId} ("${hero.name}") does not exist online: ${error ?? 'Unknown error'} but is locked by prior manual amendment - skipping deletion''',
-          );
-          continue;
-        }
+  var reconciliationCount = 0;
+  for (var hero in heroDataManager.heroes) {
+    heroService ??= HeroService(Env());
+    var onlineHeroJson = await heroService.getById(hero.externalId);
+    String? error;
+    if (onlineHeroJson != null) {
+      error = onlineHeroJson["error"];
+    }
 
-        if (deleteAll) {
-          print(
-            'Hero: ${hero.externalId} ("${hero.name}") does not exist online: ${error ?? 'Unknown error'} - deleting from local database',
-          );
-          deleteHeroUnprompted(heroDataManager, hero);
-          ++deletionCount;
-          continue;
-        }
-
-        var yesNoAllQuit = promptForYesNoAllQuit(
-          'Hero: ${hero.externalId} ("${hero.name}") does not exist online: ${error ?? 'Unknown error'} - delete it from local database?',
+    if (onlineHeroJson == null || error != null) {
+      if (hero.locked) {
+        print(
+          '''Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" but is locked by prior manual amendment - skipping deletion''',
         );
-        switch (yesNoAllQuit) {
-          case YesNoAllQuit.yes:
-            if (deleteHeroPrompted(heroDataManager, hero)) {
-              ++deletionCount;
-            }
-            break;
-          case YesNoAllQuit.no:
-            // Do nothing
-            break;
-          case YesNoAllQuit.all:
-            deleteAll = true;
-            deleteHeroUnprompted(heroDataManager, hero);
-            ++deletionCount;
-            break;
-          case YesNoAllQuit.quit:
-            {
-              print("Aborting reconciliation of further heroes");
-              return;
-            }
-        }
         continue;
       }
 
-      try {
-        var updatedHero = hero.apply(onlineHeroJson, timestamp, false);
-        var sb = StringBuffer();
-        var diff = hero.diff(updatedHero, sb);
-        if (!diff) {
-          print('Hero: ${hero.externalId} ("${hero.name}") is already up to date');
-          continue;
-        }
-
-        if (hero.locked) {
-          print(
-            '''Hero: ${hero.externalId} ("${hero.name}") is locked by prior manual amendment, skipping reconciliation changes:
-${sb.toString()}''',
-          );
-          continue;
-        }
-
-        if (updateAll) {
-          heroDataManager.persist(updatedHero);
-          ++reconciliationCount;
-          print(
-            '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
-${sb.toString()}''',
-          );
-          continue;
-        }
-
-        var yesNoAllQuit = promptForYesNoAllQuit(
-          '''Reconcile hero: ${hero.externalId} ("${hero.name}") with the following online changes?
-  ${sb.toString()}''',
-        );
-
-        switch (yesNoAllQuit) {
-          case YesNoAllQuit.yes:
-            // continue below
-            break;
-          case YesNoAllQuit.no:
-            // Do nothing
-            continue;
-          case YesNoAllQuit.all:
-            updateAll = true;
-            // continue below
-            break;
-          case YesNoAllQuit.quit:
-            {
-              print("Aborting reconciliation of further heroes");
-              return;
-            }
-        }
-
-        heroDataManager.persist(updatedHero);
-          ++reconciliationCount;
-          print(
-            '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
-${sb.toString()}''',
-          );
-      } catch (e) {
+      if (deleteAll) {
         print(
-          'Failed to reconcile hero: ${hero.externalId} ("${hero.name}"): $e',
+          'Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" - deleting from local database',
         );
+        deleteHeroUnprompted(heroDataManager, hero);
+        ++deletionCount;
+        continue;
       }
+
+      var yesNoAllQuit = promptForYesNoAllQuit(
+        'Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" - delete it from local database?',
+      );
+      switch (yesNoAllQuit) {
+        case YesNoAllQuit.yes:
+          if (deleteHeroPrompted(heroDataManager, hero)) {
+            ++deletionCount;
+          }
+          break;
+        case YesNoAllQuit.no:
+          // Do nothing
+          break;
+        case YesNoAllQuit.all:
+          deleteAll = true;
+          deleteHeroUnprompted(heroDataManager, hero);
+          ++deletionCount;
+          break;
+        case YesNoAllQuit.quit:
+          {
+            print("Aborting reconciliation of further heroes");
+            return;
+          }
+      }
+      continue;
     }
-  } finally {
-    Weight.conflictResolver = null;
-    Height.conflictResolver = null;
+
+    var previousHeightConflictResolver = Height.conflictResolver;
+    var previousWeightConflictResolver = Weight.conflictResolver;
+    try {
+      // Use height and weight conflict resolvers that use the system of units information from the the current hero being amended
+      var heightConflictResolver = Height.conflictResolver =
+          AutoConflictResolver<Height>(hero.appearance.height.systemOfUnits);
+      var weightConflictResolver = Weight.conflictResolver =
+          AutoConflictResolver<Weight>(hero.appearance.weight.systemOfUnits);
+
+      var updatedHero = hero.apply(onlineHeroJson, timestamp, false);
+
+      for (var error in heightConflictResolver.resolutionLog) {
+        print(error);
+      }
+      for (var error in weightConflictResolver.resolutionLog) {
+        print(error);
+      }
+
+      var sb = StringBuffer();
+      var diff = hero.diff(updatedHero, sb);
+      if (!diff) {
+        print(
+          'Hero: ${hero.externalId} ("${hero.name}") is already up to date',
+        );
+        continue;
+      }
+
+      if (hero.locked) {
+        print(
+          '''Hero: ${hero.externalId} ("${hero.name}") is locked by prior manual amendment, skipping reconciliation changes:
+
+${sb.toString()}''',
+        );
+        continue;
+      }
+
+      if (updateAll) {
+        heroDataManager.persist(updatedHero);
+        ++reconciliationCount;
+        print(
+          '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
+${sb.toString()}''',
+        );
+        continue;
+      }
+
+      var yesNoAllQuit = promptForYesNoAllQuit(
+        '''Reconcile hero: ${hero.externalId} ("${hero.name}") with the following online changes?
+  ${sb.toString()}''',
+      );
+
+      switch (yesNoAllQuit) {
+        case YesNoAllQuit.yes:
+          // continue below
+          break;
+        case YesNoAllQuit.no:
+          // Do nothing
+          continue;
+        case YesNoAllQuit.all:
+          updateAll = true;
+          // continue below
+          break;
+        case YesNoAllQuit.quit:
+          {
+            print("Aborting reconciliation of further heroes");
+            return;
+          }
+      }
+
+      heroDataManager.persist(updatedHero);
+      ++reconciliationCount;
+      print(
+        '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
+${sb.toString()}''',
+      );
+    } catch (e) {
+      print(
+        'Failed to reconcile hero: ${hero.externalId} ("${hero.name}"): $e',
+      );
+    } finally {
+      Weight.conflictResolver = previousWeightConflictResolver;
+      Height.conflictResolver = previousHeightConflictResolver;
+    }
   }
-  print (''' 
+
+  print(''' 
 
 Reconciliation complete at ${DateTime.timestamp()}: $reconciliationCount heroes reconciled, $deletionCount heroes deleted.
 

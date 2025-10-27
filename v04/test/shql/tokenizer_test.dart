@@ -1,0 +1,124 @@
+import 'package:v04/shql/tokenizer/token.dart';
+import 'package:v04/shql/tokenizer/tokenizer.dart';
+import 'package:test/test.dart';
+
+void main() {
+  test('Tokenize addition', () {
+    var v = Tokenizer.tokenize('10+2').toList();
+
+    expect(3, v.length);
+    expect(TokenTypes.integerLiteral, v[0].tokenType);
+    expect(Symbols.none, v[0].symbol);
+    expect(TokenTypes.add, v[1].tokenType);
+    expect(Symbols.add, v[1].symbol);
+    expect(TokenTypes.integerLiteral, v[2].tokenType);
+    expect(Symbols.none, v[2].symbol);
+  });
+
+  test('Tokenize modulus', () {
+    var v = Tokenizer.tokenize('9%2').toList();
+
+    expect(3, v.length);
+    expect(TokenTypes.integerLiteral, v[0].tokenType);
+    expect(Symbols.none, v[0].symbol);
+    expect(TokenTypes.mod, v[1].tokenType);
+    expect(Symbols.mod, v[1].symbol);
+    expect(TokenTypes.integerLiteral, v[2].tokenType);
+    expect(Symbols.none, v[2].symbol);
+  });
+
+  test('Tokenize minimal string', () {
+    var v = Tokenizer.tokenize('"h"').toList();
+
+    expect(1, v.length);
+    expect(TokenTypes.stringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, '"h"');
+    expect(Symbols.none, v[0].symbol);
+  });
+
+  test('Tokenize strings', () {
+    var v = Tokenizer.tokenize('"hello world" "good bye"').toList();
+
+    expect(2, v.length);
+    expect(TokenTypes.stringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, '"hello world"');
+    expect(Symbols.none, v[0].symbol);
+    expect(TokenTypes.stringLiteral, v[1].tokenType);
+    expect(v[1].lexeme, '"good bye"');
+    expect(Symbols.none, v[1].symbol);
+  });
+
+  test('Tokenize escaped string', () {
+    var v = Tokenizer.tokenize('"5\\"11\'"').toList();
+
+    expect(1, v.length);
+    expect(TokenTypes.stringLiteral, v[0].tokenType);
+    expect(v[0].lexeme, '"5\\"11\'"');
+    expect(Symbols.none, v[0].symbol);
+  });
+
+  test('Tokenize spaced identifiers', () {
+    var v = Tokenizer.tokenize('hello world').toList();
+
+    expect(2, v.length);
+    expect(TokenTypes.identifier, v[0].tokenType);
+    expect(Symbols.none, v[0].symbol);
+    expect(TokenTypes.identifier, v[1].tokenType);
+    expect(Symbols.none, v[1].symbol);
+  });
+
+  test('Tokenize keywords', () {
+    var v = Tokenizer.tokenize('NOT XOR AND OR IN').toList();
+
+    expect(5, v.length);
+    expect(TokenTypes.identifier, v[0].tokenType);
+    expect(Keywords.notKeyword, v[0].keyword);
+    expect(Symbols.not, v[0].symbol);
+    expect(TokenTypes.identifier, v[1].tokenType);
+    expect(Keywords.xorKeyword, v[1].keyword);
+    expect(Symbols.xor, v[1].symbol);
+    expect(TokenTypes.identifier, v[2].tokenType);
+    expect(Keywords.andKeyword, v[2].keyword);
+    expect(Symbols.and, v[2].symbol);
+    expect(TokenTypes.identifier, v[3].tokenType);
+    expect(Keywords.orKeyword, v[3].keyword);
+    expect(Symbols.or, v[3].symbol);
+    expect(TokenTypes.identifier, v[4].tokenType);
+    expect(Keywords.inKeyword, v[4].keyword);
+    expect(Symbols.inOp, v[4].symbol);
+  });
+
+  test('Tokenize lowercase keywords', () {
+    var v = Tokenizer.tokenize('not xor and or in').toList();
+
+    expect(5, v.length);
+    expect(TokenTypes.identifier, v[0].tokenType);
+    expect(Keywords.notKeyword, v[0].keyword);
+    expect(Symbols.not, v[0].symbol);
+    expect(TokenTypes.identifier, v[1].tokenType);
+    expect(Keywords.xorKeyword, v[1].keyword);
+    expect(Symbols.xor, v[1].symbol);
+    expect(TokenTypes.identifier, v[2].tokenType);
+    expect(Keywords.andKeyword, v[2].keyword);
+    expect(Symbols.and, v[2].symbol);
+    expect(TokenTypes.identifier, v[3].tokenType);
+    expect(Keywords.orKeyword, v[3].keyword);
+    expect(Symbols.or, v[3].symbol);
+    expect(TokenTypes.identifier, v[4].tokenType);
+    expect(Keywords.inKeyword, v[4].keyword);
+    expect(Symbols.inOp, v[4].symbol);
+  });
+
+  test('Tokenize various characters', () {
+    var v = Tokenizer.tokenize(', . [ ] ( )').toList();
+
+    expect(6, v.length);
+    expect(TokenTypes.comma, v[0].tokenType);
+    expect(TokenTypes.dot, v[1].tokenType);
+    expect(Symbols.memberAccess, v[1].symbol);
+    expect(TokenTypes.lBrack, v[2].tokenType);
+    expect(TokenTypes.rBrack, v[3].tokenType);
+    expect(TokenTypes.lPar, v[4].tokenType);
+    expect(TokenTypes.rPar, v[5].tokenType);
+  });
+}

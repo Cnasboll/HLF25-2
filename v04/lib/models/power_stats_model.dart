@@ -2,6 +2,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/value_types/percentage.dart';
 
 class PowerStatsModel extends Amendable<PowerStatsModel> {
@@ -64,31 +65,76 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   }
 
   @override
-  PowerStatsModel amendWith(Map<String, dynamic>? amendment) {
+  PowerStatsModel amendWith(
+    Map<String, dynamic>? amendment, {
+    ParsingContext? parsingContext,
+  }) {
     return PowerStatsModel(
       intelligence: _intelligenceField.getPercentageForAmendment(
         this,
         amendment,
+        parsingContext: parsingContext?.next(_intelligenceField.name),
       ),
-      strength: _strengthField.getPercentageForAmendment(this, amendment),
-      speed: _speedField.getPercentageForAmendment(this, amendment),
-      durability: _durabilityField.getPercentageForAmendment(this, amendment),
-      power: _powerField.getPercentageForAmendment(this, amendment),
-      combat: _combatField.getPercentageForAmendment(this, amendment),
+      strength: _strengthField.getPercentageForAmendment(
+        this,
+        amendment,
+        parsingContext: parsingContext?.next(_strengthField.name),
+      ),
+      speed: _speedField.getPercentageForAmendment(
+        this,
+        amendment,
+        parsingContext: parsingContext?.next(_speedField.name),
+      ),
+      durability: _durabilityField.getPercentageForAmendment(
+        this,
+        amendment,
+        parsingContext: parsingContext?.next(_durabilityField.name),
+      ),
+      power: _powerField.getPercentageForAmendment(
+        this,
+        amendment,
+        parsingContext: parsingContext?.next(_powerField.name),
+      ),
+      combat: _combatField.getPercentageForAmendment(
+        this,
+        amendment,
+        parsingContext: parsingContext?.next(_combatField.name),
+      ),
     );
   }
 
-  static PowerStatsModel fromJson(Map<String, dynamic>? json) {
+  static PowerStatsModel fromJson(
+    Map<String, dynamic>? json, {
+    ParsingContext? parsingContext,
+  }) {
     if (json == null) {
       return PowerStatsModel();
     }
     return PowerStatsModel(
-      intelligence: _intelligenceField.getNullablePercentage(json),
-      strength: _strengthField.getNullablePercentage(json),
-      speed: _speedField.getNullablePercentage(json),
-      durability: _durabilityField.getNullablePercentage(json),
-      power: _powerField.getNullablePercentage(json),
-      combat: _combatField.getNullablePercentage(json),
+      intelligence: _intelligenceField.getNullablePercentage(
+        json,
+        parsingContext: parsingContext?.next(_intelligenceField.name),
+      ),
+      strength: _strengthField.getNullablePercentage(
+        json,
+        parsingContext: parsingContext?.next(_strengthField.name),
+      ),
+      speed: _speedField.getNullablePercentage(
+        json,
+        parsingContext: parsingContext?.next(_speedField.name),
+      ),
+      durability: _durabilityField.getNullablePercentage(
+        json,
+        parsingContext: parsingContext?.next(_durabilityField.name),
+      ),
+      power: _powerField.getNullablePercentage(
+        json,
+        parsingContext: parsingContext?.next(_powerField.name),
+      ),
+      combat: _combatField.getNullablePercentage(
+        json,
+        parsingContext: parsingContext?.next(_combatField.name),
+      ),
     );
   }
 

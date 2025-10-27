@@ -4,6 +4,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 
 class ConnectionsModel extends Amendable<ConnectionsModel> {
   ConnectionsModel({this.groupAffiliation, this.relatives});
@@ -22,7 +23,7 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
   }
 
   @override
-  ConnectionsModel amendWith(Map<String, dynamic>? amendment) {
+  ConnectionsModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     return ConnectionsModel(
       groupAffiliation: _groupAffiliationField.getNullableStringForAmendment(
         this,
@@ -32,7 +33,7 @@ class ConnectionsModel extends Amendable<ConnectionsModel> {
     );
   }
 
-  static ConnectionsModel fromJson(Map<String, dynamic>? json) {
+  static ConnectionsModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     if (json == null) {
       return ConnectionsModel();
     }

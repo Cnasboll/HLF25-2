@@ -1,6 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field_base.dart';
 import 'package:v04/amendable/field_provider.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 
 enum SystemOfUnits { metric, imperial }
@@ -32,6 +33,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     String valueSource,
     ValueType<T> parsedValue,
     String input,
+    ParsingContext? parsingContext,
     ConflictResolver<T>? conflictResolver,
   ) {
     var valueSystemOfUnits = value.systemOfUnits;
@@ -50,8 +52,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
       bool parsedValueCorrespondsMasterButInDifferentUnit =
           parsedValue == masterInParsedUnit;
 
-
-      // CASE 2: Anti Monitor has height listed as ["200", "61.0 meters"]. Here "200" means 200 feet, 
+      // CASE 2: Anti Monitor has height listed as ["200", "61.0 meters"]. Here "200" means 200 feet,
       // which is 6096 cm or 61.96 meters, it's the api that has rounded to 61.0 meters.
       // We handle that case in Height.toString(). Check that tehe string representations of the metric values match:
       bool parsedValueCorrespondsMasterButInDifferentUnitAsStrings =
@@ -72,9 +73,12 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
           !parsedValueCorrespondsMasterButInDifferentUnitAsStrings &&
           !parsedValueInMasterUnitsCorrespondsToMaster &&
           !parsedValueInMasterUnitsCorrespondsToMasterAsStrings) {
+        var context = parsingContext != null
+            ? 'When ${parsingContext.toString()}: '
+            : '';
         var error =
-            "Conflicting $valueTypeName information:"
-            " ${parsedSystemOfUnits.name} '$parsedValue' corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInParsedUnit' in order to match first value of '$value'";
+            "${context}Conflicting $valueTypeName information:"
+            " ${parsedSystemOfUnits.name} '$parsedValue' (parsed from '$input') corresponds to '$parsedValueInMasterUnit' after converting back to ${valueSystemOfUnits.name} -- expecting '$masterInParsedUnit' in order to match first value of '$value' (parsed from '$valueSource')";
         if (conflictResolver == null) {
           return (null, error);
         }
@@ -105,6 +109,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
         valueSource,
         parsedValue,
         input,
+        parsingContext,
         conflictResolver,
       );
       if (newValue != null) {
@@ -123,15 +128,21 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
         valueSource,
         parsedValue.integralFromOtherSystem(integralSecond),
         input,
+        parsingContext,
         conflictResolver,
       );
       if (newValue != null) {
         return (newValue, error);
       }
     }
+
+    var context = parsingContext != null
+        ? 'When ${parsingContext.toString()}: '
+        : '';
+
     return (
       null,
-      "Conflicting $valueTypeName information: '$parsedValue' doesn't match first value '$value'",
+      "${context}Conflicting $valueTypeName information: '$parsedValue' (parsed from '$input') doesn't match first value '$value' (parsed from '$valueSource')",
     );
   }
 
@@ -139,6 +150,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
     List<String>? valueInVariousUnits,
     String valueTypeName,
     (T?, String?) Function(String) tryParse, {
+    ParsingContext? parsingContext,
     ConflictResolver<T>? conflictResolver,
   }) {
     // Null is also accepted and means no information provided (i.e. keep current for amendments), but an *empty* list is an error
@@ -182,6 +194,7 @@ abstract class ValueType<T> extends FieldProvider<ValueType<T>>
         valueSource!,
         parsedValue,
         input,
+        parsingContext,
         conflictResolver,
       );
 

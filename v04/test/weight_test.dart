@@ -109,7 +109,7 @@ void main() {
           (e) =>
               e is FormatException &&
               e.message ==
-                  "Conflicting weight information: metric '94 kg' corresponds to '207 lb' after converting back to imperial -- expecting '95 kg' in order to match first value of '210 lb'",
+                  "Conflicting weight information: metric '94 kg' (parsed from '94 kg') corresponds to '207 lb' after converting back to imperial -- expecting '95 kg' in order to match first value of '210 lb' (parsed from '210 lb')",
         ),
       ),
     );
@@ -123,7 +123,7 @@ void main() {
           (e) =>
               e is FormatException &&
               e.message ==
-                  "Conflicting weight information: '209 lb' doesn't match first value '210 lb'",
+                  "Conflicting weight information: '209 lb' (parsed from '209 lb') doesn't match first value '210 lb' (parsed from '210 lb')",
         ),
       ),
     );

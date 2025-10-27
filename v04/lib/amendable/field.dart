@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/prompts/prompt.dart';
 import 'package:v04/utils/enum_parsing.dart';
 import 'package:v04/utils/json_parsing.dart';
@@ -66,7 +67,7 @@ class Field<T, V> implements FieldBase<T> {
 
   Field._internal(
     this._getter,
-    this.name,
+    this._name,
     this.jsonName,
     this.sqliteName,
     this.description,
@@ -249,7 +250,7 @@ class Field<T, V> implements FieldBase<T> {
     var lhsValue = getter(lhs);
     var rhsValue = getter(rhs);
 
-    if (!mutable || assignedBySystem || lhsValue == rhsValue) {
+    if (!mutable || assignedBySystem || deepEq.equals(lhsValue, rhsValue)) {
       return false;
     }
 
@@ -378,29 +379,29 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment) {
+  Percentage? getPercentageForAmendment(T t, Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     var value = getIntForAmendment(t, amendment);
     if (value == null) {
       return null;
     }
-    return Percentage(value);
+    return Percentage(value, parsingContext: parsingContext);
   }
 
   @override
   Percentage getPercentageFromJson(
     Map<String, dynamic>? json,
-    int defaultValue,
+    int defaultValue, {ParsingContext? parsingContext}
   ) {
-    return Percentage(getIntFromJson(json, defaultValue));
+    return Percentage(getIntFromJson(json, defaultValue), parsingContext: parsingContext);
   }
 
   @override
-  Percentage? getNullablePercentage(Map<String, dynamic>? json) {
+  Percentage? getNullablePercentage(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     var value = getNullableInt(json);
     if (value == null) {
       return null;
     }
-    return Percentage(value);
+    return Percentage(value, parsingContext: parsingContext);
   }
 
   @override
@@ -681,7 +682,10 @@ class Field<T, V> implements FieldBase<T> {
   LookupField<T, V> _getter;
 
   /// Descriptive name of a field
-  String name;
+  @override
+  String get name => _name;
+
+  String _name;
 
   /// Name of the field in JSON
   String jsonName;

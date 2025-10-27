@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 
 // Levels of evilness
 enum Alignment {
@@ -65,7 +66,7 @@ class BiographyModel extends Amendable<BiographyModel> {
   }
 
   @override
-  BiographyModel amendWith(Map<String, dynamic>? amendment) {
+  BiographyModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
     return BiographyModel(
       fullName: _fullNameField.getNullableStringForAmendment(this, amendment),
       alterEgos: _alterEgosField.getNullableStringForAmendment(this, amendment),
@@ -90,7 +91,7 @@ class BiographyModel extends Amendable<BiographyModel> {
     );
   }
 
-  static BiographyModel fromJson(Map<String, dynamic>? json) {
+  static BiographyModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
     if (json == null) {
       return BiographyModel();
     }
@@ -149,19 +150,21 @@ class BiographyModel extends Amendable<BiographyModel> {
   @override
   List<FieldBase<BiographyModel>> get fields => staticFields;
 
-  static FieldBase<BiographyModel> get _fullNameField =>
-      Field.infer((m) => m.fullName, "Full Name", "Also applies when hungry");
-
+  static FieldBase<BiographyModel> get _fullNameField => Field.infer(
+    (m) => m.fullName,
+    "Full Name",
+    "Also applies when hungry"
+  );
 
   /// Special string literal used in the API to indicate no alter egos exist -- treat as null.
   /// Do not use as an actual alter ego, as villains may exploit this loophole to evade detection systems!
-  static const String alterEgosNoAlterEgosFound = "No alter egos found.";
-  
+  static const String noAlterEgosFound = "No alter egos found.";
+
   static final FieldBase<BiographyModel> _alterEgosField = Field.infer(
     (m) => m.alterEgos,
     "Alter Egos",
     "Alter egos of the character",
-    extraNullLiterals: [alterEgosNoAlterEgosFound],
+    extraNullLiterals: [noAlterEgosFound]
   );
 
   static final FieldBase<BiographyModel> _aliasesField = Field.infer(

@@ -25,7 +25,7 @@ class MockHeroService implements HeroServicing {
   }
 
   @override
-  Future<(Map<String, dynamic>?, String?)> search(String name) async {
+  Future<Map<String, dynamic>?> search(String name) async {
     List<Map<String, dynamic>> results = [];
     _jsonByHeroId.forEach((id, json) {
       var decoded = jsonDecode(json) as Map<String, dynamic>;
@@ -51,18 +51,18 @@ class MockHeroService implements HeroServicing {
       };
     }
 
-    return Future.value((searchResult, null));
+    return Future.value(searchResult);
   }
 
   @override
-  Future<(Map<String, dynamic>?, String?)> getById(String id) async {
+  Future<Map<String, dynamic>?> getById(String id) async {
     var json = _jsonByHeroId[id];
     if (json == null) {
-      return (null, "Hero not found");
+      return null;
     }
 
     var hero = jsonDecode(json) as Map<String, dynamic>;
-    return Future.value((hero, null));
+    return Future.value(hero);
   }
 
   final Map<String, String> _jsonByHeroId;

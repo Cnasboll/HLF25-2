@@ -18,26 +18,25 @@ class HeroService implements HeroServicing {
     });
   }
 
-  Future<(Map<String, dynamic>?, String?)> fetchAsync(String path) async {
+  Future<Map<String, dynamic>?> fetchAsync(String path) async {
     return fetchRawAsync(path).then((bodyAndStatusCode) {
       final (body, statusCode) = bodyAndStatusCode;
       if (statusCode == 200) {
         return (
-          json.decode(body) as Map<String, dynamic>,
-          null,
+          json.decode(body) as Map<String, dynamic>
         );
       }
-      return (null, body);
+      return(null);
     });
   }
 
   @override
-  Future<(Map<String, dynamic>?, String?)> search(String name) async {
+  Future<Map<String, dynamic>?> search(String name) async {
     return fetchAsync("search/$name");
   }
 
   @override
-  Future<(Map<String, dynamic>?, String?)> getById(String id) async {
+  Future<Map<String, dynamic>?> getById(String id) async {
     return fetchAsync(id);
   }
 

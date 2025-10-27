@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:sqlite3/sqlite3.dart';
 import 'package:v04/amendable/field_base.dart';
+import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/amendable/field.dart';
 import 'package:v04/amendable/amendable.dart';
@@ -49,7 +50,10 @@ class AppearanceModel extends Amendable<AppearanceModel> {
   }
 
   @override
-  AppearanceModel amendWith(Map<String, dynamic>? amendment) {
+  AppearanceModel amendWith(
+    Map<String, dynamic>? amendment, {
+    ParsingContext? parsingContext,
+  }) {
     return AppearanceModel(
       gender: _genderField.getEnumForAmendment<Gender>(
         this,
@@ -59,24 +63,35 @@ class AppearanceModel extends Amendable<AppearanceModel> {
       race: _raceField.getNullableStringForAmendment(this, amendment),
       height: Height.parseList(
         _heightField.getNullableStringListFromJsonForAmendment(this, amendment),
+        parsingContext: parsingContext?.next(_heightField.name),
       ),
       weight: Weight.parseList(
         _weightField.getNullableStringListFromJsonForAmendment(this, amendment),
+        parsingContext: parsingContext?.next(_weightField.name),
       ),
       eyeColor: _eyeColourField.getNullableStringForAmendment(this, amendment),
       hairColor: _hairColorField.getNullableStringForAmendment(this, amendment),
     );
   }
 
-  static AppearanceModel fromJson(Map<String, dynamic>? json) {
+  static AppearanceModel fromJson(
+    Map<String, dynamic>? json, {
+    ParsingContext? parsingContext,
+  }) {
     if (json == null) {
       return AppearanceModel(gender: Gender.unknown);
     }
     return AppearanceModel(
       gender: _genderField.getEnum<Gender>(Gender.values, json, Gender.unknown),
       race: _raceField.getNullableString(json),
-      height: Height.parseList(_heightField.getNullableStringList(json)),
-      weight: Weight.parseList(_weightField.getNullableStringList(json)),
+      height: Height.parseList(
+        _heightField.getNullableStringList(json),
+        parsingContext: parsingContext?.next(_heightField.name),
+      ),
+      weight: Weight.parseList(
+        _weightField.getNullableStringList(json),
+        parsingContext: parsingContext?.next(_weightField.name),
+      ),
       eyeColor: _eyeColourField.getNullableString(json),
       hairColor: _hairColorField.getNullableString(json),
     );
