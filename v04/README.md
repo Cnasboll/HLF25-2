@@ -165,6 +165,19 @@ NB! For less advanced users, typing a _Search_ string followed by enter directly
 
 If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
 
+**NB: The assignment has thoughtfully evolved to include contemporary web security measures.** `superherodb.com` now features sophisticated bot protection that responds to HTTP requests with a cheerful `403 Forbidden` status, complete with CAPTCHA challenges that cannot be programmatically solved. This provides students with an authentic enterprise development experience, where critical third-party dependencies can spontaneously implement access restrictions mid-semester.
+
+The API's recent introduction of anti-automation measures serves as an excellent pedagogical exercise in the ephemeral nature of public APIs and the importance of... *checks assignment requirements*... controlling dependencies that exist entirely outside the educational institution's purview. One colleague reports that image downloads functioned seamlessly until "någon dag förra veckan" (some day last week), confirming that this represents a *dynamic* learning environment where working code can achieve non-working status without any modifications to the student's implementation.
+
+The author(s) suspect this CAPTCHA deployment may constitute an unintentional stress test of both HTTP client resilience and student patience thresholds. While the Dio package with carefully crafted browser headers represents a valiant attempt at mimicking legitimate user agents, it appears the API maintainers have prioritized security theater over educational accessibility.
+
+**Suggested workarounds for the pedagogically-challenged API:**
+- Local caching of hero data during the brief windows when the API permits access
+- Graceful degradation to placeholder images when downloads encounter the inevitable `403`
+- Meditation on the transient nature of external dependencies
+- Consideration of alternative career paths that do not involve third-party API integration
+- _(Currently working soluton courtesy of fellow student F.: go via `corsproxy.io`)._
+
 When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the _Hero_ to die, or `a` to try to be a hero oneself, or -- the most reasonably, `q` to give up.
 
 ```
@@ -676,8 +689,8 @@ Enter Connections: Group Affiliation (Groups the character is affiliated with we
 Enter Connections: Relatives (A list of the character's relatives by blood, marriage, adoption, or pure association), or enter to finish populating Connections:
 > Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 
-Populate Image (Hero's image)? (y/n)
-> n
+Enter Image: Url (The URL of the image), or enter to finish populating Image:
+> https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 
 Save new hero with the following details?
 =============
@@ -710,7 +723,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
  (y/n)
 > y
@@ -746,7 +759,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
 ```
 
@@ -831,7 +844,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
  (y = yes, n = next, c = cancel)
 > y
@@ -867,7 +880,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
 
 Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
@@ -916,7 +929,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
 
 Hero: 69 ("Batman") is already up to date
