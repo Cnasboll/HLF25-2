@@ -1,4 +1,3 @@
-import 'dart:math';
 
 /// Simple ASCII art converter for hero images
 class AsciiArt {
