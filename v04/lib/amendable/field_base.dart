@@ -4,8 +4,8 @@ import 'package:v04/shql/parser/constants_set.dart';
 import 'package:v04/value_types/percentage.dart';
 
 abstract class FieldBase<T> {
-  bool promptForJson(Map<String, dynamic> json, {String? crumbtrail});
-  void promptForAmendmentJson(
+  Future<bool> promptForJson(Map<String, dynamic> json, {String? crumbtrail});
+  Future<void> promptForAmendmentJson(
     T original,
     Map<String, dynamic> amendment, {
     String? crumbtrail,
@@ -81,9 +81,9 @@ abstract class FieldBase<T> {
   void declareIdentifiers(ConstantsSet constantsSet);
   void registerIdentifiers(T t, ConstantsSet constantsSet);
 
-/// Descriptive name of a field
+  /// Descriptive name of a field
   String get name;
-  
+
   /// True if field is mutable
   bool get mutable;
 }

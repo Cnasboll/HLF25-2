@@ -123,36 +123,36 @@ void main() {
     expect(h.toString(), "188 cm");
   });
 
-  test('parse list with corresponding values in different systems', () {
-    final imp = Height.parseList(['6\'2"', '188 cm']);
+  test('parse list with corresponding values in different systems', () async {
+    final imp = await Height.parseList(['6\'2"', '188 cm']);
     var (feet, inches) = imp.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
     expect(imp.toString(), '6\'2"');
 
-    final impWithOtherMetric = Height.parseList(['6\'2"', '189 cm']);
+    final impWithOtherMetric = await Height.parseList(['6\'2"', '189 cm']);
     (feet, inches) = impWithOtherMetric.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
     expect(impWithOtherMetric.toString(), '6\'2"');
 
-    final redundantImp = Height.parseList(['6\'2"', '188 cm', '6 ft 2 in']);
+    final redundantImp = await Height.parseList(['6\'2"', '188 cm', '6 ft 2 in']);
     (feet, inches) = redundantImp.wholeFeetAndWholeInches;
     expect(feet, 6);
     expect(inches, 2);
     expect(redundantImp.toString(), '6\'2"');
 
-    final metric = Height.parseList(['188 cm', '6\'2"']);
+    final metric = await Height.parseList(['188 cm', '6\'2"']);
     expect(metric.wholeCentimeters, 188);
     expect(metric.toString(), "188 cm");
 
-    final redundantMetric = Height.parseList(['188 cm', '6\'2"', "1.88"]);
+    final redundantMetric = await Height.parseList(['188 cm', '6\'2"', "1.88"]);
     expect(redundantMetric.wholeCentimeters, 188);
     expect(redundantMetric.toString(), "188 cm");
   });
 
-  test('parse Ymir meters', () {
-    final h = Height.parse("304.8 meters");
+  test('parse Ymir meters', () async {
+    final h = await Height.parse("304.8 meters");
     expect(h.wholeCentimeters, 30480);
     var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 1000);
@@ -160,9 +160,9 @@ void main() {
     expect(h.toString(), "304.8 meters");
   });
 
-  test('parse Ymir height infer 1000 feet', () {
+  test('parse Ymir height infer 1000 feet', () async {
     // We infer that 1000 means feet here
-    final h = Height.parseList(["1000", "304.8 meters"]);
+    final h = await Height.parseList(["1000", "304.8 meters"]);
     var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 1000);
     expect(inches, 0);
@@ -170,9 +170,9 @@ void main() {
     expect(h.toString(), "1000'0\"");
   });
 
-  test('parse Ymir height in different order still infer 1000 feet', () {
+  test('parse Ymir height in different order still infer 1000 feet', () async {
     // We infer that 1000 means feet here
-    final h = Height.parseList(["304.8 meters", "1000"]);
+    final h = await Height.parseList(["304.8 meters", "1000"]);
     var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 1000);
     expect(inches, 0);
@@ -189,8 +189,8 @@ void main() {
     expect(h.toString(), "61.0 meters");
   });
 
-  test('parse Anti-Montitor height', () {
-    final h = Height.parseList(["200", "61.0 meters"]);
+  test('parse Anti-Montitor height', () async {
+    final h = await Height.parseList(["200", "61.0 meters"]);
     var (feet, inches) = h.wholeFeetAndWholeInches;
     expect(feet, 200);
     expect(inches, 0);

@@ -133,7 +133,7 @@ Due to the lack of escaping (pun intended) any _Villain_ could present that exac
 
 ```
 Welcome to the Hero Manager!
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -150,7 +150,7 @@ To go _Online_ and _Search_ for _Heroes_ to download, type `O` and enter a searc
 
 ```
 > O
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -164,6 +164,18 @@ Enter a search string:
 NB! For less advanced users, typing a _Search_ string followed by enter directly under the _Online_ menu, i.e. Batman is a shortcut for _Searching Online_ for Batman whithout the extra step of typing _S_ followed by the _Search_ string. Please use this feature sparingly, especially if on a metered connection or if an adult needs to dial a phone call.
 
 If no API key and / or API host are specified in a local `.env` file, enter those values as prompted and the `.env` file will be created or updated accordingly.
+
+**NB: The assignment has thoughtfully evolved to include contemporary web security measures.** `superherodb.com` now features sophisticated bot protection that responds to HTTP requests with a cheerful `403 Forbidden` status, complete with CAPTCHA challenges that cannot be programmatically solved. This provides students with an authentic enterprise development experience, where critical third-party dependencies can spontaneously implement access restrictions mid-semester.
+
+The API's recent introduction of anti-automation measures serves as an excellent pedagogical exercise in the ephemeral nature of public APIs and the importance of... *checks assignment requirements*... controlling dependencies that exist entirely outside the educational institution's purview. One colleague reports that image downloads functioned seamlessly until "någon dag förra veckan" (some day last week), confirming that this represents a *dynamic* learning environment where working code can achieve non-working status without any modifications to the student's implementation.
+
+While the Dio package with carefully crafted browser headers represents a valiant attempt at mimicking legitimate user agents, it appears the API maintainers have prioritized security theater over educational accessibility.
+
+**Suggested workarounds**
+- Local caching of hero data during the brief windows when the API permits access
+- Graceful degradation to placeholder images when downloads encounter the inevitable `403`
+- Meditation on the transient nature of external dependencies
+- _(Currently working soluton courtesy of fellow student F.: go via `corsproxy.io`, and a carefully selected placeholder)._
 
 When prompted for `Save the following hero locally?` one can answer `y` to save, `no` to allow the _Hero_ to die, or `a` to try to be a hero oneself, or -- the most reasonably, `q` to give up.
 
@@ -330,7 +342,7 @@ To _Amend_ an existing _Hero_, exit the _Online_ menu by pressing `X` to return 
 
 The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
 
-Candiates will be presented by descending order of strenght. Press `y` to _Amend_ the displayed _Hero_ or `n` to review the next one, or `c` to cancel.
+Candiates will be presented by descending order of strength. Press `y` to _Amend_ the displayed _Hero_ or `n` to review the next one, or `c` to cancel.
 
 Pressing `y` will give the user the chance of _Amendning_ every value and keep current one with pressing enter.
 
@@ -464,7 +476,7 @@ To _Reconcile_ locally saved _heroes_ against the _Online_ source, select `O` to
 
 ```
 > O
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -485,7 +497,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 09:47:01.497983Z: 0 heroes reconciled, 0 heroes deleted.
 
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -572,7 +584,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -597,7 +609,7 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 09:50:17.918565Z: 1 heroes reconciled, 0 heroes deleted.
 
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -676,8 +688,8 @@ Enter Connections: Group Affiliation (Groups the character is affiliated with we
 Enter Connections: Relatives (A list of the character's relatives by blood, marriage, adoption, or pure association), or enter to finish populating Connections:
 > Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 
-Populate Image (Hero's image)? (y/n)
-> n
+Enter Image: Url (The URL of the image), or enter to finish populating Image:
+> https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 
 Save new hero with the following details?
 =============
@@ -710,7 +722,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
  (y/n)
 > y
@@ -746,7 +758,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
 ```
 
@@ -755,7 +767,7 @@ As the new _Hero_ only exists locally and is created in _Locked_ state, the _Rec
 
 
 ```
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -767,7 +779,7 @@ Go [O]nline to download heroes
 [Q]uit (exit the program)
 
 > O
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -831,7 +843,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
  (y = yes, n = next, c = cancel)
 > y
@@ -867,10 +879,10 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
 
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -916,7 +928,7 @@ Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
 Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
-Image: Url: null
+Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
 
 Hero: 69 ("Batman") is already up to date
@@ -931,7 +943,7 @@ To (manually) _Delete_ a locally saved _Hero_, return to the _Main_ menu and pre
 
 The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
 
-Candiates will be presented by descending order of strenght. Type `y` to _Delete_ the _Hero_ or `n` to review the next one or `c` to cancel.
+Candiates will be presented by descending order of strength. Type `y` to _Delete_ the _Hero_ or `n` to review the next one or `c` to cancel.
 
 Typing `y` will give the user the chance of of revewing the _Hero_ to be _Deleted_ and confirm _Deletion_ with `y` or
 abort the operation with `n`.
@@ -1049,7 +1061,7 @@ Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
 
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -1065,7 +1077,7 @@ Go [O]nline to download heroes
 Invoke a _Local Search_ by entering a search term in plaintext or a _SHQL™_ on the main menu, or `S` to be prompted for the search term.
 
 ```
-Enter a menu option (C, L, T, S, A, D, E, O or Q) and press enter:
+Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SHQL™ or plain text, and press enter:
 [C]reate a new hero (will prompt for details)
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
@@ -1273,9 +1285,9 @@ As the `Gender` enum in the `Appearance` section are mapped to _SHQL™_ as the 
 ### BMI (body-mass index) search:
 As `Appearance.Weight`and `Appearance.Height` are normalised in SI-units one can easily use them in comparisons.
 
-To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or above the magic cutoff of 25 kg per m<sup>2</sup>, type:
+To find _Heroes_ meeting WHOs definition of _obesity_ and sporting a BMI (body-mass-index) at or above the magic cutoff of 30 kg per m<sup>2</sup>, type:
 
-`appearance.weight.kg / pow(appearance.height.m, 2) >= 25`
+`appearance.weight.kg / pow(appearance.height.m, 2) >= 30`
 
 _NB: This actually reveals a flaw both in the WHO model, and the underlying data as no distinction is done between body fat and lean mass such as pure rock for certain giants._
 

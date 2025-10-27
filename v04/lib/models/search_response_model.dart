@@ -8,11 +8,12 @@ class SearchResponseModel {
     required this.results,
   });
 
-  factory SearchResponseModel.fromJson(
+  static Future<SearchResponseModel> fromJson(
     HeroDataManaging heroDataManaging,
     Map<String, dynamic> json,
     DateTime timestamp,
-  ) {
+    List<String> failures,
+  ) async {
     var response = json['response'] as String;
 
     List<HeroModel> results = [];
@@ -20,7 +21,11 @@ class SearchResponseModel {
     if (response == "success") {
       for (var h in (json['results'] as List<dynamic>)) {
         var heroJson = h as Map<String, dynamic>;
-        results.add(heroDataManaging.heroFromJson(heroJson, timestamp));        
+        try {
+          results.add(await heroDataManaging.heroFromJson(heroJson, timestamp));
+        } catch (e) {
+          failures.add(e.toString());
+        }
       }
     }
 

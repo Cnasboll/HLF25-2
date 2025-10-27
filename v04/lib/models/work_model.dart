@@ -20,14 +20,23 @@ class WorkModel extends Amendable<WorkModel> {
   }
 
   @override
-  WorkModel amendWith(Map<String, dynamic>? amendment, {ParsingContext? parsingContext}) {
+  Future<WorkModel> amendWith(
+    Map<String, dynamic>? amendment, {
+    ParsingContext? parsingContext,
+  }) async {
     return WorkModel(
-      occupation: _occupationField.getNullableStringForAmendment(this, amendment),
+      occupation: _occupationField.getNullableStringForAmendment(
+        this,
+        amendment,
+      ),
       base: _baseField.getNullableStringForAmendment(this, amendment),
     );
   }
 
-  static WorkModel fromJson(Map<String, dynamic>? json, {ParsingContext? parsingContext}) {
+  static WorkModel fromJson(
+    Map<String, dynamic>? json, {
+    ParsingContext? parsingContext,
+  }) {
     if (json == null) {
       return WorkModel();
     }
@@ -47,8 +56,8 @@ class WorkModel extends Amendable<WorkModel> {
   final String? occupation;
   final String? base;
 
-  static WorkModel fromPrompt() {
-    var json = Amendable.promptForJson(staticFields);
+  static Future<WorkModel> fromPrompt() async {
+    var json = await Amendable.promptForJson(staticFields);
     if (json == null) {
       return WorkModel();
     }

@@ -11,5 +11,5 @@ abstract interface class HeroDataManaging {
   HeroModel? getById(String id);
   /// Parses a HeroModel from JSON, using existing data if available,
   /// does not persists
-  HeroModel heroFromJson(Map<String, dynamic> json, DateTime timestamp);
+  Future<HeroModel> heroFromJson(Map<String, dynamic> json, DateTime timestamp);
 }

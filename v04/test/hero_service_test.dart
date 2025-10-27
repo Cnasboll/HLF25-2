@@ -11,8 +11,8 @@ void main() async {
   test('Can download Batman', () async {
     var heroService = MockHeroService();
     var heroDataManager = HeroDataManager(MockHeroRepository());
-    await heroService.getById("70").then((batmanJson) {
-      var batman = heroDataManager.heroFromJson(
+    await heroService.getById("70").then((batmanJson) async {
+      var batman = await heroDataManager.heroFromJson(
         batmanJson!,
         DateTime.timestamp(),
       );
@@ -24,8 +24,8 @@ void main() async {
   test('Can amend other Batman', () async {
     var heroService = MockHeroService();
     var heroDataManager = HeroDataManager(MockHeroRepository());
-    await heroService.getById("69").then((batmanJson) {
-      var batman = heroDataManager.heroFromJson(
+    await heroService.getById("69").then((batmanJson) async {
+      var batman = await heroDataManager.heroFromJson(
         batmanJson!,
         DateTime.timestamp(),
       );
@@ -36,7 +36,7 @@ void main() async {
         "biography": {"alignment": "bad"},
       };
 
-      var amendedBatman = batman.amendWith(amendment);
+      var amendedBatman = await batman.amendWith(amendment);
       expect(amendedBatman.version, 2);
       expect(amendedBatman.biography.alignment, Alignment.bad);
       expect(amendedBatman.biography.aliases, batman.biography.aliases);
@@ -63,9 +63,9 @@ void main() async {
       List<String> failures = [];
       var timestamp = DateTime.timestamp();
       for (int i = 1; i < 731; ++i) {
-        await heroService.getById(i.toString()).then((heroJson) {
+        await heroService.getById(i.toString()).then((heroJson) async {
           try {
-            heroDataManager.heroFromJson(heroJson!, timestamp);
+            await heroDataManager.heroFromJson(heroJson!, timestamp);
           } catch (e) {
             failures.add(e.toString());
           }

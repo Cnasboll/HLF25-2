@@ -69,7 +69,7 @@ class Height extends ValueType<Height> {
       return (Height.fromFeetAndInches(0, 0), null);
     }
 
-    // Try imperial shorthand: 6'2" or 6'2 or 6' 2" or even 5'10' which is the height of  White Queen in api!
+    // Try imperial shorthand: 6'2" or 6'2 or 6' 2" or even 5'10' which is the height of White Queen in api!
     final imperialRegex = RegExp(
       r'''^\s*(\d+)\s*'\s*(\d+)?\s*(?:"|'|in)?\s*$''',
     );
@@ -143,11 +143,14 @@ class Height extends ValueType<Height> {
     return (null, 'Could not parse height: $input');
   }
 
-  static Height parseList(
+  static Future parseList(
     List<String>? valueInVariousUnits, {
     ParsingContext? parsingContext,
-  }) {
-    var (value, error) = tryParseList(valueInVariousUnits, parsingContext);
+  }) async {
+    var (value, error) = await tryParseList(
+      valueInVariousUnits,
+      parsingContext,
+    );
     if (error != null) {
       throw FormatException(error);
     }
@@ -155,10 +158,10 @@ class Height extends ValueType<Height> {
   }
 
   static ConflictResolver<Height>? conflictResolver;
-  static (Height?, String?) tryParseList(
+  static Future<(Height?, String?)> tryParseList(
     List<String>? valueVariousUnits,
     ParsingContext? parsingContext,
-  ) {
+  ) async {
     return ValueType.tryParseList(
       valueVariousUnits,
       "height",
@@ -227,8 +230,6 @@ class Height extends ValueType<Height> {
 
   static double withThreeSignificantDigits(double d) {
     return d;
-    /*String s = d.toStringAsPrecision(3);
-    return double.parse(s);*/
   }
 
   @override

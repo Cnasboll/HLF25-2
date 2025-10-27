@@ -74,11 +74,14 @@ class Weight extends ValueType<Weight> {
     return (null, 'Could not parse weight: $input');
   }
 
-  static Weight parseList(
+  static Future<Weight> parseList(
     List<String>? valueInVariousUnits, {
     ParsingContext? parsingContext,
-  }) {
-    var (value, error) = tryParseList(valueInVariousUnits, parsingContext);
+  }) async {
+    var (value, error) = await tryParseList(
+      valueInVariousUnits,
+      parsingContext,
+    );
     if (error != null) {
       throw FormatException(error);
     }
@@ -86,10 +89,10 @@ class Weight extends ValueType<Weight> {
   }
 
   static ConflictResolver<Weight>? conflictResolver;
-  static (Weight?, String?) tryParseList(
+  static Future<(Weight?, String?)> tryParseList(
     List<String>? valueVariousUnits,
     ParsingContext? parsingContext,
-  ) {
+  ) async {
     return ValueType.tryParseList(
       valueVariousUnits,
       "weight",

@@ -8,7 +8,7 @@ import 'package:v04/value_types/percentage.dart';
 import 'package:v04/value_types/value_type.dart';
 
 void main() {
-  test('Can parse batman himself', () {
+  test('Can parse batman himself', () async {
     final rawJson = '''
 {
   "response": "success",
@@ -54,7 +54,7 @@ void main() {
 ''';
 
     var decoded = json.decode(rawJson);
-    final batman = HeroModel.fromJsonAndId(decoded, "02ffbb60-762b-4552-8f41-be8aa86869c6");
+    final batman = await HeroModel.fromJsonAndIdAsync(decoded, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(batman.id, "02ffbb60-762b-4552-8f41-be8aa86869c6");
     expect(batman.externalId, "70");
     expect(batman.version, 1);
@@ -169,7 +169,7 @@ void main() {
     expect(result, ['10 kg', '22 lb']);
   });
 
-  test('Can parse["-"] as a null list', () {
+  test('Can parse["-"] as a null list', () async {
     final rawJson = '''{
     "full-name": "Xenomorph",
     "alter-egos": "No alter egos found.",
@@ -184,7 +184,7 @@ void main() {
 ''';
 
     var decoded = json.decode(rawJson);
-    var biography = BiographyModel.fromJson(decoded);
+    var biography = await BiographyModel.fromJson(decoded);
     expect(biography.aliases, null);
   });
 }

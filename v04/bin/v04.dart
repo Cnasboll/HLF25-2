@@ -1,3 +1,4 @@
+import 'package:cli_spin/cli_spin.dart';
 import 'package:v04/env/env.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/managers/hero_data_managing.dart';
@@ -8,6 +9,7 @@ import 'package:v04/terminal/prompt.dart';
 import 'package:v04/services/hero_service.dart';
 import 'package:v04/services/hero_servicing.dart';
 import 'package:v04/terminal/terminal.dart';
+import 'package:v04/utils/ascii_art.dart';
 import 'package:v04/value_types/conflict_resolver.dart';
 import 'package:v04/value_types/height.dart';
 import 'package:v04/value_types/weight.dart';
@@ -16,48 +18,59 @@ Future<void> main() async {
   // Clear screen and set green text
   Terminal.initialize();
 
+  // ASCII art banner
+  Terminal.println("\n${AsciiArt.createBanner("HERO MANAGER v04")}\n");
+
   Terminal.println("Welcome to the Hero Manager!");
   var heroDataManager = HeroDataManager(HeroRepository('v04.db'));
 
   var doWOrk = true;
   Map<String, (Function, String)> commands = {
     "c": (
-      () => createHero(heroDataManager),
+      (_) => createHero(heroDataManager),
       "[C]reate a new hero (will prompt for details)",
     ),
-    "l": (() => listHeroes(heroDataManager), "[L]ist all heroes"),
+    "l": ((_) => listHeroes(heroDataManager), "[L]ist all heroes"),
     "t": (
-      () => listTopNHeroes(heroDataManager),
+      (arg) async => await listTopNHeroes(heroDataManager, arg: arg),
       "List [T]op n heroes (will prompt for n)",
     ),
     "s": (
-      () => listMatchingHeroes(heroDataManager),
+      (arg) async => await listMatchingHeroes(heroDataManager, query: arg),
       "[S]earch matching heroes (will prompt for a search string)",
     ),
-    "a": (() => amendHero(heroDataManager), "[A]mend a hero"),
-    "d": (() => deleteHero(heroDataManager), "[D]elete a hero"),
+    "a": ((arg) async => await amendHero(heroDataManager, query: arg), "[A]mend a hero"),
+    "d": ((arg) async => await deleteHero(heroDataManager, query: arg), "[D]elete a hero"),
     "e": (
-      () => deleteAllHeroes(heroDataManager),
+      (_) async => await deleteAllHeroes(heroDataManager),
       "[E]rase database (delete all heroes)",
     ),
-    "o": (() => goOnline(heroDataManager), "Go [O]nline to download heroes"),
+    "o": ((_) => goOnline(heroDataManager), "Go [O]nline to download heroes"),
     "q": (
-      () => {
-        if (promptQuit()) {doWOrk = false},
+      (_) async => {
+        if (await promptQuit()) {doWOrk = false},
       },
       "[Q]uit (exit the program)",
     ),
   };
 
-  void defaultCommand(String query) =>
-      listMatchingHeroes(heroDataManager, query: query);
+  Future<void> defaultCommand(String query) async =>
+      await listMatchingHeroes(heroDataManager, query: query);
 
-  var prompt = generatePrompt(commands);
+  var prompt = generatePrompt(
+    commands,
+    defaultAction: " or enter a search string in SHQL™ or plain text,",
+  );
 
   while (doWOrk) {
-    Terminal.println(prompt);
     try {
-      await menu(heroDataManager, commands, defaultCommand: defaultCommand);
+      await menu(
+        heroDataManager,
+        prompt,
+        commands,
+        defaultCommand: defaultCommand,
+        defaultAction: 'performing default search',
+      );
     } catch (e) {
       Terminal.println("Unexpected error: $e");
     }
@@ -65,10 +78,17 @@ Future<void> main() async {
     // allow any pending async operations to complete to save changes
     await Future.delayed(Duration.zero);
   }
+  
+  // Properly dispose of resources before exit
+  await heroDataManager.dispose();
   Terminal.cleanup();
+  print("Done");
 }
 
-String generatePrompt(Map<String, (Function, String)> commands) {
+String generatePrompt(
+  Map<String, (Function, String)> commands, {
+  String defaultAction = '',
+}) {
   StringBuffer promptBuffer = StringBuffer();
   promptBuffer.write("""
 Enter a menu option (""");
@@ -82,7 +102,7 @@ Enter a menu option (""");
     }
     promptBuffer.write(commands.keys.elementAt(i).toUpperCase());
   }
-  promptBuffer.writeln(") and press enter:");
+  promptBuffer.writeln(")$defaultAction and press enter:");
 
   for (var entry in commands.entries) {
     promptBuffer.writeln(entry.value.$2);
@@ -92,31 +112,39 @@ Enter a menu option (""");
 
 Future<void> menu(
   HeroDataManaging heroDataManager,
+  String prompt,
   Map<String, (Function, String)> commands, {
   Function(String)? defaultCommand,
+  String? defaultAction,
 }) async {
-  var input = promptFor("");
+  // Wait for all pending operations
+  await Future.delayed(Duration(milliseconds: 100));
+  var input =  await promptFor(prompt);
   if (input.isEmpty) {
     Terminal.println("Please enter a command");
     return;
   }
-  var command = commands[input.toLowerCase()]?.$1;
+
+  var parts = input.split(' ');
+  var command = commands[parts[0].trim().toLowerCase()]?.$1;
+  var remainder = input.substring(parts[0].length).trim();
+
   if (command == null) {
     if (defaultCommand != null) {
-      Terminal.println("No command entered, using default search");
-      command = () => defaultCommand(input);
-    }
-
-    if (command == null) {
-      Terminal.println("Invalid command, please try again");
+      Terminal.println("No recognized command entered, $defaultAction");
+      await defaultCommand(input);
       return;
     }
+
+    Terminal.println("Invalid command, please try again");
+    Terminal.showPrompt(null);
+    return;
   }
-  await command();
+  await command(remainder.isEmpty ? null : remainder);
 }
 
-bool promptQuit() {
-  if (!promptForYesNo("Do you really want to exit?")) {
+Future<bool> promptQuit() async {
+  if (!(await promptForYesNo("Do you really want to exit?"))) {
     return false;
   }
   Terminal.println("Exiting...");
@@ -135,8 +163,9 @@ void listHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-void listTopNHeroes(HeroDataManaging heroDataManager) {
-  var n = int.tryParse(promptFor("Enter number of heroes to list:")) ?? 0;
+Future<void> listTopNHeroes(HeroDataManaging heroDataManager, {String? arg}) async {
+  var n =
+      int.tryParse(arg ?? await promptFor("Enter number of heroes to list:")) ?? 0;
   if (n <= 0) {
     Terminal.println("Invalid number");
     return;
@@ -150,8 +179,8 @@ void listTopNHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-void listMatchingHeroes(HeroDataManaging heroDataManager, {String? query}) {
-  var result = search(heroDataManager, query: query);
+Future<void> listMatchingHeroes(HeroDataManaging heroDataManager, {String? query}) async {
+  var result = await search(heroDataManager, query: query);
   if (result == null) {
     return;
   }
@@ -164,15 +193,24 @@ Future<void> saveHeroes(
   HeroDataManaging heroDataManager, {
   String? query,
 }) async {
-  query ??= promptFor("Enter a search string:");
-  var heroService = HeroService(Env());
+  query ??= await promptFor("Enter a search string:");
+  var heroService = HeroService(await Env.createAsync());
   var timestamp = DateTime.timestamp();
   Terminal.println('''
 
 Online search started at $timestamp
 
 ''');
+
+  final spinner = CliSpin(
+    text: 'Downloading heroes ...',
+    spinner: CliSpinners.dots,
+  ).start();
+
   var results = await heroService.search(query);
+
+  spinner.stop();
+
   String? error;
   if (results != null) {
     error = results["error"];
@@ -183,9 +221,7 @@ Online search started at $timestamp
   }
 
   if (results == null) {
-    Terminal.println(
-      "Server returned no data when searching for '$query'",
-    );
+    Terminal.println("Server returned no data when searching for '$query'");
     return;
   }
 
@@ -200,11 +236,17 @@ Online search started at $timestamp
           ManualConflictResolver<Height>();
       var weightConflictResolver = Weight.conflictResolver =
           ManualConflictResolver<Weight>();
-      searchResponseModel = SearchResponseModel.fromJson(
+      List<String> failures = [];
+      searchResponseModel = await SearchResponseModel.fromJson(
         heroDataManager,
         results,
         timestamp,
+        failures,
       );
+
+      for (var error in failures) {
+        Terminal.println(error);
+      }
 
       for (var error in heightConflictResolver.resolutionLog) {
         Terminal.println(error);
@@ -230,7 +272,7 @@ Found ${searchResponseModel.results.length} heroes online:''');
       }
 
       if (!saveAll) {
-        var yesNoAll = promptForYesNoAllQuit('''Save the following hero locally?
+        var yesNoAll = await promptForYesNoAllQuit('''Save the following hero locally?
 $hero''');
         if (yesNoAll == YesNoAllQuit.quit) {
           Terminal.println("Aborting saving of further heroes");
@@ -261,8 +303,8 @@ Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they c
 ''');
 }
 
-void deleteAllHeroes(HeroDataManaging heroDataManager) {
-  if (!promptForYesNo("Do you really want to delete all heroes?")) {
+Future<void> deleteAllHeroes(HeroDataManaging heroDataManager) async {
+  if (!(await promptForYesNo("Do you really want to delete all heroes?"))) {
     return;
   }
   heroDataManager.clear();
@@ -275,10 +317,10 @@ void deleteHeroUnprompted(HeroDataManaging heroDataManager, HeroModel hero) {
 $hero''');
 }
 
-bool deleteHeroPrompted(HeroDataManaging heroDataManager, HeroModel hero) {
-  if (!promptForYesNo(
+Future<bool> deleteHeroPrompted(HeroDataManaging heroDataManager, HeroModel hero) async {
+  if (!(await promptForYesNo(
     '''Do you really want to delete hero with the following details?$hero''',
-  )) {
+  ))) {
     return false;
   }
 
@@ -286,23 +328,23 @@ bool deleteHeroPrompted(HeroDataManaging heroDataManager, HeroModel hero) {
   return true;
 }
 
-void deleteHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = query(heroDataManager, "Delete");
+Future<void> deleteHero(HeroDataManaging heroDataManager, {String? query}) async {
+  HeroModel? hero = await queryForAction(heroDataManager, "Delete", query: query);
   if (hero == null) {
     return;
   }
 
-  deleteHeroPrompted(heroDataManager, hero);
+  await deleteHeroPrompted(heroDataManager, hero);
 }
 
-void createHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = HeroModel.fromPrompt();
+Future<void> createHero(HeroDataManaging heroDataManager) async {
+  HeroModel? hero = await HeroModel.fromPrompt();
   if (hero == null) {
     Terminal.println("Aborted");
     return;
   }
 
-  if (!promptForYesNo('''Save new hero with the following details?$hero''')) {
+  if (!(await promptForYesNo('''Save new hero with the following details?$hero'''))) {
     return;
   }
 
@@ -311,12 +353,12 @@ void createHero(HeroDataManaging heroDataManager) {
 $hero''');
 }
 
-void amendHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = query(heroDataManager, "Amend");
+Future<void> amendHero(HeroDataManaging heroDataManager, {String? query}) async {
+  HeroModel? hero = await queryForAction(heroDataManager, "Amend", query: query);
   if (hero == null) {
     return;
   }
-  var amededHero = hero.promptForAmendment();
+  var amededHero = await hero.promptForAmendment();
   if (amededHero != null) {
     heroDataManager.persist(amededHero);
     Terminal.println('''Amended hero:
@@ -324,10 +366,11 @@ $amededHero''');
   }
 }
 
-void unlockHero(HeroDataManaging heroDataManager) {
-  HeroModel? hero = query(
+Future<void> unlockHero(HeroDataManaging heroDataManager, {String? query}) async {
+  HeroModel? hero = await queryForAction(
     heroDataManager,
     "Unlock to enable reconciliation",
+    query: query,
     filter: (h) => h.locked,
   );
   if (hero == null) {
@@ -350,12 +393,12 @@ void unlockHero(HeroDataManaging heroDataManager) {
 $unlockedHero''');
 }
 
-List<HeroModel>? search(
+Future<List<HeroModel>?> search(
   HeroDataManaging heroDataManager, {
   String? query,
   bool Function(HeroModel)? filter,
-}) {
-  query ??= promptFor("Enter a search string in SHQL™ or plain text:");
+}) async {
+  query ??= await promptFor("Enter a search string in SHQL™ or plain text:");
   var results = heroDataManager.query(query, filter: filter);
   if (results.isEmpty) {
     Terminal.println("No heroes found");
@@ -365,17 +408,18 @@ List<HeroModel>? search(
   return results;
 }
 
-HeroModel? query(
+Future<HeroModel?> queryForAction(
   HeroDataManaging heroDataManager,
   String what, {
+  String? query,
   bool Function(HeroModel)? filter,
-}) {
-  var results = search(heroDataManager, filter: filter);
+}) async {
+  var results = await search(heroDataManager, query: query, filter: filter);
   if (results == null) {
     return null;
   }
   for (var hero in results) {
-    switch (promptForYesNextCancel('''
+    switch (await promptForYesNextCancel('''
 
 $what the following hero?$hero''')) {
       case YesNextCancel.yes:
@@ -393,29 +437,37 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
   bool exit = false;
   Map<String, (Function, String)> commands = {
     "r": (
-      () async => await reconcileHeroes(heroDataManager),
+      (_) async => await reconcileHeroes(heroDataManager),
       "[R]econcile local heroes with online updates",
     ),
     "s": (
-      () async => await saveHeroes(heroDataManager),
+      (arg) async => await saveHeroes(heroDataManager, query: arg),
       "[S]earch online for new heroes to save",
     ),
     "u": (
-      () => unlockHero(heroDataManager),
+      (arg) => unlockHero(heroDataManager, query: arg),
       "[U]nlock manually amended heroes to enable reconciliation",
     ),
-    "x": (() => {exit = true}, "E[X]it and return to main menu"),
+    "x": ((_) => {exit = true}, "E[X]it and return to main menu"),
   };
 
   void defaultCommand(String query) =>
       saveHeroes(heroDataManager, query: query);
 
-  var prompt = generatePrompt(commands);
+  var prompt = generatePrompt(
+    commands,
+    defaultAction: " or enter an online search string for heroes to save,",
+  );
 
   while (!exit) {
-    Terminal.println(prompt);
     try {
-      await menu(heroDataManager, commands, defaultCommand: defaultCommand);
+      await menu(
+        heroDataManager,
+        prompt,
+        commands,
+        defaultCommand: defaultCommand,
+        defaultAction: 'performing online search',
+      );
     } catch (e) {
       Terminal.println("Unexpected error: $e");
     }
@@ -435,8 +487,15 @@ Reconciliation started at at $timestamp
   var deletionCount = 0;
   var reconciliationCount = 0;
   for (var hero in heroDataManager.heroes) {
-    heroService ??= HeroService(Env());
+    heroService ??= HeroService(await Env.createAsync());
+    final spinner = CliSpin(
+      text: 'Reconciling hero: ${hero.externalId} ("${hero.name}") ...',
+      spinner: CliSpinners.dots,
+    ).start();
+
     var onlineHeroJson = await heroService.getById(hero.externalId);
+
+    spinner.stop();
     String? error;
     if (onlineHeroJson != null) {
       error = onlineHeroJson["error"];
@@ -459,12 +518,12 @@ Reconciliation started at at $timestamp
         continue;
       }
 
-      var yesNoAllQuit = promptForYesNoAllQuit(
+      var yesNoAllQuit = await promptForYesNoAllQuit(
         'Hero: ${hero.externalId} ("${hero.name}") does not exist online: "${error ?? 'Unknown error'}" - delete it from local database?',
       );
       switch (yesNoAllQuit) {
         case YesNoAllQuit.yes:
-          if (deleteHeroPrompted(heroDataManager, hero)) {
+          if (await deleteHeroPrompted(heroDataManager, hero)) {
             ++deletionCount;
           }
           break;
@@ -494,7 +553,15 @@ Reconciliation started at at $timestamp
       var weightConflictResolver = Weight.conflictResolver =
           AutoConflictResolver<Weight>(hero.appearance.weight.systemOfUnits);
 
-      var updatedHero = hero.apply(onlineHeroJson, timestamp, false);
+      HeroModel updatedHero;
+      try {
+        updatedHero = await hero.apply(onlineHeroJson, timestamp, false);
+      } catch (e) {
+        Terminal.println(
+          'Failed to reconcile hero: ${hero.externalId} ("${hero.name}"): $e',
+        );
+        continue;
+      }
 
       for (var error in heightConflictResolver.resolutionLog) {
         Terminal.println(error);
@@ -531,7 +598,7 @@ ${sb.toString()}''',
         continue;
       }
 
-      var yesNoAllQuit = promptForYesNoAllQuit(
+      var yesNoAllQuit = await promptForYesNoAllQuit(
         '''Reconcile hero: ${hero.externalId} ("${hero.name}") with the following online changes?
   ${sb.toString()}''',
       );

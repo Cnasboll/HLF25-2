@@ -2,13 +2,13 @@ import 'package:v04/terminal/prompt.dart';
 import 'package:dart_dotenv/dart_dotenv.dart';
 
 class Env {
-  factory Env() {
+  static Future<Env> createAsync() async {
     final dotEnv = DotEnv(filePath: filePath);
     var env = dotEnv.getDotEnv();
     bool saveNeeded = false;
     var apiKey = env[apiKeyName] ?? '';
     if (apiKey.isEmpty) {
-      apiKey = promptFor('Enter your API key: ');
+      apiKey = await promptFor('Enter your API key: ');
       if (apiKey.isEmpty) {
         throw Exception("API key is required");
       }
@@ -17,7 +17,7 @@ class Env {
 
     var apiEndpoint = env[apiHostName] ?? '';
     if (apiEndpoint.isEmpty) {
-      apiEndpoint = promptFor(
+      apiEndpoint = await promptFor(
         'Enter API host or press enter to accept default ("$defaultApiHost)": ',
         defaultApiHost,
       );

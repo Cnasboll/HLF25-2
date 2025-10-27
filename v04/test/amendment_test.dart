@@ -7,7 +7,7 @@ import 'package:v04/value_types/percentage.dart';
 import 'package:v04/value_types/value_type.dart';
 
 void main() {
-  test('Can amend batman himself after parsing', () {
+  test('Can amend batman himself after parsing', () async {
     final rawJson = '''
 {
   "response": "success",
@@ -53,7 +53,7 @@ void main() {
 ''';
 
     var decoded = json.decode(rawJson);
-    final batman = HeroModel.fromJsonAndId(
+    final batman = await HeroModel.fromJsonAndIdAsync(
       decoded,
       "02ffbb60-762b-4552-8f41-be8aa86869c6",
     );
@@ -71,7 +71,7 @@ void main() {
       },
     };
 
-    final fatman = batman.amendWith(amedment);
+    final fatman = await batman.amendWith(amedment);
 
     StringBuffer sb = StringBuffer();
     batman.diff(fatman, sb);

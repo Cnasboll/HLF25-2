@@ -87,18 +87,18 @@ class HeroModel extends Amendable<HeroModel> {
       );
 
   @override
-  HeroModel amendWith(
+  Future<HeroModel> amendWith(
     Map<String, dynamic>? amendment, {
     ParsingContext? parsingContext,
-  }) {
+  }) async {
     return apply(amendment, DateTime.timestamp(), true);
   }
 
-  HeroModel apply(
+  Future<HeroModel> apply(
     Map<String, dynamic>? amendment,
     DateTime timestamp,
     bool manualAmendment,
-  ) {
+  ) async {
     var name = _nameField.getStringForAmendment(this, amendment);
     var parsingContext = HeroParsingContext(id, externalId, name, false);
     return HeroModel(
@@ -110,32 +110,32 @@ class HeroModel extends Amendable<HeroModel> {
           manualAmendment, // Any manual amendment locks the hero from synchronization with the server
       externalId: externalId,
       name: name,
-      powerStats: powerStats.fromChildJsonAmendment(
+      powerStats: await powerStats.fromChildJsonAmendment(
         _powerstatsField,
         amendment,
         parsingContext: parsingContext.next(_powerstatsField.name),
       ),
-      biography: biography.fromChildJsonAmendment(
+      biography: await biography.fromChildJsonAmendment(
         _biographyField,
         amendment,
         parsingContext: parsingContext.next(_biographyField.name),
       ),
-      appearance: appearance.fromChildJsonAmendment(
+      appearance: await appearance.fromChildJsonAmendment(
         _appearanceField,
         amendment,
         parsingContext: parsingContext.next(_appearanceField.name),
       ),
-      work: work.fromChildJsonAmendment(
+      work: await work.fromChildJsonAmendment(
         _workField,
         amendment,
         parsingContext: parsingContext.next(_workField.name),
       ),
-      connections: connections.fromChildJsonAmendment(
+      connections: await connections.fromChildJsonAmendment(
         _connectionsField,
         amendment,
         parsingContext: parsingContext.next(_connectionsField.name),
       ),
-      image: image.fromChildJsonAmendment(
+      image: await image.fromChildJsonAmendment(
         _imageField,
         amendment,
         parsingContext: parsingContext.next(_imageField.name),
@@ -148,7 +148,7 @@ class HeroModel extends Amendable<HeroModel> {
     return copyWith(locked: false);
   }
 
-  factory HeroModel.fromJson(Map<String, dynamic> json, DateTime timestamp) {
+  static Future<HeroModel> fromJson(Map<String, dynamic> json, DateTime timestamp) async {
     var id = Uuid().v4();
     var externalId = _externalIdField.getNullableString(json)!;
     var name = _nameField.getNullableString(json)!;
@@ -168,7 +168,7 @@ class HeroModel extends Amendable<HeroModel> {
         _biographyField.getJson(json),
         parsingContext: parsingContext.next(_biographyField.name),
       ),
-      appearance: AppearanceModel.fromJson(
+      appearance: await AppearanceModel.fromJson(
         _appearanceField.getJson(json),
         parsingContext: parsingContext.next(_appearanceField.name),
       ),
@@ -187,7 +187,7 @@ class HeroModel extends Amendable<HeroModel> {
     );
   }
 
-  factory HeroModel.fromJsonAndId(Map<String, dynamic> json, String id) {
+  static Future<HeroModel> fromJsonAndIdAsync(Map<String, dynamic> json, String id) async {
     var externalId = _externalIdField.getNullableString(json)!;
     var name = _nameField.getNullableString(json)!;
     var parsingContext = HeroParsingContext(id, externalId, name, true);
@@ -206,7 +206,7 @@ class HeroModel extends Amendable<HeroModel> {
         _biographyField.getJson(json),
         parsingContext: parsingContext,
       ),
-      appearance: AppearanceModel.fromJson(
+      appearance: await AppearanceModel.fromJson(
         _appearanceField.getJson(json),
         parsingContext: parsingContext,
       ),
@@ -224,6 +224,8 @@ class HeroModel extends Amendable<HeroModel> {
       ),
     );
   }
+
+
 
   factory HeroModel.fromRow(Row row) {
     return HeroModel(
@@ -337,13 +339,13 @@ class HeroModel extends Amendable<HeroModel> {
     return 0;
   }
 
-  static HeroModel? fromPrompt() {
-    var json = Amendable.promptForJson(staticFields);
+  static Future<HeroModel?> fromPrompt() async {
+    var json = await Amendable.promptForJson(staticFields);
     if (json == null) {
       return null;
     }
 
-    return HeroModel.fromJsonAndId(json, Uuid().v4());
+    return HeroModel.fromJsonAndIdAsync(json, Uuid().v4());
   }
 
   static String generateSQLiteInsertColumnPlaceholders() {
