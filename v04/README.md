@@ -699,7 +699,7 @@ Enter Work: Base (A place where the character works or lives or hides rather fre
 Populate Connections (Hero's connections)? (y/n)
 > y
 Enter Connections: Group Affiliation (Groups the character is affiliated with wether currently or in the past and if addmittedly or not), or enter to finish populating Connections:
-> Bamse, Lille Skutt och Skalman ™
+> Bamse, Lille Skutt och Skalman :tm:
 Enter Connections: Relatives (A list of the character's relatives by blood, marriage, adoption, or pure association), or enter to finish populating Connections:
 > Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 
@@ -735,7 +735,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman :tm:
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
@@ -771,7 +771,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman :tm:
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
@@ -856,7 +856,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman :tm:
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
@@ -892,7 +892,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman :tm:
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
@@ -941,7 +941,7 @@ Appearance: Eye Colour: Brown
 Appearance: Hair Colour: Brown
 Work: Occupation: Law enforcement
 Work: Base: Tre Kullar
-Connections: Group Affiliation: Bamse, Lille Skutt och Skalman ™
+Connections: Group Affiliation: Bamse, Lille Skutt och Skalman :tm:
 Connections: Relatives: Brummelisa (primär partner), Nalle-Maja, Teddy, Brum, Brumma
 Image: Url: https://cdn.prod.website-files.com/636baa2c305026748fb7b552/6463403a86d11debe85e5f0b_Bamse.png
 =============
@@ -1292,7 +1292,7 @@ To find dumb _Villians_ with the letter `x` in their name, try out:
 
 `name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence <= 50`, assuming these adhere to well-defined standard criteria.
 
-A late on addition is support for Swedish operators `OCh`, `ELLER`, `ANTINGEN_ELLER`, `INTE` and `FINNS_I` so for the equivalent result for users experienced with Excel localisation conventions, it also works to type (s� fungerar det ocks� att skriva):
+A late on addition is support for Swedish operators `OCh`, `ELLER`, `ANTINGEN_ELLER`, `INTE` and `FINNS_I` so for the equivalent result for users experienced with Excel localisation conventions, it also works to type (s� fungerar det ocks� att skriva):
 `name ~ 'x' OCH biography.alignment >= bad OCH powerstats.intelligence <= 50`
 
 ### Gender (*Appearance.Gender*) search
