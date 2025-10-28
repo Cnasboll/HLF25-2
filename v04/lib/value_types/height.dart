@@ -39,6 +39,11 @@ class Height extends ValueType<Height> {
 
   static final String daggerHeight = "Shaker Heights, Ohio";
 
+  static (bool, String?) validateinput(String? input) {
+    var (_, error) = tryParse(input);
+    return (error == null, error);
+  }
+
   /// Parse a height string
   ///
   /// Recognises common imperial forms like:

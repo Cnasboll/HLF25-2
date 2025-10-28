@@ -192,6 +192,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     children: Height.staticFields,
     childrenForDbOnly: true,
     nullable: false,
+    validateInput: Height.validateinput
   );
 
   static FieldBase<AppearanceModel> get _weightField => Field.infer(
@@ -206,6 +207,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     children: Weight.staticFields,
     childrenForDbOnly: true,
     nullable: false,
+    validateInput: Height.validateinput
   );
 
   static final FieldBase<AppearanceModel> _eyeColourField = Field.infer(

@@ -105,7 +105,7 @@ NB: Author(s) don't know how to parse
 ```
 as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so author(s) gave up and store it as a raw `TEXT`.
 
-One could relatively easy construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
+Any seasoned developer (typist) could of relative ease construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
 ```yaml
 relations:
   - name: Damian Wayne
@@ -128,6 +128,8 @@ The string literal `"No alter egos found."` is apparently used here as a special
 
 Due to the lack of escaping (pun intended) any _Villain_ could present that exact string as their alter ego of choice and thereby evade detection systems that would treat is at as the _Villain_ not having any alter ago at all! Author(s) assume this loophole is planted here to test our attention.
 
+The API presents for super hero Dagger a sneaky Height of exactly `"Shaker Heights, Ohio"` which author(s) cleverly map to `0'0"` (imperial). The White Queen with id `"241"` stands a height of `5'10'` instead of the more usual `5'10"` which the authors(s) have decided to parse as the latter in the lack of other API clarification, so this provides us with an excellent exercise in heuristics.
+
 ### Basic usage
 #### _Main_ menu
 
@@ -138,15 +140,28 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
 ```
 
+**NB: The _Main_ menu alternatives `T`, `S`, `A`, `D` that operate on an argument will try to extract it from the remainder of the string following space after the letter, and prompt only if the argument is omitted.**
+
+`A batman` is shorthand for `A` followed by `batman` on the `Enter a search string:` prompt, interpreted as _Amend_ a hero with the substring string `"batman"` in any  field in any case.
+
+`D biography.alignment > good and appearance.gender = male` is shorthand for `D` followed by `biography.alignment > good and appearance.gender = male` on the `Enter a search string in SHQL™ or plain text:` prompt, which may lead to the deletion (cancellation) of all male _Villains_, depending on ones personal _Villain_ definition in our polarised society.
+
 #### _Online Search_
-To go _Online_ and _Search_ for _Heroes_ to download, type `O` and enter a search term in plaintext, or type `S` to be prompted for the _Search_ string as prompted:
+To go _Online_ and _Search_ for _Heroes_ to download, type `O` and do one of the following:
+- enter a search term in plaintext e.g. `batman` to search online for batman
+- type `S` followed by enter to be prompted for the _Search_ string as prompted
+- type `S batman` on one line to search for `batman`:
+
+**NB: The _Online_ menu alternatives `S` and `U` that operate on an search string will try to extract it from the remainder of the string following space after the letter, and prompt only if the search string is omitted.**
+` A batman` is shorthand for `A` followed by `batman` on the `Enter a search string:` prompt and `D batman` is shorthand for `D` followed by `batman` on the `Enter a search string:` prompt.
+
 
 ```
 > O
@@ -338,7 +353,7 @@ Download complete at 2025-10-21 06:06:31.447214Z: 3 heroes saved (so they can in
 ```
 
 #### _Amendment_ of locally saved _Hero_
-To _Amend_ an existing _Hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the _Hero_ to _Amend_. 
+To _Amend_ an existing _Hero_, exit the _Online_ menu by pressing `X` to return to the _Main_ menu. Enter `A` to search string for the _Hero_ to _Amend_ or just type `a` followed by a search string in _SHQL™_ or plain text e.g. `a biography.alignment > good` for vain attempt to make _Amends_ to any possible _Villain_.
 
 The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
 
@@ -505,7 +520,7 @@ E[X]it and return to main menu
 ```
 
 ##### _Unlock_ to allow reconciliation
-In this case no change occurred. _Hero_ `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this _Hero_, type `U` to _Unlock_ it and then re-run _Reconciliation_:
+In this case no change occurred. _Hero_ `69` has a locally _Amended_ `Biograhy: alignment` field but is in _Locked_ status. To allow _Reconciliation_ of this _Hero_, type `U` to _Unlock_ it and then re-run _Reconciliation_. Typing `U Batman` will bypass the prompt for `Enter a search string in SHQL™ or plain text:`:
 
 ```
 > U
@@ -772,8 +787,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
@@ -800,7 +815,7 @@ Reconciliation complete at 2025-10-21 10:58:32.802370Z: 0 heroes reconciled, 0 h
 
 To auto-_Delete_ it, first _Unlock_ the _Hero_ and run the _Reconciliation_ job again:
 ```
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation
@@ -988,7 +1003,7 @@ Connections: Group Affiliation: Batman Family, Justice League Unlimited
 Connections: Relatives: Bruce Wayne (biological father), Warren McGinnis (father, deceased), Mary McGinnis (mother), Matt McGinnis (brother)
 Image: Url: https://www.superherodb.com/pictures2/portraits/10/100/10441.jpg
 =============
- (y = yes, n = next, c = cancel)
+  (y = yes, n = no, a = all, q = quit)
 > y
 
 Do you really want to delete hero with the following details?
@@ -1066,8 +1081,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
@@ -1082,8 +1097,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
@@ -1158,7 +1173,7 @@ which really was the main focus of this assigment for the author(s), roughly 95%
 Whenever the _Online_ _Search_ encounters _Heroes_ with conflicting _Height_ or _Weight_ information, the user is given the choice of which system of units to use:
 
 ```
-Enter a menu option (R, S, U or X) and press enter:
+Enter a menu option (R, S, U or X) or enter an online search string for heroes to save, and press enter:
 [R]econcile local heroes with online updates
 [S]earch online for new heroes to save
 [U]nlock manually amended heroes to enable reconciliation

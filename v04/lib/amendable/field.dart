@@ -6,6 +6,7 @@ import 'package:v04/amendable/field_base.dart';
 import 'package:v04/amendable/parsing_context.dart';
 import 'package:v04/terminal/prompt.dart';
 import 'package:v04/shql/parser/constants_set.dart';
+import 'package:v04/terminal/terminal.dart';
 import 'package:v04/utils/enum_parsing.dart';
 import 'package:v04/utils/json_parsing.dart';
 import 'package:v04/value_types/percentage.dart';
@@ -14,6 +15,7 @@ typedef LookupField<T, V> = V? Function(T);
 typedef FormatField<T> = String Function(T);
 typedef SQLGetter<T> = Object? Function(T);
 typedef SHQLGetter<T> = Object? Function(T);
+typedef ValidateInput = (bool, String?) Function(String);
 
 class Field<T, V> implements FieldBase<T> {
   factory Field(
@@ -36,6 +38,7 @@ class Field<T, V> implements FieldBase<T> {
     SHQLGetter<T>? shqlGetter,
     bool childrenForDbOnly = false,
     List<String> extraNullLiterals = const [],
+    ValidateInput? validateInput,
   }) {
     assignedBySystem = assignedBySystem ?? primary;
     nullable = nullable ?? !assignedBySystem;
@@ -52,6 +55,7 @@ class Field<T, V> implements FieldBase<T> {
     children = children ?? <FieldBase>[];
     sqliteGetter = sqliteGetter ?? ((t) => getter(t));
     shqlGetter = shqlGetter ?? sqliteGetter;
+    validateInput = validateInput ?? ((s) => (true, null));
 
     return Field._internal(
       getter,
@@ -73,6 +77,7 @@ class Field<T, V> implements FieldBase<T> {
       children,
       childrenForDbOnly,
       extraNullLiterals,
+      validateInput,
     );
   }
 
@@ -96,6 +101,7 @@ class Field<T, V> implements FieldBase<T> {
     this._children,
     this.childrenForDbOnly,
     this.extraNullLiterals,
+    this.validateInput,
   );
 
   // DRY for type: infer T from the getter's return type
@@ -119,6 +125,7 @@ class Field<T, V> implements FieldBase<T> {
     SHQLGetter<T>? shqlGetter,
     bool childrenForDbOnly = false,
     List<String> extraNullLiterals = const [],
+    ValidateInput? validateInput,
   }) {
     return Field<T, V>(
       getter,
@@ -140,6 +147,7 @@ class Field<T, V> implements FieldBase<T> {
       shqlGetter: shqlGetter,
       childrenForDbOnly: childrenForDbOnly,
       extraNullLiterals: extraNullLiterals,
+      validateInput: validateInput,
     );
   }
 
@@ -149,7 +157,10 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  Future<bool> promptForJson(Map<String, dynamic> json, {String? crumbtrail}) async {
+  Future<bool> promptForJson(
+    Map<String, dynamic> json, {
+    String? crumbtrail,
+  }) async {
     if (assignedBySystem) {
       return true;
     }
@@ -159,14 +170,22 @@ class Field<T, V> implements FieldBase<T> {
           ? "finish populating $crumbtrail"
           : "abort";
       var promptSuffix = prompt != null ? '$prompt' : '';
-      var input = await promptFor(
-        "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:",
-      );
-      if (input.isEmpty) {
-        return false;
+      for (;;) {
+        var input = await promptFor(
+          "Enter $fullPath ($description$promptSuffix), or enter to $abortPrompt:",
+        );
+        if (input.isEmpty) {
+          return false;
+        }
+        var (isValid, error) = validateInput(input);
+        if (isValid) {
+          json[jsonName] = input;
+          return true;
+        }
+        Terminal.println(
+          "Invalid value for $fullPath ($description$promptSuffix), please try again: ${error ?? ''}",
+        );
       }
-      json[jsonName] = input;
-      return true;
     }
 
     if (await promptForYesNo('Populate $fullPath ($description)?')) {
@@ -193,11 +212,21 @@ class Field<T, V> implements FieldBase<T> {
     if (_children.isEmpty || childrenForDbOnly) {
       var promptSuffix = prompt != null ? '$prompt' : '';
       var current = format(t);
-      var input = await promptFor(
-        "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
-      );
-      if (input.isNotEmpty) {
-        amendment[jsonName] = input;
+      for (;;) {
+        var input = await promptFor(
+          "Enter $fullPath ($description$promptSuffix), or enter to keep current value ($current):",
+        );
+        if (input.isEmpty) {
+          return;
+        }
+        var (isValid, error) = validateInput(input);
+        if (isValid) {
+          amendment[jsonName] = input;
+          break;
+        }
+        Terminal.println(
+          "Invalid value for $fullPath ($description$promptSuffix), please try again: ${error ?? ''}",
+        );
       }
       return;
     }
@@ -247,7 +276,7 @@ class Field<T, V> implements FieldBase<T> {
   }
 
   @override
-  void formatField(T t, StringBuffer sb, {String? crumbtrail}) {   
+  void formatField(T t, StringBuffer sb, {String? crumbtrail}) {
     var fullPath = growCrumbTrail(crumbtrail, name);
     if (_children.isEmpty || childrenForDbOnly) {
       sb.writeln("$fullPath: ${format(t)}${formatEx(t)}");
@@ -787,6 +816,9 @@ class Field<T, V> implements FieldBase<T> {
 
   // Extra strings that are mapped to null, little Bobby Null we call him.
   List<String> extraNullLiterals;
+
+  /// Function to validate user input for this field
+  ValidateInput validateInput;
 
   static const deepEq = DeepCollectionEquality();
 }
