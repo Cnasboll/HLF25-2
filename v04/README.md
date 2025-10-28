@@ -105,7 +105,7 @@ NB: Author(s) don't know how to parse
 ```
 as these fields are neither CSV (RFC-4180) compliant (as `Martha Wayne (mother, deceased)` has an unescaped comma, obviously), nor are they an encoded JSON list so author(s) gave up and store it as a raw `TEXT`.
 
-One could relatively easy construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
+Any seasoned developer (typist) could of relative ease construct a grammar of a recursive comma separated format format without escaping of injected commas and recursion over parentheses, leading to a parse tree on the following form:
 ```yaml
 relations:
   - name: Damian Wayne
@@ -140,8 +140,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
@@ -787,8 +787,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
@@ -1081,8 +1081,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)
@@ -1097,8 +1097,8 @@ Enter a menu option (C, L, T, S, A, D, E, O or Q) or enter a search string in SH
 [L]ist all heroes
 List [T]op n heroes (will prompt for n)
 [S]earch matching heroes (will prompt for a search string)
-[A]mend a hero
-[D]elete a hero
+[A]mend a hero (will prompt for details)
+[D]elete one or many heroes (will prompt for a search string)
 [E]rase database (delete all heroes)
 Go [O]nline to download heroes
 [Q]uit (exit the program)

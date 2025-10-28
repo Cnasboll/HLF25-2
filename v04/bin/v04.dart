@@ -43,11 +43,11 @@ Future<void> main() async {
     ),
     "a": (
       (arg) async => await amendHero(heroDataManager, query: arg),
-      "[A]mend a hero",
+      "[A]mend a hero (will prompt for details)",
     ),
     "d": (
       (arg) async => await deleteHero(heroDataManager, query: arg),
-      "[D]elete one or many heroes",
+      "[D]elete one or many heroes (will prompt for a search string)",
     ),
     "e": (
       (_) async => await deleteAllHeroes(heroDataManager),
