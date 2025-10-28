@@ -469,6 +469,10 @@ Future<List<HeroModel>?> search(
   String? notFound,
 }) async {
   query ??= await promptFor("Enter a search string in SHQL™ or plain text:");
+  if (query.trim().isEmpty) {
+    Terminal.println("Empty search string, operation aborted.");
+    return null;
+  }
   var results = heroDataManager.query(query, filter: filter);
   if (results.isEmpty) {
     Terminal.println("${notFound ?? "No heroes found"}\n");

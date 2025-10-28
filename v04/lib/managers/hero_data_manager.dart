@@ -33,6 +33,11 @@ class HeroDataManager implements HeroDataManaging {
 
   @override
   List<HeroModel> query(String query, {bool Function(HeroModel)? filter}) {
+    if (query.trim().isEmpty) {
+      var allHeroes = _heroesByExternalId.values.toList();
+      allHeroes.sort();
+      return allHeroes;
+    }
     var predicate = HeroPredicate.parse(query);
     var result = _heroesByExternalId.values
         .where(
