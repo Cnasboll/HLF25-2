@@ -207,7 +207,7 @@ class AppearanceModel extends Amendable<AppearanceModel> {
     children: Weight.staticFields,
     childrenForDbOnly: true,
     nullable: false,
-    validateInput: Height.validateinput
+    validateInput: Weight.validateinput
   );
 
   static final FieldBase<AppearanceModel> _eyeColourField = Field.infer(
