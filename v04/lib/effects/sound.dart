@@ -149,7 +149,7 @@ class Sound {
   }
 
   static Future<void> playDownloadComplete() async {
-    await playAudioFile('dowload_complete.wav');
+    await playAudioFile('download_complete.wav');
   }
 
   static Future<void> playReconciliationComplete() async {

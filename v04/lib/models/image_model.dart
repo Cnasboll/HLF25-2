@@ -112,6 +112,8 @@ class ImageModel extends Amendable<ImageModel> {
           .then((response) async {
             p._asciiArt =
                 "\n${await _asciiArtConverter.convert(response.bodyBytes)}";
+            spinner.stop();
+            await Terminal.printLnAndRedisplayCurrentPrompt(p._asciiArt);
           })
           .catchError((error) async {
             p._asciiArt = """
@@ -119,14 +121,13 @@ Displaying placeholder image:
 
 $_placeholderAsciiArt""";
 
+            spinner.stop();
             await Terminal.printLnAndRedisplayCurrentPrompt("""
 Failed to download image:
 $error
 ${p._asciiArt}""");
           })
           .whenComplete(() async {
-            spinner.stop();
-            await Terminal.printLnAndRedisplayCurrentPrompt(p._asciiArt);
             p._downloadInPlace = false;
           });
     }
