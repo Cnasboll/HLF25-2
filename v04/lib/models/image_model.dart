@@ -83,15 +83,13 @@ class ImageModel extends Amendable<ImageModel> {
     if (p._asciiArt.isEmpty && !p._downloadInPlace) {
       final stackTrace = StackTrace.current.toString();
       final isProgrammatic =
-          stackTrace.contains('Terminal.println') ||
           stackTrace.contains('print(') ||
           stackTrace.contains('debugPrint') ||
           stackTrace.contains('join(') ||
           stackTrace.contains('interpolation') ||
           stackTrace.contains('Exception') ||
           stackTrace.contains('_debugger') ||
-          stackTrace.contains('inspector') ||
-          stackTrace.contains('prompt(');
+          stackTrace.contains('inspector');
       if (isProgrammatic) {
         return p._asciiArt;
       }

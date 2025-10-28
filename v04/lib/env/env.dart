@@ -1,3 +1,4 @@
+import 'package:v04/effects/sound.dart';
 import 'package:v04/terminal/prompt.dart';
 import 'package:dart_dotenv/dart_dotenv.dart';
 

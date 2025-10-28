@@ -172,23 +172,47 @@ class PowerStatsModel extends Amendable<PowerStatsModel> {
   @override
   List<FieldBase<PowerStatsModel>> get fields => staticFields;
 
-  static FieldBase<PowerStatsModel> get _intelligenceField =>
-      Field.infer((m) => m.intelligence?.value, "Intelligence", '%');
+  static FieldBase<PowerStatsModel> get _intelligenceField => Field.infer(
+    (m) => m.intelligence?.value,
+    "Intelligence",
+    '%',
+    validateInput: Percentage.validateInput,
+  );
 
-  static FieldBase<PowerStatsModel> get _strengthField =>
-      Field.infer((m) => m.strength?.value, 'Strength', '%');
+  static FieldBase<PowerStatsModel> get _strengthField => Field.infer(
+    (m) => m.strength?.value,
+    'Strength',
+    '%',
+    validateInput: Percentage.validateInput,
+  );
 
-  static FieldBase<PowerStatsModel> get _speedField =>
-      Field.infer((m) => m.speed?.value, 'Speed', '%');
+  static FieldBase<PowerStatsModel> get _speedField => Field.infer(
+    (m) => m.speed?.value,
+    'Speed',
+    '%',
+    validateInput: Percentage.validateInput,
+  );
 
-  static FieldBase<PowerStatsModel> get _durabilityField =>
-      Field.infer((m) => m.durability?.value, 'Durability', '%');
+  static FieldBase<PowerStatsModel> get _durabilityField => Field.infer(
+    (m) => m.durability?.value,
+    'Durability',
+    '%',
+    validateInput: Percentage.validateInput,
+  );
 
-  static FieldBase<PowerStatsModel> get _powerField =>
-      Field.infer((m) => m.power?.value, 'Power', '%');
+  static FieldBase<PowerStatsModel> get _powerField => Field.infer(
+    (m) => m.power?.value,
+    'Power',
+    '%',
+    validateInput: Percentage.validateInput,
+  );
 
-  static FieldBase<PowerStatsModel> get _combatField =>
-      Field.infer((m) => m.combat?.value, 'Combat', '%');
+  static FieldBase<PowerStatsModel> get _combatField => Field.infer(
+    (m) => m.combat?.value,
+    'Combat',
+    '%',
+    validateInput: Percentage.validateInput,
+  );
 
   static final List<FieldBase<PowerStatsModel>> staticFields = [
     _intelligenceField,

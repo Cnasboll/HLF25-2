@@ -11,9 +11,12 @@ class HeroDataManager implements HeroDataManaging {
       );
 
   @override
-  void persist(HeroModel hero) {
+  void persist(HeroModel hero, {void Function(HeroModel)? action}) {
     _heroesByExternalId[hero.externalId] = hero;
     _repository.persist(hero);
+    if (action != null) {
+      action(hero);
+    }
   }
 
   @override

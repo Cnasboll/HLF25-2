@@ -51,7 +51,7 @@ void main() {
     expect(h.toString(), "6'2\"");
   });
 
-  /// The White Queen has a height of 5'10' instead of the more usual 5'10", treat it the same
+  /// The White Queen with id "241" has a height of 5'10' instead of the more usual 5'10", treat it the same
   test('Parse White Queen Height', () {
     final h = Height.parse("5'10'");
     var (feet, inches) = h.wholeFeetAndWholeInches;

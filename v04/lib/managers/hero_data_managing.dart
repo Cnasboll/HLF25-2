@@ -1,7 +1,7 @@
 import 'package:v04/models/hero_model.dart';
 
 abstract interface class HeroDataManaging {  
-  void persist(HeroModel hero);
+  void persist(HeroModel hero, {void Function(HeroModel)? action});
   void delete(HeroModel hero);
   void clear();
   List<HeroModel> query(String query, {bool Function(HeroModel)? filter});

@@ -35,6 +35,11 @@ class Weight extends ValueType<Weight> {
     return value;
   }
 
+  static (bool, String?) validateinput(String? input) {
+    var (_, error) = tryParse(input);
+    return (error == null, error);
+  }
+  
   /// Parse a weight string such as "210 lb", "95 kg", "18 tons", "90,0000 tons" or just "95"
   /// "- lb" also represents zero, apparently
   static (Weight?, String?) tryParse(String? input) {

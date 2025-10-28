@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:cli_spin/cli_spin.dart';
+import 'package:v04/effects/sound.dart';
 import 'package:v04/env/env.dart';
 import 'package:v04/managers/hero_data_manager.dart';
 import 'package:v04/managers/hero_data_managing.dart';
@@ -39,8 +41,14 @@ Future<void> main() async {
       (arg) async => await listMatchingHeroes(heroDataManager, query: arg),
       "[S]earch matching heroes (will prompt for a search string)",
     ),
-    "a": ((arg) async => await amendHero(heroDataManager, query: arg), "[A]mend a hero"),
-    "d": ((arg) async => await deleteHero(heroDataManager, query: arg), "[D]elete a hero"),
+    "a": (
+      (arg) async => await amendHero(heroDataManager, query: arg),
+      "[A]mend a hero",
+    ),
+    "d": (
+      (arg) async => await deleteHero(heroDataManager, query: arg),
+      "[D]elete one or many heroes",
+    ),
     "e": (
       (_) async => await deleteAllHeroes(heroDataManager),
       "[E]rase database (delete all heroes)",
@@ -78,11 +86,13 @@ Future<void> main() async {
     // allow any pending async operations to complete to save changes
     await Future.delayed(Duration.zero);
   }
-  
+
   // Properly dispose of resources before exit
   await heroDataManager.dispose();
   Terminal.cleanup();
+  await Sound.playExitSound();
   print("Done");
+  exit(0);
 }
 
 String generatePrompt(
@@ -119,7 +129,7 @@ Future<void> menu(
 }) async {
   // Wait for all pending operations
   await Future.delayed(Duration(milliseconds: 100));
-  var input =  await promptFor(prompt);
+  var input = await promptFor(prompt);
   if (input.isEmpty) {
     Terminal.println("Please enter a command");
     return;
@@ -144,6 +154,7 @@ Future<void> menu(
 }
 
 Future<bool> promptQuit() async {
+  Sound.playWarningSound();
   if (!(await promptForYesNo("Do you really want to exit?"))) {
     return false;
   }
@@ -163,9 +174,13 @@ void listHeroes(HeroDataManaging heroDataManager) {
   }
 }
 
-Future<void> listTopNHeroes(HeroDataManaging heroDataManager, {String? arg}) async {
+Future<void> listTopNHeroes(
+  HeroDataManaging heroDataManager, {
+  String? arg,
+}) async {
   var n =
-      int.tryParse(arg ?? await promptFor("Enter number of heroes to list:")) ?? 0;
+      int.tryParse(arg ?? await promptFor("Enter number of heroes to list:")) ??
+      0;
   if (n <= 0) {
     Terminal.println("Invalid number");
     return;
@@ -179,7 +194,11 @@ Future<void> listTopNHeroes(HeroDataManaging heroDataManager, {String? arg}) asy
   }
 }
 
-Future<void> listMatchingHeroes(HeroDataManaging heroDataManager, {String? query}) async {
+Future<void> listMatchingHeroes(
+  HeroDataManaging heroDataManager, {
+  String? query,
+}) async {
+  Sound.playSearchSound();
   var result = await search(heroDataManager, query: query);
   if (result == null) {
     return;
@@ -195,6 +214,7 @@ Future<void> saveHeroes(
 }) async {
   query ??= await promptFor("Enter a search string:");
   var heroService = HeroService(await Env.createAsync());
+  var onlineSound = Sound.playOnlineSound();
   var timestamp = DateTime.timestamp();
   Terminal.println('''
 
@@ -272,8 +292,10 @@ Found ${searchResponseModel.results.length} heroes online:''');
       }
 
       if (!saveAll) {
-        var yesNoAll = await promptForYesNoAllQuit('''Save the following hero locally?
-$hero''');
+        var yesNoAll = await promptForYesNoAllQuit(
+          '''Save the following hero locally?
+$hero''',
+        );
         if (yesNoAll == YesNoAllQuit.quit) {
           Terminal.println("Aborting saving of further heroes");
           break;
@@ -285,7 +307,7 @@ $hero''');
           saveAll = true;
         }
       }
-      heroDataManager.persist(hero);
+      heroDataManager.persist(hero, action: Sound.playCharacterSavedSound);
       Terminal.println(
         '''Saved hero ${hero.externalId} ("${hero.name}") so it can save you:
 $hero''',
@@ -296,6 +318,8 @@ $hero''',
     Terminal.println("Failed to parse online heroes: $e");
   }
 
+  onlineSound.then((_) => Sound.playDownloadComplete());
+
   Terminal.println('''
 
 Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they can in turn save ${saveCount * saveCount * 10} people, or more, depending on their abilities).
@@ -304,20 +328,27 @@ Download complete at ${DateTime.timestamp()}: $saveCount heroes saved (so they c
 }
 
 Future<void> deleteAllHeroes(HeroDataManaging heroDataManager) async {
+  Sound.playWarningSound();
   if (!(await promptForYesNo("Do you really want to delete all heroes?"))) {
     return;
   }
   heroDataManager.clear();
+  Sound.playHeroDeletedSound();
   Terminal.println("Deleted all heroes");
 }
 
 void deleteHeroUnprompted(HeroDataManaging heroDataManager, HeroModel hero) {
   heroDataManager.delete(hero);
+  Sound.playHeroDeletedSound();
   Terminal.println('''Deleted hero:
 $hero''');
 }
 
-Future<bool> deleteHeroPrompted(HeroDataManaging heroDataManager, HeroModel hero) async {
+Future<bool> deleteHeroPrompted(
+  HeroDataManaging heroDataManager,
+  HeroModel hero,
+) async {
+  Sound.playWarningSound();
   if (!(await promptForYesNo(
     '''Do you really want to delete hero with the following details?$hero''',
   ))) {
@@ -328,13 +359,38 @@ Future<bool> deleteHeroPrompted(HeroDataManaging heroDataManager, HeroModel hero
   return true;
 }
 
-Future<void> deleteHero(HeroDataManaging heroDataManager, {String? query}) async {
-  HeroModel? hero = await queryForAction(heroDataManager, "Delete", query: query);
-  if (hero == null) {
+Future<void> deleteHero(
+  HeroDataManaging heroDataManager, {
+  String? query,
+}) async {
+  var results = await search(heroDataManager, query: query);
+  if (results == null) {
     return;
   }
+  bool deleteAll = false;
+  for (var hero in results) {
+    if (deleteAll) {
+      deleteHeroUnprompted(heroDataManager, hero);
+      continue;
+    }
+    if (!deleteAll) {
+      var yesNoAllQuit = await promptForYesNoAllQuit('''
 
-  await deleteHeroPrompted(heroDataManager, hero);
+Delete the following hero?$hero''');
+      switch (yesNoAllQuit) {
+        case YesNoAllQuit.yes:
+          await deleteHeroPrompted(heroDataManager, hero);
+          break;
+        case YesNoAllQuit.all:
+          deleteAll = true;
+          deleteHeroUnprompted(heroDataManager, hero);
+        case YesNoAllQuit.no:
+          continue;
+        case YesNoAllQuit.quit:
+          return;
+      }
+    }
+  }
 }
 
 Future<void> createHero(HeroDataManaging heroDataManager) async {
@@ -344,34 +400,47 @@ Future<void> createHero(HeroDataManaging heroDataManager) async {
     return;
   }
 
-  if (!(await promptForYesNo('''Save new hero with the following details?$hero'''))) {
+  if (!(await promptForYesNo(
+    '''Save new hero with the following details?$hero''',
+  ))) {
     return;
   }
 
-  heroDataManager.persist(hero);
+  heroDataManager.persist(hero, action: Sound.playCharacterSavedSound);
   Terminal.println('''Created hero:
 $hero''');
 }
 
-Future<void> amendHero(HeroDataManaging heroDataManager, {String? query}) async {
-  HeroModel? hero = await queryForAction(heroDataManager, "Amend", query: query);
+Future<void> amendHero(
+  HeroDataManaging heroDataManager, {
+  String? query,
+}) async {
+  HeroModel? hero = await queryForAction(
+    heroDataManager,
+    "Amend",
+    query: query,
+  );
   if (hero == null) {
     return;
   }
   var amededHero = await hero.promptForAmendment();
   if (amededHero != null) {
-    heroDataManager.persist(amededHero);
+    heroDataManager.persist(amededHero, action: Sound.playCharacterSavedSound);
     Terminal.println('''Amended hero:
 $amededHero''');
   }
 }
 
-Future<void> unlockHero(HeroDataManaging heroDataManager, {String? query}) async {
+Future<void> unlockHero(
+  HeroDataManaging heroDataManager, {
+  String? query,
+}) async {
   HeroModel? hero = await queryForAction(
     heroDataManager,
     "Unlock to enable reconciliation",
     query: query,
     filter: (h) => h.locked,
+    notFound: "All heroes matching the search term are already unlocked",
   );
   if (hero == null) {
     return;
@@ -388,7 +457,7 @@ Future<void> unlockHero(HeroDataManaging heroDataManager, {String? query}) async
     return;
   }
 
-  heroDataManager.persist(unlockedHero);
+  heroDataManager.persist(unlockedHero, action: Sound.playCharacterSavedSound);
   Terminal.println('''Hero was unlocked:
 $unlockedHero''');
 }
@@ -397,11 +466,12 @@ Future<List<HeroModel>?> search(
   HeroDataManaging heroDataManager, {
   String? query,
   bool Function(HeroModel)? filter,
+  String? notFound,
 }) async {
   query ??= await promptFor("Enter a search string in SHQL™ or plain text:");
   var results = heroDataManager.query(query, filter: filter);
   if (results.isEmpty) {
-    Terminal.println("No heroes found");
+    Terminal.println("${notFound ?? "No heroes found"}\n");
     return null;
   }
   Terminal.println("Found ${results.length} heroes:");
@@ -413,8 +483,14 @@ Future<HeroModel?> queryForAction(
   String what, {
   String? query,
   bool Function(HeroModel)? filter,
+  String? notFound,
 }) async {
-  var results = await search(heroDataManager, query: query, filter: filter);
+  var results = await search(
+    heroDataManager,
+    query: query,
+    filter: filter,
+    notFound: notFound,
+  );
   if (results == null) {
     return null;
   }
@@ -434,6 +510,7 @@ $what the following hero?$hero''')) {
 }
 
 Future<void> goOnline(HeroDataManaging heroDataManager) async {
+  Sound.playMenuSound();
   bool exit = false;
   Map<String, (Function, String)> commands = {
     "r": (
@@ -472,9 +549,11 @@ Future<void> goOnline(HeroDataManaging heroDataManager) async {
       Terminal.println("Unexpected error: $e");
     }
   }
+  Sound.playMenuSound();
 }
 
 Future<void> reconcileHeroes(HeroDataManaging heroDataManager) async {
+  Future<void>? startupSequence;
   var timestamp = DateTime.timestamp();
   Terminal.println(''' 
 
@@ -487,6 +566,7 @@ Reconciliation started at at $timestamp
   var deletionCount = 0;
   var reconciliationCount = 0;
   for (var hero in heroDataManager.heroes) {
+    startupSequence ??= Sound.playOnlineSound();
     heroService ??= HeroService(await Env.createAsync());
     final spinner = CliSpin(
       text: 'Reconciling hero: ${hero.externalId} ("${hero.name}") ...',
@@ -589,7 +669,7 @@ ${sb.toString()}''',
       }
 
       if (updateAll) {
-        heroDataManager.persist(updatedHero);
+        heroDataManager.persist(updatedHero, action: Sound.playCharacterSavedSound);
         ++reconciliationCount;
         Terminal.println(
           '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
@@ -621,7 +701,7 @@ ${sb.toString()}''',
           }
       }
 
-      heroDataManager.persist(updatedHero);
+      heroDataManager.persist(updatedHero, action: Sound.playCharacterSavedSound);
       ++reconciliationCount;
       Terminal.println(
         '''Reconciled hero: ${hero.externalId} ("${hero.name}") with the following online changes:
@@ -637,6 +717,7 @@ ${sb.toString()}''',
     }
   }
 
+  Sound.playReconciliationComplete();
   Terminal.println('''
 
 Reconciliation complete at ${DateTime.timestamp()}: $reconciliationCount heroes reconciled, $deletionCount heroes deleted.
