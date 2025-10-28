@@ -116,24 +116,50 @@ void main() {
   });
 
   test('Tokenize keywords', () {
-    var v = Tokenizer.tokenize('NOT XOR AND OR IN').toList();
+    var v = Tokenizer.tokenize('NOT INTE XOR ANTINGEN_ELLER AND OCH OR ELLER IN FINNS_I').toList();
 
-    expect(5, v.length);
+    expect(10, v.length);
+
     expect(TokenTypes.identifier, v[0].tokenType);
     expect(Keywords.notKeyword, v[0].keyword);
     expect(Symbols.not, v[0].symbol);
-    expect(TokenTypes.identifier, v[1].tokenType);
-    expect(Keywords.xorKeyword, v[1].keyword);
-    expect(Symbols.xor, v[1].symbol);
+
+  expect(TokenTypes.identifier, v[1].tokenType);
+    expect(Keywords.notKeyword, v[1].keyword);
+    expect(Symbols.not, v[1].symbol);
+
     expect(TokenTypes.identifier, v[2].tokenType);
-    expect(Keywords.andKeyword, v[2].keyword);
-    expect(Symbols.and, v[2].symbol);
+    expect(Keywords.xorKeyword, v[2].keyword);
+    expect(Symbols.xor, v[2].symbol);
+
     expect(TokenTypes.identifier, v[3].tokenType);
-    expect(Keywords.orKeyword, v[3].keyword);
-    expect(Symbols.or, v[3].symbol);
+    expect(Keywords.xorKeyword, v[3].keyword);
+    expect(Symbols.xor, v[3].symbol);
+
     expect(TokenTypes.identifier, v[4].tokenType);
-    expect(Keywords.inKeyword, v[4].keyword);
-    expect(Symbols.inOp, v[4].symbol);
+    expect(Keywords.andKeyword, v[4].keyword);
+    expect(Symbols.and, v[4].symbol);
+
+    expect(TokenTypes.identifier, v[5].tokenType);
+    expect(Keywords.andKeyword, v[5].keyword);
+    expect(Symbols.and, v[5].symbol);
+
+    expect(TokenTypes.identifier, v[6].tokenType);
+    expect(Keywords.orKeyword, v[6].keyword);
+    expect(Symbols.or, v[6].symbol);
+
+    expect(TokenTypes.identifier, v[7].tokenType);
+    expect(Keywords.orKeyword, v[7].keyword);
+    expect(Symbols.or, v[7].symbol);
+
+    expect(TokenTypes.identifier, v[8].tokenType);
+    expect(Keywords.inKeyword, v[8].keyword);
+    expect(Symbols.inOp, v[8].symbol);
+
+    expect(TokenTypes.identifier, v[9].tokenType);
+    expect(Keywords.inKeyword, v[9].keyword);
+    expect(Symbols.inOp, v[9].symbol);
+
   });
 
   test('Tokenize lowercase keywords', () {

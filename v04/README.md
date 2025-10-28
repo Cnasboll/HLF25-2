@@ -1292,6 +1292,9 @@ To find dumb _Villians_ with the letter `x` in their name, try out:
 
 `name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence <= 50`, assuming these adhere to well-defined standard criteria.
 
+A late on addition is support for Swedish operators `OCh`, `ELLER`, `ANTINGEN_ELLER`, `INTE` and `FINNS_I` so for the equivalent result for users experienced with Excel localisation conventions, it also works to type (så fungerar det också att skriva):
+`name ~ 'x' OCH biography.alignment >= bad OCH powerstats.intelligence <= 50`
+
 ### Gender (*Appearance.Gender*) search
 As the `Gender` enum in the `Appearance` section are mapped to _SHQLâ„¢_ as the constants `UNKNOWN` = `0`, `AMBIGUOUS` = `1`, `MALE` = `2`, `FEMALE` = `3`, `NON_BINARY` = `4`, `WONT_SAY` = `5`, respectively, one can type:
 
