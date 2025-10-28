@@ -212,10 +212,15 @@ class Token {
   static Map<String, Keywords> getKeywords() {
     return {
       "IN": Keywords.inKeyword,
+      "FINNS_I": Keywords.inKeyword,
       "NOT": Keywords.notKeyword,
+      "INTE": Keywords.notKeyword,
       "AND": Keywords.andKeyword,
+      "OCH": Keywords.andKeyword,
       "OR": Keywords.orKeyword,
+      "ELLER": Keywords.orKeyword,    
       "XOR": Keywords.xorKeyword,
+      "ANTINGEN_ELLER": Keywords.xorKeyword,
       "NULL": Keywords.nullKeyword,
     };
   }

@@ -81,7 +81,9 @@ void main() {
 
   test('Evaluate in list true', () {
     expect(1, Engine.calculate('"Super Man" in ["Super Man", "Batman"]'));
+    expect(1, Engine.calculate('"Super Man" finns_i ["Super Man", "Batman"]'));
     expect(1, Engine.calculate('"Batman" in  ["Super Man", "Batman"]'));
+    expect(1, Engine.calculate('"Batman" finns_i  ["Super Man", "Batman"]'));
   });
 
   test('Evaluate lower case in list true', () {
@@ -96,7 +98,9 @@ void main() {
 
   test('Evaluate lower case in list false', () {
     expect(0, Engine.calculate('lowercase("robin") in  ["super man", "batman"]'));
+    expect(0, Engine.calculate('lowercase("robin") finns_i  ["super man", "batman"]'));
     expect(0, Engine.calculate('lowercase("superman") in  ["super man", "batman"]'));
+    expect(0, Engine.calculate('lowercase("superman") finns_i  ["super man", "batman"]'));
   });
 
   test('Calculate not equal false', () {
@@ -141,26 +145,32 @@ void main() {
 
   test('Calculate some boolean algebra and true', () {
     expect(1, Engine.calculate('1<10 AND 2<9'));
+    expect(1, Engine.calculate('1<10 OCH 2<9'));
   });
 
   test('Calculate some boolean algebra and false', () {
     expect(0, Engine.calculate('1>10 AND 2<9'));
+    expect(0, Engine.calculate('1>10 OCH 2<9'));
   });
 
   test('Calculate some boolean algebra or true', () {
     expect(1, Engine.calculate('1>10 OR 2<9'));
+    expect(1, Engine.calculate('1>10 ELLER 2<9'));
   });
 
   test('Calculate some boolean algebra xor true', () {
     expect(1, Engine.calculate('1>10 XOR 2<9'));
+    expect(1, Engine.calculate('1>10 ANTINGEN_ELLER 2<9'));
   });
 
   test('calculate_some_bool_algebra_xor_false', () {
     expect(0, Engine.calculate('10>1 XOR 2<9'));
+    expect(0, Engine.calculate('10>1 ANTINGEN_ELLER 2<9'));
   });
 
   test('calculate_negation', () {
     expect(0, Engine.calculate('NOT 11'));
+    expect(0, Engine.calculate('INTE 11'));
   });
 
   test('calculate_negation with exclamation', () {
