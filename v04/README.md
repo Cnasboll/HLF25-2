@@ -13,7 +13,7 @@ Manually generated README for v04
         - [_Unlock_ to allow reconciliation](#unlock-to-allow-reconciliation)
       - [_Create_ a local _Hero_](#create-a-local-hero)
       - [_Auto-delete_ a local _Hero_](#auto-delete-a-local-hero)
-      - [_Manually delete_ a local _Hero_](#manually-delete-a-local-hero)
+      - [_Manually delete_ one or many local _Heroes_](#manually-delete-one-or-many-local-heroes)
       - [Search for a local _Hero_](#search-for-a-local-hero)
       - [_Erase_ entire database](#erase-entire-database)
     - [Unit tests](#unit-tests)
@@ -26,6 +26,7 @@ Manually generated README for v04
     - [Gender (*Appearance.Gender*) search](#gender-appearancegender-search)
     - [BMI (body-mass index) search:](#bmi-body-mass-index-search)
   - [Base search:](#base-search)
+  - [Aliases search](#aliases-search)
   - [General](#general)
     - [All fields (_pseudoconstants_)](#all-fields-pseudoconstants)
     - [General constants](#general-constants)
@@ -149,9 +150,9 @@ Go [O]nline to download heroes
 
 **NB: The _Main_ menu alternatives `T`, `S`, `A`, `D` that operate on an argument will try to extract it from the remainder of the string following space after the letter, and prompt only if the argument is omitted.**
 
-`A batman` is shorthand for `A` followed by `batman` on the `Enter a search string:` prompt, interpreted as _Amend_ a hero with the substring string `"batman"` in any  field in any case.
+On the _Main_ menu, `A batman` is shorthand for `A` followed by `batman` on the `Enter a search string:` prompt that otherwise follows, interpreted as _Amend_ a hero with the substring `"batman"` in any  field in any letter-case.
 
-`D biography.alignment > good and appearance.gender = male` is shorthand for `D` followed by `biography.alignment > good and appearance.gender = male` on the `Enter a search string in SHQL™ or plain text:` prompt, which may lead to the deletion (cancellation) of all male _Villains_, depending on ones personal _Villain_ definition in our polarised society.
+On the _Main_ menu, `D biography.alignment > good and appearance.gender = male` is shorthand for `D` followed by `biography.alignment > good and appearance.gender = male` on the `Enter a search string in SHQL™ or plain text:` prompt that othwerise follows, and may lead to the deletion (cancellation) of all male _Villains_, depending on ones personal _Villain_ definition in our polarised society.
 
 #### _Online Search_
 To go _Online_ and _Search_ for _Heroes_ to download, type `O` and do one of the following:
@@ -160,7 +161,10 @@ To go _Online_ and _Search_ for _Heroes_ to download, type `O` and do one of the
 - type `S batman` on one line to search for `batman`:
 
 **NB: The _Online_ menu alternatives `S` and `U` that operate on an search string will try to extract it from the remainder of the string following space after the letter, and prompt only if the search string is omitted.**
-` A batman` is shorthand for `A` followed by `batman` on the `Enter a search string:` prompt and `D batman` is shorthand for `D` followed by `batman` on the `Enter a search string:` prompt.
+
+On the _Online_ menu, `S batman` is shorthand for `S` followed by `batman` on the `Enter a search string:` prompt that otherwsise follows, interpreted as _Search_ _Online_ for a _Hero_ with the substring `'batman'` in the `name` field.
+
+On the _Online_ menu, `U batman` is shorthand for `U` followed by `batman` on the `Enter a search string:` prompt that otwersise follows, interpreted as _Unlock_ a hero with the substring `'batman'` in any field in any letter-case.
 
 
 ```
@@ -182,7 +186,7 @@ If no API key and / or API host are specified in a local `.env` file, enter thos
 
 **NB: The assignment has thoughtfully evolved to include contemporary web security measures.** `superherodb.com` now features sophisticated bot protection that responds to HTTP requests with a cheerful `403 Forbidden` status, complete with CAPTCHA challenges that cannot be programmatically solved. This provides students with an authentic enterprise development experience, where critical third-party dependencies can spontaneously implement access restrictions mid-semester.
 
-The API's recent introduction of anti-automation measures serves as an excellent pedagogical exercise in the ephemeral nature of public APIs and the importance of... *checks assignment requirements*... controlling dependencies that exist entirely outside the educational institution's purview. One colleague reports that image downloads functioned seamlessly until "någon dag förra veckan" (some day last week), confirming that this represents a *dynamic* learning environment where working code can achieve non-working status without any modifications to the student's implementation.
+The API's recent introduction of anti-automation measures serves as an excellent pedagogical exercise in the ephemeral nature of public APIs and the importance of controlling dependencies that exist entirely outside the educational institution's purview. One colleague reports that image downloads functioned seamlessly until "någon dag förra veckan" (some day last week), confirming that this represents a *dynamic* learning environment where working code can achieve non-working status without any modifications to the student's implementation.
 
 While the Dio package with carefully crafted browser headers represents a valiant attempt at mimicking legitimate user agents, it appears the API maintainers have prioritized security theater over educational accessibility.
 
@@ -953,12 +957,12 @@ Hero: 71 ("Batman II") is already up to date
 Reconciliation complete at 2025-10-21 11:04:20.459330Z: 0 heroes reconciled, 1 heroes deleted.
 ```
 
-#### _Manually delete_ a local _Hero_
-To (manually) _Delete_ a locally saved _Hero_, return to the _Main_ menu and press `D` and enter a search string.
+#### _Manually delete_ one or many local _Heroes_
+To (manually) _Delete_ one or many locally saved _Heroes_, return to the _Main_ menu and press `D` and enter a search string.
 
 The search string will be interpeted as _SHQL™_ if possible and otherwise be treated as a string to be matched against all fields.
 
-Candiates will be presented by descending order of strength. Type `y` to _Delete_ the _Hero_ or `n` to review the next one or `c` to cancel.
+Candiates will be presented by descending order of strength. Type `y` to _Delete_ the _Hero_. `n` to review the next one, `a` to delete all matching heroes, or `q` to cancel.
 
 Typing `y` will give the user the chance of of revewing the _Hero_ to be _Deleted_ and confirm _Deletion_ with `y` or
 abort the operation with `n`.
@@ -1271,7 +1275,7 @@ Type
 
 to find all _Heroes_ where the `name` field is exactly `"Batman"` with an upper-case `B` and lower-case `atman` or `"Robin"` with an upper-case `R`and lower-case `robin`.
 
-Type: `lowercase(name) in ["batman", "robin"]` to find all _Heroes_ where the name in any letter case is either `"batman`" or `"robin"`.
+Type: `lowercase(name) in ["batman", "robin"]` to find all _Heroes_ where the name in any letter-case is either `"batman`" or `"robin"`.
 
 ### Villian (*Biography.Alignment > Good*) search
 As the `Alignment` enum in the `Biography` section are mapped to _SHQL™_ as the constants `UNKNOWN` = `0`, `NEUTRAL` = `1`, `MOSTLY_GOOD` = `2`, `GOOD` = `3`, `REASONABLE` = `4`, `NOT_QUITE` = `5`, `BAD` = `6`, `UGLY` = `7`, `EVIL` = `8`, `USING_MOBILE_SPEAKER_ON_PUBLIC_TRANSPORT` = `9`, respectively, one can type:
@@ -1292,7 +1296,7 @@ To find dumb _Villians_ with the letter `x` in their name, try out:
 
 `name ~ 'x' AND biography.alignment >= bad AND powerstats.intelligence <= 50`, assuming these adhere to well-defined standard criteria.
 
-A late on addition is support for Swedish operators `OCh`, `ELLER`, `ANTINGEN_ELLER`, `INTE` and `FINNS_I` so for the equivalent result for users experienced with Excel localisation conventions, it also works to type (s� fungerar det ocks� att skriva):
+A late on addition is support for Swedish operators `OCh`, `ELLER`, `ANTINGEN_ELLER`, `INTE` and `FINNS_I` so for the equivalent result for users experienced with Excel localisation conventions, it also works to type (så fungerar det också att skriva):
 `name ~ 'x' OCH biography.alignment >= bad OCH powerstats.intelligence <= 50`
 
 ### Gender (*Appearance.Gender*) search
@@ -1317,6 +1321,15 @@ To find _troglodytes_, try:
 or
 
 `"cave" in work.base` for a case sensitive match.
+
+## Aliases search
+To locate a _Hero_ where the `Biograhy.Aliases` list contains the element `"The second Dark Knight"`. be a good sport and type:
+
+`"The second Dark Knight" in biography.aliases`
+
+or, for more Scandi-inclinded, local users mmore used to Excel localisation conventions:
+
+`"The second Dark Knight" finns_i biography.aliases`
 
 ## General
 The following enums are mapped to integer constants:
@@ -1354,7 +1367,7 @@ The fields on the actual `HeroModel` object being evaluated with a predicate are
 - `powerstats.combat` - `integer`  (nullable)
 - `biography.full_name` - `string`  (nullable)
 - `biography.alter_egos` - `string`  (nullable)
-- `biography.aliases` - `string` (list of strings)
+- `biography.aliases` - (`list` of `strings`)
 - `biography.place_of_birth` - `string`  (nullable)
 - `biography.first_appearance` - `string`  (nullable)
 - `biography.publisher` - `string`  (nullable)
